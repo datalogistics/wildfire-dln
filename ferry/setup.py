@@ -41,6 +41,7 @@ setup(
         "gps3",
         "shapely",
         "netifaces",
+        "bottle",
         "watchdog"
     ],
     dependency_links=[
