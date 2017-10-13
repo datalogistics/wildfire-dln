@@ -1,0 +1,22 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.gotenna.atak.plugin"
+          android:versionCode="1"
+          android:versionName="DEV">
+
+    <uses-sdk android:minSdkVersion="18" android:targetSdkVersion="18"
+              tools:overrideLibrary="com.gotenna.sdk" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:label="goTenna"
+        android:description="@string/app_desc"
+        tools:replace="android:label">
+            <meta-data android:name="plugin-api" android:value="com.atakmap.app@3.6.1.civ"/> 
+    </application>
+
+</manifest>

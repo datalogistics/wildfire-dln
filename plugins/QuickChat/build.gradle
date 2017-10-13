@@ -1,0 +1,126 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.+'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'idea'
+
+dependencies {
+    provided files('../../ATAK/libs/android-support-v4-slim.jar')
+    provided files('../../ATAK/libs/core-14.0.2.1.jar')
+    provided files('../../ATAK/libs/host-14.0.2.1.jar')
+    provided files('../../MapCoreInterfaces/libs/commons.geom.jar')
+    provided files('../../MapCoreInterfaces/libs/commons.mapi.core.jar')
+    provided files('../../MapCoreInterfaces/libs/ExtensionPoints.jar')
+    provided files('../../MapCoreInterfaces/build/libs/classes.jar')
+    provided files('../../ATAKMapEngine/build/libs/classes.jar')
+    provided files('../../ATAK/build/libs/classes.jar')
+
+    // strictly for the plugin sdk do not remove 
+    // (does not get used in the regular tree)
+    provided files('../../main.jar')
+
+    compile fileTree(dir: 'libs', include: '*.jar')
+
+}
+
+def getSvnRevision() {
+    new ByteArrayOutputStream().withStream { os ->
+        def result = exec {
+            executable = 'svn'
+            args = ['info']
+            standardOutput = os
+            ignoreExitValue = true
+        }
+        def outputAsString = os.toString()
+        def matchLastChangedRev = outputAsString =~ /Revision: (\d+)/
+        def length = matchLastChangedRev.size()
+        if (length > 0)
+            ext.svnRev = "${matchLastChangedRev[0][1]}".toInteger()
+        else
+            ext.svnRev = 1
+    }
+
+    return svnRev
+}
+
+android {
+    compileSdkVersion 15
+    buildToolsVersion "25"
+
+    dexOptions {
+        jumboMode = true
+    }
+
+    lintOptions {
+          checkReleaseBuilds false
+          // Or, if you prefer, you can continue to check for errors in release builds,
+          // but continue the build even when errors are found:
+          abortOnError false
+      }
+
+
+    signingConfigs {
+        debug {
+            storeFile file("../../android_keystore")
+            storePassword "tnttnt"
+            keyAlias "wintec_mapping"
+            keyPassword "tnttnt"
+        }
+
+        release {
+            storeFile file("../../android_keystore")
+            storePassword "tnttnt"
+            keyAlias "wintec_mapping"
+            keyPassword "tnttnt"
+        }
+    }
+
+
+    buildTypes {
+        release {
+            System.setProperty("atak.proguard.mapping", "../../ATAK/build/outputs/mapping/release/mapping.txt")
+            minifyEnabled true
+            proguardFile 'proguard-gradle.txt'
+            signingConfig signingConfigs.release
+        }
+    }
+    packagingOptions {
+        exclude 'META-INF/INDEX.LIST'
+    }
+
+    sourceSets {
+        main {
+            defaultConfig.versionCode = getSvnRevision()
+            defaultConfig.versionName = "3.6.1." + getSvnRevision()
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+
+
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        instrumentTest.setRoot('tests')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+
+    }
+}

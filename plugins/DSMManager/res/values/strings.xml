@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- description -->
+    <string name="app_desc"></string>
+
+
+    <!-- App -->
+    <string name="app_name">Weather Report</string>
+    <string name="wxView">Wx Report</string>
+    <string name="wxCoord">-- \n-- ft MSL</string>
+    <string name="wxPan">Pan</string>
+    <string name="wxDate">Date: </string>
+    <string name="wxLocation">Location</string>
+    <string name="wxTemperature">Temperature</string>
+    <string name="wxCondition">Condition</string>
+    <string name="wxOverlayItemTitle">Unknown</string>
+    <string name="wxOverlayItemToggleImage">wxOverlayItemToggleImage</string>
+</resources>

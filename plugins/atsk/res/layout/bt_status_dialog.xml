@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838"
+    android:orientation="horizontal" >
+
+<LinearLayout android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838"
+    android:layout_weight="1"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:text="Wired Status"
+        android:textSize="@dimen/auto_size" />
+    <Button
+        android:id="@+id/dummy"
+        android:visibility="invisible"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    <ListView
+        android:id="@+id/atak_serial_connection_listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" >
+    </ListView>
+    <TextView
+        android:id="@+id/noSerial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:text="NONE"
+        android:textSize="@dimen/auto_size" />
+
+</LinearLayout>
+
+<View 
+    android:minWidth="1dp"
+    android:layout_marginTop="2dp"
+    android:layout_height="match_parent"
+    android:layout_width="1dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:background="@android:color/darker_gray" />
+
+
+
+<LinearLayout android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838"
+    android:layout_weight="1"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:text="Bluetooth Status"
+        android:textSize="@dimen/auto_size" />
+
+    <Button
+        android:id="@+id/rescan"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Rescan" />
+    <ListView
+        android:id="@+id/connection_listview"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <ListView
+        android:id="@+id/atak_connection_listview"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <TextView
+        android:id="@+id/noBT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:text="NONE"
+        android:textSize="@dimen/auto_size" />
+
+</LinearLayout>
+
+</LinearLayout>

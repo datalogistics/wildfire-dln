@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ATSK Notebook</string>
+    <string name="list_title">Current Surveys</string>
+    <string name="menu_settings">Settings</string>
+    <string name="lz_length">Length (m): </string>
+    <string name="lz_width">Width (m): </string>
+    <string name="lz_angle">Angle (deg true): </string>
+    <string name="gmeci.READ">gmeci.READ</string>
+
+    <string name="back_button_label">Back</string>
+    <string name="next_button_label">Next</string>
+
+
+    <!-- Optional button to Skip a PreferenceActivity [CHAR LIMIT=20] -->
+    <string name="skip_button_label">Skip</string>
+    <string name="action_settings">Settings</string>
+
+
+</resources>

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="fill_horizontal"
+            android:padding="10dp">
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="goTenna Settings"
+                    android:id="@+id/textView5" />
+            </LinearLayout>
+
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:minHeight="1dp"
+                android:layout_marginTop="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@android:color/darker_gray" >
+            </View>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="fill_horizontal"
+                android:padding="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="goTenna Type"/>
+
+                    <com.atakmap.android.gui.PluginSpinner
+                        android:id="@+id/gotenna_type_selector"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/gotenna_types" />
+                </LinearLayout>
+
+                <Switch
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Remember Prev. GoTenna"
+                    android:id="@+id/remember_gotenna_switch" />
+
+                <Switch
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Send Location Over Network"
+                    android:id="@+id/broadcast_location_switch"
+                    android:checked="true" />
+
+                <View xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:minHeight="1dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@android:color/darker_gray" >
+                </View>
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Position Update Thresholds"
+                    android:paddingTop="5dp"/>
+
+                <View xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:minHeight="1dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@android:color/darker_gray" >
+                </View>
+
+
+
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2">
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Time (seconds):"/>
+
+                    <EditText
+                        android:id="@+id/broadcast_location_frequency"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Distance (meters):"/>
+
+                    <EditText
+                        android:id="@+id/broadcast_location_distance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        />
+
+                </GridLayout>
+
+            </LinearLayout>
+
+            <View xmlns:android="http://schemas.android.com/apk/res/android"
+                android:minHeight="1dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@android:color/darker_gray" >
+            </View>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="45dp"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:background="@color/dark_gray"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="10dp">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:text="Encryption Options"
+            android:background="@drawable/blank_background"
+            android:textColor="@drawable/button_text_color"
+            android:textSize="18dp"
+            android:id="@+id/encryption_options_button"
+              android:paddingTop="5dp"
+              android:paddingBottom="5dp"
+              style="@style/darkButton"
+
+            />
+
+        <ImageView
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@drawable/blue_triangle"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="4dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="45dp"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:background="@color/dark_gray"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="10dp">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:text="Update Firmware"
+            android:background="@drawable/blank_background"
+            android:textColor="@drawable/button_text_color"
+            android:id="@+id/update_firmware_button"
+            android:textSize="18dp"
+              android:paddingTop="5dp"
+              android:paddingBottom="5dp"
+              style="@style/darkButton"
+            />
+
+        <ImageView
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@drawable/blue_triangle"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="4dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="45dp"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:background="@color/dark_gray"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="10dp">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:text="Refresh System Info"
+            android:background="@drawable/blank_background"
+            android:textColor="@drawable/button_text_color"
+            android:textSize="18dp"
+            android:id="@+id/refresh_sys_info_button"
+              android:paddingTop="5dp"
+              android:paddingBottom="5dp"
+              style="@style/darkButton"
+            />
+
+        <ImageView
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@drawable/blue_triangle"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="2dp"
+            android:layout_marginBottom="4dp" />
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/system_info_text"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

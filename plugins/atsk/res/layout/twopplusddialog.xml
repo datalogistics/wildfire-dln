@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#383838"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/Name_static"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text="DEPTH:"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size" >
+        </TextView>
+
+        <EditText
+            android:id="@+id/offset"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:layout_weight="1"
+            android:clickable="true"
+             android:background="@drawable/base_edit_noborder"
+            android:gravity="center_horizontal"
+            android:inputType="numberDecimal"
+            android:text="10"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size" >
+        </EditText>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/auto_space"
+        android:orientation="horizontal" >
+
+        <CheckBox
+            android:id="@+id/units_feet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="20dip"
+            android:layout_weight="1"
+            android:text="FEET"
+            android:textColor="#FFFFFF" />
+
+        <CheckBox
+            android:id="@+id/units_m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingLeft="20dip"
+            android:text="METERS"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/auto_space"
+        android:orientation="horizontal" >
+
+        <CheckBox
+            android:id="@+id/side_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="TO MY LEFT"
+            android:textColor="#FFFFFF" />
+
+        <CheckBox
+            android:id="@+id/side_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="TO RIGHT"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="0dip"            
+            android:layout_weight="1"
+            
+            android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/auto_space"
+            android:background="@drawable/atsk_cancel"
+            android:text="" />
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/auto_space"
+            android:background="@drawable/atsk_done"
+            android:text="" />
+    </LinearLayout>
+
+</LinearLayout>

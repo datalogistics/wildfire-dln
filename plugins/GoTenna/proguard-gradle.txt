@@ -1,0 +1,65 @@
+-dontskipnonpubliclibraryclasses
+-dontshrink
+-dontoptimize
+
+############### ACRA specifics
+# we need line numbers in our stack traces otherwise they are pretty useless
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
+
+
+-applymapping <atak.proguard.mapping>
+
+-keepattributes *Annotation*
+-keepattributes Signature
+
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
+# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+
+
+# Preserve all native method names and the names of their classes.
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keepclassmembers class * {
+    @org.simpleframework.xml.* *;
+}
+
+
+# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keep class com.gotenna.atak.plugin.plugin.** {*;}
+-keep class com.gotenna.** {*;}
+-keep class com.goTenna.** {*;}
+-keep class com.amazonaws.** {*;}
+-keep class org.spongycastle.** {*;}
+#-libraryjars libs/gotenna-sdk-public.aar
+-keep class com.bbn.roger.** {*;}
+-keep class com.google.zxing.** {*;}
+
+-keep class * implements transapps.maps.plugin.tool.Tool {
+}
+-keep class * implements transapps.maps.plugin.lifecycle.Lifecycle {
+}
+-dontwarn java.nio.charset.StandardCharsets
+
+-keeppackagenames com.gotenna.**
+-keeppackagenames com.bbn.**

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="20sp">
+
+    <TextView
+        android:id="@+id/lz_crit_edit_dialog_tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Aircraft Criteria Edit" />
+    
+    <LinearLayout
+            android:id="@+id/button_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="#383838"
+            android:orientation="horizontal" >
+    
+            <Button
+                android:id="@+id/lz_crit_edit_dialog_button_save"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Save"
+                android:layout_weight="1" />
+    
+            <Button
+                android:id="@+id/lz_crit_edit_dialog_button_cancel"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+    <ExpandableListView
+        android:id="@+id/lz_crit_edit_dialog_explist_aclist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/button_layout"
+        android:layout_alignLeft="@+id/button_layout"
+        android:layout_alignRight="@+id/button_layout"
+        android:layout_below="@+id/lz_crit_edit_dialog_tv_title"
+        android:cacheColorHint="#00000000"
+        android:drawSelectorOnTop="false" >
+
+    </ExpandableListView>
+   
+</RelativeLayout>
+
+
+
+
+
+
+
+
+
+
+
+

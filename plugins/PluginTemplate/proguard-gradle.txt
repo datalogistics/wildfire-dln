@@ -1,0 +1,69 @@
+-dontskipnonpubliclibraryclasses
+-dontshrink
+-dontoptimize
+
+############### ACRA specifics
+# we need line numbers in our stack traces otherwise they are pretty useless
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
+
+
+#-libraryjars ../../ATAK/bin/classes.jar
+#-libraryjars ../../ATAKMapEngine/bin/classes.jar
+#-libraryjars ../../MapCoreInterfaces/bin/classes.jar
+#-libraryjars ../../CoTService/bin/classes.jar
+
+# thirdparty jars
+#-libraryjars ../../ATAK/libs/simple-xml-2.7.1.jar
+#-libraryjars ../../ATAK/libs/android-support-v4.jar
+#-libraryjars ../../MapCoreInterfaces/libs/commons.mapi.core.jar
+#-libraryjars ../../MapCoreInterfaces/libs/ExtensionPoints.jar
+
+-applymapping <atak.proguard.mapping>
+
+-keepattributes *Annotation*
+-keepattributes Signature
+
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
+# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+
+
+# Preserve all native method names and the names of their classes.
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keepclassmembers class * {
+    @org.simpleframework.xml.* *;
+}
+
+
+# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+
+
+-keep class * implements transapps.maps.plugin.tool.Tool {
+}
+-keep class * implements transapps.maps.plugin.lifecycle.Lifecycle {
+}
+
+-keep class org.simpleframework.** {*;}
+-keep class com.atak.maps.daco.xml.** {*;}
+

@@ -1,0 +1,69 @@
+Index: AndroidManifest.xml
+===================================================================
+--- AndroidManifest.xml	(revision 29658)
++++ AndroidManifest.xml	(working copy)
+@@ -16,6 +16,14 @@
+         android:label="goTenna"
+         tools:replace="android:label">
+             <meta-data android:name="plugin-api" android:value="com.atakmap.app@3.5.civ"/> 
++
++        <activity android:name="DummyActivity" >
++            <intent-filter>
++                 <action android:name="android.intent.action.MAIN" />
++                 <category android:name="android.intent.category.LAUNCHER" />
++            </intent-filter>
++        </activity>
++
+     </application>
+ 
+ </manifest>
+Index: src/com/gotenna/atak/plugin/DummyActivity.java
+===================================================================
+--- src/com/gotenna/atak/plugin/DummyActivity.java	(nonexistent)
++++ src/com/gotenna/atak/plugin/DummyActivity.java	(working copy)
+@@ -0,0 +1,45 @@
++package com.gotenna.atak.plugin;
++
++import android.app.Activity;
++
++import android.app.Activity;
++import android.app.Service;
++import android.content.res.AssetManager;
++import android.os.Build;
++import android.os.Bundle;
++import android.os.Environment;
++import android.os.IBinder;
++import android.util.Log;
++import java.lang.*;
++import java.net.*;
++import java.io.*;
++import android.view.View;
++import android.view.View.OnClickListener;
++import android.widget.Button;
++import android.widget.Toast;
++import android.content.BroadcastReceiver;
++import android.content.Context;
++import android.content.Intent;
++import android.content.IntentFilter;
++
++import java.util.Collections;
++import java.util.Enumeration;
++
++public class DummyActivity extends Activity {
++
++    public final String TAG = "DummyActivity";
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        Toast.makeText(getApplicationContext(), "This plugin needs to be loaded within TAK", Toast.LENGTH_SHORT).show();
++        finish();
++    }
++
++    @Override
++    public void onDestroy() {
++        super.onDestroy();
++    }
++
++}
++

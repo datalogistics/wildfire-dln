@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/viz_colors"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:fadeScrollbars="false"
+            android:visibility="visible">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginRight="@dimen/scroll_margin"
+        android:layout_marginLeft="@dimen/scroll_margin"
+        android:paddingTop="@dimen/auto_space"
+        android:paddingBottom="@dimen/auto_space">
+
+        <Button
+            android:id="@+id/col_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reset_defaults"
+            android:textSize="@dimen/fontSize"
+            style="@android:style/Widget.Holo.Button"/>
+
+        <LinearLayout
+            android:id="@+id/col_lz_categories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            
+            <Button
+                android:id="@+id/col_lz_main_outline"
+                android:text="@string/main_outline"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_lz_invalid_outline"
+                android:layout_marginLeft="@dimen/auto_size_small"
+                android:text="@string/invalid_outline"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_lz_center_line"
+                android:text="@string/center_line"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_lz_shoulders"
+                android:text="@string/shoulders"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_lz_overruns"
+                android:text="@string/overruns"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_lz_overruns_hatching"
+                android:layout_marginLeft="@dimen/auto_size_small"
+                android:text="@string/hatching"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_lz_clear_zones"
+                android:text="@string/clear_zones"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_lz_approaches"
+                android:text="@string/approach_zones"
+                style="@style/colorButton"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/col_dz_categories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/col_dz_main"
+                android:text="@string/main_outline"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_dz_heading_line"
+                android:text="@string/heading_arrow"
+                style="@style/colorButton"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/col_hlz_categories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/col_hlz_main"
+                android:text="@string/main_outline"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_hlz_approach_line"
+                android:text="@string/approach_line"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_hlz_departure_line"
+                android:text="@string/departure_line"
+                style="@style/colorButton"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/col_farp_categories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/col_farp_aircraft"
+                android:text="@string/aircraft"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_farp_cart"
+                android:text="@string/farp_fam_cart"
+                style="@style/colorButton"/>
+
+            <Button
+                android:id="@+id/col_farp_left_lines"
+                android:text="@string/farp_angle_lines"
+                style="@style/colorButton"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

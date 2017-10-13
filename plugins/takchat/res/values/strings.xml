@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- description -->
+    <string name="app_desc"></string>
+
+
+    <string name="app_name">TAK Chat</string>
+    <string name="takchat_prefs">TAK Chat Preferences</string>
+    <string name="takchat_prefs_adjust">Adjust TAK Chat Preferences</string>
+    <string name="xmpp_credentials">xmpp_credentials</string>
+    <string name="caChatTrustStore">caChatTrustStore</string>
+    <string name="caChatPassword">caChatPassword</string>
+    <string name="not_available">Not Available</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="message_hint">Type message here</string>
+    <string name="search_hint">Enter search terms</string>
+
+    <string name="atak_package">com.atakmap.app</string>
+    <string name="atak_activity">com.atakmap.app.ATAKActivity</string>
+
+</resources>

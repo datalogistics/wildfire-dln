@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/wx_report_scroll_view">
+
+    <RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/wx_report_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/wxReportTitle"
+        android:textColor="#FFFFFFFF"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:text="@string/wxView"
+        android:gravity="center_horizontal"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:id="@+id/horizontalBar"
+        android:background="@color/white"
+        android:layout_below="@+id/wxReportTitle"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/horizontalBar"
+        android:id="@+id/wxCoordPan">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/wxReportCoordButton"
+            style="@style/darkButton"
+            android:lines="2"
+            android:textSize="@dimen/draper_title_font"
+            android:text="@string/wxCoord"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"/>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/wxReportInfoPanButton"
+            android:background="#0000"
+            android:src="@layout/panto_button"
+            android:contentDescription="@string/wxPan"
+            android:layout_gravity="center_vertical"
+            />
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/label_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wxDate"
+        android:layout_below="@+id/wxCoordPan"/>
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/label_date"
+        android:textColor="#FFFFFFFF"
+        android:layout_below="@+id/wxCoordPan"/>
+
+    <TextView
+        android:id="@+id/wxLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="@string/wxLocation"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_below="@+id/label_date"/>
+
+    <TextView
+        android:id="@+id/wxTemperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/wxLocation"
+        android:layout_centerHorizontal="true"
+        android:text="@string/wxTemperature"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/wxCondition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/wxTemperature"
+        android:layout_centerHorizontal="true"
+        android:text="@string/wxCondition"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            android:visibility="invisible"
+            android:layout_below="@+id/date"
+            android:layout_centerHorizontal="true"/>
+
+        <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:max="14"
+        android:progress="0"
+        android:layout_below="@+id/wxCondition"/>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:id="@+id/listView"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/seekBar"/>
+    </RelativeLayout>
+</ScrollView>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_margin="8dp"
+              android:padding="8dp"
+              android:background="@drawable/layout_border"
+              android:layout_width="140dp"
+              android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/dayOfWeekTextView"
+        android:textSize="16sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/dateTextView"
+        android:textSize="14sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ImageView
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/conditionImageView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"/>
+
+    <TextView
+        android:text="Low"
+        android:id="@+id/highTempTextView"
+        android:textSize="16sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:text="High:"
+        android:id="@+id/lowTempTextView"
+        android:textSize="16sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <TextView
+        android:text="Condition"
+        android:textSize="14sp"
+        android:lines="2"
+        android:gravity="center_horizontal"
+        android:id="@+id/conditionTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="#000"
+              android:orientation="vertical">
+
+    <CheckBox
+        android:id="@+id/apply_markup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:text="@string/atsk_gallery_include_markup"/>
+
+    <TextView
+        android:id="@+id/gallery_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="6dp"
+        android:background="#000"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textSize="14sp"
+        android:text="@string/atsk_gallery_title"/>
+
+    <GridView
+        android:id="@+id/gallery_grid"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_margin="5dp"
+        android:numColumns="2"
+        android:verticalSpacing="5dp"
+        android:horizontalSpacing="5dp"
+        android:stretchMode="columnWidth"
+        android:gravity="center" />
+</LinearLayout>

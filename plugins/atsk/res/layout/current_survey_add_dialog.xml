@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838"
+    android:imeOptions="flagNoExtractUi"
+    android:orientation="vertical"
+    android:padding="@dimen/auto_space_big">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/auto_space_big">
+
+        <TextView
+            android:id="@+id/new_survey_dialog_type_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Type:     "
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/dialog_spinner_text_size" />
+        
+        <com.gmeci.atsk.az.spinners.ATSKSpinner
+            android:id="@+id/new_survey_dialog_spinner_aztype"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="-12dp"
+            android:background="@drawable/bordered_spinner_selector"
+            android:textSize="@dimen/dialog_spinner_text_size" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/auto_space_big"
+        android:paddingBottom="@dimen/auto_space_big">
+
+        <TextView
+            android:id="@+id/new_survey_dialog_text_label"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.25"
+            android:text="Name:"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/dialog_spinner_text_size" />
+
+        <EditText
+            android:id="@+id/new_survey_dialog_edit_surveyname"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/auto_space"
+            android:background="@drawable/fullborder_background"
+            android:imeOptions="flagNoExtractUi"
+            android:textCursorDrawable="@null"
+            android:textSize="@dimen/dialog_spinner_text_size" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/auto_space_big">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Criteria:     "
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/dialog_spinner_text_size" />
+
+        <com.gmeci.atsk.az.spinners.LZSpinner
+            android:id="@+id/lz_ac_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <com.gmeci.atsk.az.spinners.DZSpinner
+            android:id="@+id/dz_ac_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="gone"/>
+
+        <com.gmeci.atsk.az.spinners.HLZSpinner
+            android:id="@+id/hlz_ac_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="gone"/>
+
+        <com.gmeci.atsk.az.spinners.FARPSpinner
+            android:id="@+id/farp_ac_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838"
+    android:orientation="vertical" >
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fadeScrollbars="false">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/scroll_margin"
+            android:layout_marginLeft="@dimen/scroll_margin"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/lz_launch_runway_info_dlg"
+                style="@style/atsk_LabelTextView"
+                android:layout_width="fill_parent"
+                android:background="#000000"
+                android:gravity="center_horizontal"
+                android:text="Runway Info"
+                android:textColor="#ff33b5e5" />
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#ffFFFFFF" />
+
+            <TextView
+                android:id="@+id/approach_textview"
+                style="@style/atsk_LabelTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/atsk_approach_field" />
+
+            <TextView
+                android:id="@+id/runway_info_approach_coordinate"
+                style="@style/atsk_LabelTextView"
+                android:layout_width="match_parent"
+                android:background="@drawable/button_selector" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/runway_info_approach_threshold"
+                    style="@style/atsk_LabelTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_horizontal"
+                    android:text=""/>
+
+                <TextView
+                    android:id="@+id/runway_info_approach_gsr"
+                    style="@style/atsk_LabelTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_horizontal"
+                    android:text=""/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/departure_textview"
+                style="@style/atsk_LabelTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/auto_space_big"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/atsk_departure_field" />
+
+            <TextView
+                android:id="@+id/runway_info_departure_coordinate"
+                style="@style/atsk_LabelTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:background="@drawable/button_selector" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/runway_info_departure_threshold"
+                    style="@style/atsk_LabelTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_horizontal"
+                    android:text=""/>
+
+                <TextView
+                    android:id="@+id/runway_info_departure_gsr"
+                    style="@style/atsk_LabelTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_horizontal"
+                    android:text=""/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/auto_space_big"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/runway_info_runway_heading_label"
+                        style="@style/atsk_LabelTextView"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Runway Heading" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/runway_info_runway_heading_value"
+                            style="@style/atsk_LabelTextView"
+                            android:layout_marginTop="0px"
+                            android:background="@drawable/button_selector"
+                            android:text="Heading" />
+
+                        <TextView
+                            android:id="@+id/runway_info_runway_heading_units"
+                            style="@style/atsk_ValueTextView"
+                            android:layout_marginTop="0px" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/runway_info_runway_name_label"
+                        style="@style/atsk_LabelTextView"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Runway Name" />
+
+                    <TextView
+                        android:id="@+id/runway_info_runway_name_value"
+                        style="@style/atsk_UnitsTextView"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="0px"
+                        android:background="@drawable/button_selector"
+                        android:visibility="visible"
+                        android:text="Name" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/surface_type_label"
+                        style="@style/atsk_UnitsTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="visible"
+                        android:text="Surface Type:" />
+
+                    <com.gmeci.atsk.az.spinners.ATSKSpinner
+                        android:id="@+id/runway_surface_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/atsk_runway_surface_types" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#ffFFFFFF" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/runway_info_usable_length_text"
+                        style="@style/atsk_LabelTextView"
+                        android:layout_gravity="center_horizontal"
+                        android:text="@string/atsk_runway_info_usable_length_text" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/runway_info_usable_length_value"
+                            style="@style/atsk_LabelTextView" />
+
+                        <TextView
+                            android:id="@+id/runway_info_usable_length_units"
+                            style="@style/atsk_ValueTextView"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    style="@style/atsk_LabelTextView"
+                    android:layout_gravity="center_vertical"
+                    android:text="=" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/runway_info_runway_length_text"
+                        style="@style/atsk_LabelTextView"
+                        android:layout_gravity="center_horizontal"
+                        android:text="@string/atsk_runway_info_runway_length_text" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/runway_info_runway_length_value"
+                            style="@style/atsk_LabelTextView" />
+
+                        <TextView
+                            android:id="@+id/runway_info_runway_length_units"
+                            style="@style/atsk_ValueTextView"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/atsk_ApproachLengthSignTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/atsk_LabelTextView"
+                    android:layout_gravity="center_vertical"
+                    android:text="+" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/approach_runway_info_overrun_length_text"
+                        style="@style/atsk_LabelTextView"
+                        android:layout_gravity="center_horizontal"
+                        android:text="@string/atsk_runway_approach_overrun_length_text" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="center_horizontal" >
+
+                        <TextView
+                            android:id="@+id/approach_runway_info_overrun_length_value"
+                            style="@style/atsk_LabelTextView" />
+
+                        <TextView
+                            android:id="@+id/approach_runway_info_overrun_length_units"
+                            style="@style/atsk_ValueTextView"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+                   <TextView
+                    android:id="@+id/atsk_DepartureLengthSignTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/atsk_LabelTextView"
+                    android:layout_gravity="center_vertical"
+                    android:text="+" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/departure_runway_info_overrun_length_text"
+                        style="@style/atsk_LabelTextView"
+                        android:layout_gravity="center_horizontal"
+                        android:text="@string/atsk_runway_departure_overrun_length_text" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="center_horizontal" >
+
+                        <TextView
+                            android:id="@+id/departure_runway_info_overrun_length_value"
+                            style="@style/atsk_LabelTextView" />
+
+                        <TextView
+                            android:id="@+id/departure_runway_info_overrun_length_units"
+                            style="@style/atsk_ValueTextView"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/runway_info_usable_width_text"
+                        style="@style/atsk_LabelTextView"
+                        android:layout_gravity="center_horizontal"
+                        android:editable="false"
+                        android:text="@string/atsk_runway_info_usable_width_text" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/runway_info_usable_width_value"
+                            style="@style/atsk_LabelTextView" />
+
+                        <TextView
+                            android:id="@+id/runway_info_usable_width_units"
+                            style="@style/atsk_ValueTextView"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    style="@style/atsk_LabelTextView"
+                    android:layout_gravity="center_vertical"
+                    android:text="=" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/runway_info_runway_width_text"
+                        style="@style/atsk_LabelTextView"
+                        android:layout_gravity="center_horizontal"
+                        android:text="@string/atsk_runway_info_runway_width_text" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_weight="1"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/runway_info_runway_width_value"
+                            style="@style/atsk_LabelTextView" />
+
+                        <TextView
+                            android:id="@+id/runway_info_runway_width_units"
+                            style="@style/atsk_ValueTextView"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/atsk_LabelTextView"
+                    android:layout_gravity="center_vertical"
+                    android:text="+" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:id="@+id/runway_info_shoulder_width_text"
+                        style="@style/atsk_LabelTextView"
+                        android:layout_gravity="center_horizontal"
+                        android:text="@string/atsk_runway_shoulder_width_text" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_weight="1"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/runway_info_shoulder_width_value"
+                            style="@style/atsk_LabelTextView"
+                            android:background="@drawable/button_selector"
+                            android:text="0.0 ft" />
+
+                        <TextView
+                            style="@style/atsk_ValueTextView"
+                            android:layout_marginLeft="@dimen/auto_space_big"
+                            android:text="each" />
+
+                        <TextView
+                            android:id="@+id/runway_info_shoulder_width_units"
+                            style="@style/atsk_ValueTextView"
+                            android:visibility="gone"
+                            android:text="value" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="4dp"
+                android:background="#ffFFFFFF" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="#383838"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/runway_info_cancel_button"
+                    android:layout_width="fill_parent"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/atsk_cancel"
+                    android:text="" />
+
+                <Button
+                    android:id="@+id/runway_info_save_button"
+                    android:layout_width="fill_parent"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/atsk_save"
+                    android:text="" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Linear layout to hold the save / cancel buttons -->
+
+    </ScrollView>
+
+</LinearLayout>

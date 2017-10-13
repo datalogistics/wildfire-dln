@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:padding="5dp"
+              android:background="@android:color/transparent"
+              android:longClickable="true"
+              android:clickable="true">
+
+    <ImageView
+        android:src="@drawable/team"
+        android:id="@+id/enterGroupImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:scaleType="center"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/filter_user_popup_checkbox"/>
+
+    <TextView
+        android:text=""
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/numberOfUsersTextView"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@android:color/white"
+        android:layout_weight="1"
+        android:gravity="right"/>
+</LinearLayout>

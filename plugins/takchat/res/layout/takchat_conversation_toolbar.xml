@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.atakmap.android.tools.ActionBarView xmlns:android="http://schemas.android.com/apk/res/android"
+                                         android:orientation="horizontal"
+                                         android:layout_width="wrap_content"
+                                         android:layout_height="wrap_content"
+                                         android:layout_marginTop="0dp"
+                                         android:layout_marginBottom="0dp">
+
+
+
+    <ImageButton
+        android:id="@+id/takchat_conversation_toolbar_vcard"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/btn_gray"
+        android:scaleType="fitCenter"
+        android:padding="6dp"
+        android:lines="0"
+        android:src="@drawable/takchat_contact_white" />
+
+    <ImageButton
+        android:id="@+id/takchat_conversation_toolbar_switch"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/btn_gray"
+        android:scaleType="fitCenter"
+        android:padding="6dp"
+        android:lines="0"
+        android:src="@drawable/takchat_people" />
+
+    <ImageButton
+        android:id="@+id/takchat_conversation_toolbar_search"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/btn_gray"
+        android:scaleType="fitCenter"
+        android:padding="6dp"
+        android:lines="0"
+        android:src="@android:drawable/ic_menu_search" />
+
+    <ImageButton
+        android:id="@+id/takchat_conversation_toolbar_options"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/btn_gray"
+        android:scaleType="fitCenter"
+        android:padding="6dp"
+        android:lines="0"
+        android:src="@drawable/takchat_options" />
+
+
+</com.atakmap.android.tools.ActionBarView>

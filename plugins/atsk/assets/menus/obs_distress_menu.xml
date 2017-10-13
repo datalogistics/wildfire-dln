@@ -1,0 +1,18 @@
+<menu buttonBg='bgs/button.xml' buttonWidth='90' buttonSpan='90' buttonRadius='65'>
+
+    <button icon='icons/move.png' 
+            angle="-90"
+            onClick='actions/move.xml' 
+            disabled='!{${movable}}'/>
+
+    <button icon='icons/info.png'
+            onClick='actions/atsk/atsk_obs_info.xml' />
+            
+    <button icon='icons/pairing_line.png' 
+            onClick='actions/pairingline.xml' 
+            selected='${pairingline_on}' />
+            
+    <button icon='icons/delete.png'
+            disabled='!{${removable}}'
+            onClick='actions/atsk/atsk_delete_obs.xml' />
+</menu>

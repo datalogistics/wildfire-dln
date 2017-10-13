@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838"
+    android:orientation="vertical"
+    android:padding="20sp" >
+
+    <TextView
+        android:id="@+id/Titlestatic"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/auto_space"
+        android:layout_marginTop="@dimen/auto_space"
+        android:clickable="true"
+        android:gravity="center_horizontal"
+        android:text="  DZ CAPABILITY                            "
+        android:textColor="#ff33b5e5"
+        android:textSize="@dimen/auto_size" >
+    </TextView>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/dz_capability_dialog_text_radius_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text="Radius: "
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size"
+             />
+
+        <TextView
+            android:id="@+id/dz_capability_dialog_text_radius_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text="TextView"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size"
+             />
+
+        <TextView
+            android:id="@+id/dz_capability_dialog_text_radius_units"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text=" m"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size"
+             />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/dz_capability_dialog_text_length_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text="Length: "
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size"
+             />
+
+        <TextView
+            android:id="@+id/dz_capability_dialog_text_length_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text="TextView"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size"
+             />
+
+        <TextView
+            android:id="@+id/dz_capability_dialog_text_length_units"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text=" m"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size"
+             />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/dz_capability_dialog_text_width_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text="Width: "
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size"
+             />
+
+        <TextView
+            android:id="@+id/dz_capability_dialog_text_width_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text="TextView"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size"
+             />
+
+        <TextView
+            android:id="@+id/dz_capability_dialog_text_width_units"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text=" m"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size"
+             />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/dz_capability_dialog_text_altitude_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text="Altitude (ft): "
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size"
+             />
+
+        <com.gmeci.atsk.az.spinners.ATSKSpinner
+            android:id="@+id/dz_crit_capability_spin_altitiude"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bordered_spinner_selector" />
+    </LinearLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:paddingTop="10sp"
+        android:shrinkColumns="*"
+        android:stretchColumns="*" >
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal" >
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_FOR"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="FOR"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_CDS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="CDS/CRL/CRS"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_PER"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="PER"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_HE"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="HE"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_MFF"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="MFF"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_SATB"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="SATB"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_CRRC"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="CRRC"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_HSLLADS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="HSLLADS"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_HVCDS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="HVCDS"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_JPADS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="JPADS"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_DAY"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="DAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_DayCDS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="DAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_DayPER"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="DAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_DayHE"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="DAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_DayMFF"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="DAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_DaySATB"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="DAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_DayCRRC"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="DAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_DayHSLLADS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="DAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_DayHVCDS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="DAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_DayJPADS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="DAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_NIGHT"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="NIGHT"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_NightCDS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="NIGHT"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_NightPER"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="NIGHT"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_NightHE"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="NIGHT"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_NightMFF"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="NIGHT"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_NightSATB"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="NIGHT"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_NightCRRC"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="NIGHT"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_NightHSLLADS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="NIGHT"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_NightHVCDS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="NIGHT"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dz_capability_dialog_text_NightJPADS"
+                android:layout_weight="1"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="NIGHT"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </TableRow>
+    </TableLayout>
+
+</LinearLayout>

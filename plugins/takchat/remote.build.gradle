@@ -1,0 +1,150 @@
+//Note this file may be renamed to build.gradle and then run ./gradlew assembleRelease.
+//This will use the remote Smack maven repo to download latest dependency binaries.
+//The jars may be found in home/.gradle/caches/modules-2/files-2.1/*
+//These jar may be copied into plugins/takchat/libs to replace the old files
+//Then switch back to the baseline build.gradle to build with local binaries
+//Note prior to this process check and see if desired binaries are available at http://www.igniterealtime.org/downloads/
+
+ buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.0.+'
+    }
+ }
+
+allprojects {
+    repositories {
+        jcenter()
+        //remote repo for Smack latest binaries
+        maven {
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
+        mavenCentral()
+    }
+
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'idea'
+
+dependencies {
+    provided files('../../ATAK/libs/android-support-v4-slim.jar')
+    provided files('../../ATAK/libs/sanselan-android.jar')
+    provided files('../../ATAK/libs/core-14.0.2.1.jar')
+    provided files('../../ATAK/libs/host-14.0.2.1.jar')
+    provided files('../../MapCoreInterfaces/libs/commons.geom.jar')
+    provided files('../../MapCoreInterfaces/libs/commons.mapi.core.jar')
+    provided files('../../MapCoreInterfaces/libs/ExtensionPoints.jar')
+    provided files('../../MapCoreInterfaces/build/libs/classes.jar')
+    provided files('../../ATAKMapEngine/build/libs/classes.jar')
+    provided files('../../ATAK/build/libs/classes.jar')
+
+    //comment out local jars, and pull in remote/latest dependencies
+    //compile fileTree(dir: 'libs', include: '*.jar')
+	compile "org.igniterealtime.smack:smack-android:4.2.0-rc3-SNAPSHOT"
+	compile "org.igniterealtime.smack:smack-android-extensions:4.2.0-rc3-SNAPSHOT"
+	compile "org.igniterealtime.smack:smack-core:4.2.0-rc3-SNAPSHOT"
+	compile "org.igniterealtime.smack:smack-experimental:4.2.0-rc3-SNAPSHOT"
+	compile "org.igniterealtime.smack:smack-extensions:4.2.0-rc3-SNAPSHOT"
+	compile "org.igniterealtime.smack:smack-im:4.2.0-rc3-SNAPSHOT"
+	compile "org.igniterealtime.smack:smack-resolver-dnsjava:4.2.0-rc3-SNAPSHOT"
+	compile "org.igniterealtime.smack:smack-sasl-provided:4.2.0-rc3-SNAPSHOT"
+	compile "org.igniterealtime.smack:smack-tcp:4.2.0-rc3-SNAPSHOT"
+}
+
+def getSvnRevision() {
+    new ByteArrayOutputStream().withStream { os ->
+        def result = exec {
+            executable = 'svn'
+            args = ['info']
+            standardOutput = os
+            ignoreExitValue = true
+        }
+        def outputAsString = os.toString()
+        def matchLastChangedRev = outputAsString =~ /Revision: (\d+)/
+        def length = matchLastChangedRev.size()
+        if (length > 0)
+            ext.svnRev = "${matchLastChangedRev[0][1]}".toInteger()
+        else 
+            ext.svnRev = 1
+    }
+ 
+    return svnRev
+}
+
+android {
+    compileSdkVersion 15
+    buildToolsVersion "23.0.2"
+
+	defaultConfig {
+		minSdkVersion 15
+		targetSdkVersion 15
+	}
+	
+   dexOptions {
+        jumboMode = true
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("../../android_keystore")
+            storePassword "tnttnt"
+            keyAlias "wintec_mapping"
+            keyPassword "tnttnt"
+        }
+
+        release {
+            storeFile file("../../android_keystore")
+            storePassword "tnttnt"
+            keyAlias "wintec_mapping"
+            keyPassword "tnttnt"
+        }
+    }
+
+
+    buildTypes {
+        release {
+            System.setProperty("atak.proguard.mapping", "../../ATAK/build/outputs/mapping/release/mapping.txt")
+            minifyEnabled true
+            proguardFile 'proguard-gradle.txt'
+            signingConfig signingConfigs.release
+        }
+    }
+    packagingOptions {
+        exclude 'META-INF/INDEX.LIST'
+    }
+
+    sourceSets {
+        main {
+            defaultConfig.versionCode = getSvnRevision()
+            defaultConfig.versionName = getSvnRevision()
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+
+
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        instrumentTest.setRoot('tests')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+
+    }
+
+}

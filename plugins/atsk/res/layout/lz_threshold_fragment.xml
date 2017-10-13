@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#383838"
+    android:orientation="vertical" >
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:fadeScrollbars="false"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:layout_marginRight="@dimen/scroll_margin"
+            android:layout_marginLeft="@dimen/scroll_margin"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/lz_approach_label"
+                style="@style/atsk_LabelTextView"
+                android:text="@string/atsk_approach_field" >
+            </TextView>
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+
+                <TextView
+                    android:id="@+id/lz_approach_gsr"
+                    style="@style/atsk_LabelTextView"
+                    android:text="@string/atsk_gsr_field" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/lz_approach_gsr_value"
+                    style="@style/atsk_ValueTextView" >
+                </TextView>
+            </LinearLayout>
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+
+                <TextView
+                    android:id="@+id/lz_approach_dt"
+                    style="@style/atsk_LabelTextView"
+                    android:text="@string/atsk_threshold_field" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/lz_approach_dt_value"
+                    style="@style/atsk_ValueTextView" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/lz_approach_dt_units"
+                    style="@style/atsk_UnitsTextView" >
+                </TextView>
+            </LinearLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#ffFFFFFF" />
+
+            <TextView
+                android:id="@+id/lz_departure_label"
+                style="@style/atsk_LabelTextView"
+                android:text="@string/atsk_departure_field" >
+            </TextView>
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+
+                <TextView
+                    android:id="@+id/lz_departure_gsr"
+                    style="@style/atsk_LabelTextView"
+                    android:text="@string/atsk_gsr_field" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/lz_departure_gsr_value"
+                    style="@style/atsk_ValueTextView" >
+                </TextView>
+            </LinearLayout>
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+
+                <TextView
+                    android:id="@+id/lz_departure_dt"
+                    style="@style/atsk_LabelTextView"
+                    android:text="@string/atsk_threshold_field" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/lz_departure_dt_value"
+                    style="@style/atsk_ValueTextView" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/lz_departure_dt_units"
+                    style="@style/atsk_UnitsTextView" >
+                </TextView>
+            </LinearLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#ffFFFFFF" />
+
+            <Button
+                android:id="@+id/glide_slope_button"
+                style="@style/atsk_LabelTextView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_selector"
+                android:text="FIND INCURSIONS"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/toggle_glide_slope_button"
+                style="@style/atsk_LabelTextView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_selector"
+                android:text="HIDE INCURSIONS" />
+
+            <ProgressBar
+                android:id="@+id/topPB"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:indeterminate="false"
+                android:max="100"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingTop="5dp"
+                android:progress="1" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="units_readable">
+        <item>METERS</item>
+        <item>FEET/YARDS</item>
+    </string-array>
+    <string-array name="units_stored">
+        <item>METERS</item>
+        <item>FEET</item>
+    </string-array>
+    <string-array name="angle_readable">
+        <item>TRUE</item>
+        <item>MAGNETIC</item>
+    </string-array>
+    <string-array name="angle_stored">
+        <item>UNITS_ANGLE_TRUE</item>
+        <item>UNITS_ANGLE_MAG</item>
+    </string-array>
+    <string-array name="capture_res_readable">
+        <item>1x</item>
+        <item>2x</item>
+        <item>3x</item>
+        <item>4x</item>
+        <item>5x</item>
+        <item>6x</item>
+    </string-array>
+    <string-array name="capture_res_stored">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+    <string-array name="capture_format_readable">
+        <item>JPEG</item>
+        <item>PNG</item>
+    </string-array>
+    <string-array name="capture_format_stored">
+        <item>.jpg</item>
+        <item>.png</item>
+    </string-array>
+    <string-array name="coordinates_readable">
+        <item>MGRS</item>
+        <item>UTM</item>
+        <item>DD:MM:SS</item>
+        <item>DD:MM.MM</item>
+    </string-array>
+    <string-array name="coordinates_stored">
+        <item>COORD_FORMAT_MGRS</item>
+        <item>COORD_FORMAT_UTM</item>
+        <item>COORD_FORMAT_DMS</item>
+        <item>COORD_FORMAT_DM</item>
+    </string-array>
+
+</resources>

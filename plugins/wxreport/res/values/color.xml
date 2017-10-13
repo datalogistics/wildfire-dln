@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ATAK -->
+    <color name="separator">#33b5e5</color>
+
+    <!-- COMMON -->
+    <color name="white">#ffffff</color>
+    <color name="off_white">#f0f0f0</color>
+    <color name="light_gray">#cccccc</color>
+    <color name="gray">#585858</color>
+    <color name="dark_gray">#272727</color>
+    <color name="darker_gray">#121212</color>
+    <color name="light_blue_gray">#b4c9d2</color>
+    <color name="yellow">#ffd200</color>
+    <color name="green">#92a844</color>
+    <color name="black_overlay">#ff1f2122</color>
+    <color name="blue">#0000FF</color>
+    <color name="gray_50">#7F7F7F</color>
+    <color name="gray_76">#C2C2C2</color>
+    
+    <!-- LED -->
+    <color name="led_green">#92a844</color>
+    <color name="led_orange">#ffbe00</color>
+    <color name="led_yellow">#f6e200</color>
+    <color name="led_red">#c92424</color>
+    <color name="led_light_gray">#d0d0d0</color>
+    
+    <!-- PRESET -->
+    <color name="preset_title_selected">#ffd200</color>
+    <color name="preset_subtitle">#b4c9d2</color>
+    <color name="preset_disabled">#484848</color>
+    
+</resources>

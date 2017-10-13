@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:title="Connection Enabled"
+        android:key="takchatEnabled"
+        android:summary="Select to enable connection to the chat server"
+        android:defaultValue="true"/>
+
+    <com.atakmap.android.network.ui.CredentialsPreference
+        android:title="Chat Credentials"
+        credentialsType="xmpp_credentials"
+        android:key="takchatCredentials"
+        android:summary="Set the full username (e.g. user@server) and password used for XMPP chat"/>
+
+    <CheckBoxPreference
+        android:title="Enforce TLS Encryption"
+        android:key="takchatRequireSSL"
+        android:summary="Select to enforce TLS encryption. Note, it is strongly recommended to enforce encryption"
+        android:defaultValue="true"/>
+
+    <CheckBoxPreference
+        android:title="Use TAK Server TrustStore"
+        android:key="takchatUseTakServerTrustStore"
+        android:summary="Select to reuse TAK Server TrustStore. Deselect to load Chat TrustStore and password below"
+        android:defaultValue="true"/>
+
+        <!--android:dependency="takchatRequireSSL"-->
+        <Preference
+            android:title="Chat TrustStore Location"
+            android:key="caChatTrustStore"
+            android:summary="A PKCS12 keystore with your Certificate Authorities (.p12 file). Be sure to set TrustStore password below"
+            android:defaultValue="(built-in)"
+        />
+
+        <!--android:dependency="takchatRequireSSL"-->
+        <com.atakmap.android.gui.EncrpytedPanEditTextPreference
+            android:title="Chat TrustStore Password"
+            android:key="caChatPassword"
+            android:summary="Chat TrustStore password, required when not using TAK Server TrustStore"
+            android:inputType="textPassword"
+            />
+
+       <!-- <CheckBoxPreference
+            android:title="Use Plain Text Auth"
+            android:key="takchatUsePlainTextAuth"
+            android:summary="Select to send credentials in clear text. Not recommended"
+            android:defaultValue="false"/>-->
+
+    <Preference
+        android:summary="Clear chat user credentials and certificates"
+        android:title="Clear Credentials"
+        android:key="takchatClearCredentials"/>
+
+    <!-- </PreferenceCategory>-->
+
+    <CheckBoxPreference
+        android:title="Show Offline Contacts"
+        android:key="takchatShowOffline"
+        android:summary="Select to display offline contacts"
+        android:defaultValue="false"/>
+
+    <CheckBoxPreference
+        android:title="Auto-accept buddy requests"
+        android:key="takchatAutoSubscribe"
+        android:summary="Select to automatically accept all buddy subscription requests and conference invitations"
+        android:defaultValue="true"
+        android:enabled="false"/>
+
+    <CheckBoxPreference
+        android:title="Store Chats Locally"
+        android:key="takchatStoreLocally"
+        android:summary="Select to store chats in a database on the this device"
+        android:defaultValue="true"
+        android:enabled="false"/>
+
+    <com.atakmap.android.gui.PanListPreference
+        android:entries="@array/takchat_synctime_entries"
+        android:entryValues="@array/takchat_synctime_values"
+        android:key="takChatSyncArchiveTime"
+        android:title="Sync Missed Chats"
+        android:summary="Select time range to pull in missed chats"
+        android:defaultValue="86400000"/>
+    <Preference
+        android:summary="Export entire chat history to CSV file"
+        android:title="Export Chat History"
+        android:key="takchatExportHistory" />
+    <Preference
+        android:summary="Clear chat history"
+        android:title="Clear History"
+        android:key="takchatClearHistory"/>
+
+    <CheckBoxPreference
+        android:summary="Vibrate the phone when a new chat message is received, or buddy comes online"
+        android:title="Vibrate Device"
+        android:key="takchatVibratePhone"
+        android:defaultValue="false"/>
+
+    <CheckBoxPreference
+        android:summary="Play sound when a new chat message is received"
+        android:title="Play Chat Sent Sound"
+        android:key="takchatAudibleNotifySent"
+        android:defaultValue="false"/>
+    <CheckBoxPreference
+        android:summary="Play sound when a new chat message is sent"
+        android:title="Play Chat Receive Sound"
+        android:key="takchatAudibleNotifyRecv"
+        android:defaultValue="false"/>
+
+    <CheckBoxPreference
+        android:summary="Play sound when a buddy comes online or goes offline"
+        android:title="Play Buddy Sounds"
+        android:key="takchatAudibleNotifyBuddy"
+        android:defaultValue="false"/>
+
+    <com.atakmap.android.gui.PanEditTextPreference
+        android:title="Conference Server URL Prefix"
+        android:summary="URL/IP prefix of the XMPP chat conference server"
+        android:key="takchatServerConfPrefix"
+        android:inputType="textUri"
+        android:defaultValue="conference"/>
+
+    <CheckBoxPreference
+        android:title="Custom Host"
+        android:key="takchatUseCustomHost"
+        android:summary="Select to use custom host setting instead of DNS/SRV record"
+        android:defaultValue="false"/>
+
+    <com.atakmap.android.gui.PanEditTextPreference
+        android:title="Chat Server Custom Host"
+        android:summary="Custom Host used for connecting the XMPP service, used instead of DNS/SRV record"
+        android:key="takchatCustomHost"
+        android:inputType="textUri"
+        android:defaultValue=""/>
+
+    <com.atakmap.android.gui.PanEditTextPreference
+        android:title="Chat Server Port"
+        android:summary="XMPP Port of the chat server"
+        android:key="takchatServerPort"
+        android:inputType="number"
+        android:defaultValue="5222"/>
+
+ </PreferenceScreen>

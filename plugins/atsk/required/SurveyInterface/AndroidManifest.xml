@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.gmeci.surveyinterface"
+          android:versionCode="1"
+          android:versionName="DEV">
+
+    <uses-sdk
+        android:minSdkVersion="10"
+        android:targetSdkVersion="10"/>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+</manifest>

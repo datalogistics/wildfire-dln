@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#333333" 
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/gps_menu_spot1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/atsk_toolbar_breadcrumb"
+        android:layout_weight="1"/>
+
+    <ImageView
+        android:id="@+id/gps_menu_spot2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/atsk_toolbar_twop"
+        android:layout_weight="1"/>
+    
+    <ImageView
+        android:id="@+id/gps_menu_spot3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/atsk_toolbar_pd"
+        android:layout_weight="1"/>
+
+    <ImageView
+        android:id="@+id/gps_menu_config"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/atsk_toolbar_menu_config"
+        android:layout_weight="1"/>
+
+</LinearLayout>

@@ -1,0 +1,4 @@
+include ':SurveyInterface'
+project(':SurveyInterface').projectDir = new File(settingsDir, '../SurveyInterface')
+include ':ACRA'
+project(':ACRA').projectDir = new File(settingsDir, '../acra')

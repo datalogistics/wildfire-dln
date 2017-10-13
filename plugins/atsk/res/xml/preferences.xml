@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="General"/>
+
+
+    <com.atakmap.android.gui.PanListPreference
+        android:entries="@array/units_readable"
+        android:entryValues="@array/units_stored"
+        android:defaultValue="METERS"
+        android:key="UNITS"
+        android:title="Distance Measurements" />
+    <com.atakmap.android.gui.PanListPreference
+        android:entries="@array/angle_readable"
+        android:entryValues="@array/angle_stored"
+        android:defaultValue="UNITS_ANGLE_TRUE"
+        android:key="UNITS_ANGLE"
+        android:title="Angle Units" />
+    <com.atakmap.android.gui.PanListPreference
+        android:entries="@array/coordinates_readable"
+        android:entryValues="@array/coordinates_stored"
+        android:key="COORD_FORMAT"
+        android:defaultValue="MGRS"
+        android:title="Coordinate Format" />
+    <com.atakmap.android.gui.PanEditTextPreference
+        android:key="GPS Height "
+        android:numeric="integer"
+        android:defaultValue="2.0"
+        android:title="GPS Height Above Ground (meters)" />
+    <com.atakmap.android.gui.PanEditTextPreference
+        android:key="LRF-GPS Offset Height"
+        android:numeric="integer"
+        android:defaultValue="2.0"
+        android:title="LRF-GPS Offset Height (meters)" />
+    <CheckBoxPreference
+        android:key="pref_legacy_graph"
+        android:defaultValue="true"
+        android:title="Legacy Gradient Graph" />
+
+    <PreferenceCategory android:title="Export"/>
+
+    <com.atakmap.android.gui.PanEditTextPreference
+        android:key="atsk_obs_export_threshold"
+        android:numeric="integer"
+        android:defaultValue="10560"
+        android:title="Survey Export Threshold (ft)"
+        android:summary="Distance from survey boundaries to export surrounding obstacles and gradients"/>
+
+    <PreferenceCategory android:title="Image Markup"/>
+
+    <CheckBoxPreference
+        android:key="@string/atsk_pitch_percent"
+        android:defaultValue="false"
+        android:title="Show Pitch as Percentage" />
+
+    <PreferenceCategory android:title="Types"/>
+
+    <com.atakmap.android.gui.PanMultiSelectListPreference
+        android:dialogTitle="Point Types To Display"
+            android:key="Active Point Obstructions"
+            android:summary="Commonly used Point Obstruction Types"
+            android:title="Point Types"
+            android:entries="@array/POINT_TYPES"
+            android:entryValues="@array/POINT_TYPES"
+            android:defaultValue="@array/DEFAULT_POINT_TYPES" />
+
+    <com.atakmap.android.gui.PanMultiSelectListPreference
+        android:dialogTitle="Line Types To Display"
+            android:key="Active Line Obstructions"
+            android:summary="Commonly used Route Obstruction Types"
+            android:title="Route Types"
+            android:entries="@array/LINE_TYPES"
+            android:entryValues="@array/LINE_TYPES"
+            android:defaultValue="@array/DEFAULT_LINE_TYPES" />
+
+    <com.atakmap.android.gui.PanMultiSelectListPreference
+        android:dialogTitle="Area Types"
+        android:key="Active Area Obstructions"
+        android:summary="Commonly used Area Types"        
+        android:title="Area Types"
+        android:entries="@array/AREA_TYPES"
+        android:entryValues="@array/AREA_TYPES"
+        android:defaultValue="@array/DEFAULT_AREA_TYPES" />
+
+    <PreferenceCategory android:title="Help"/>
+    <Preference android:title="About ATSK"
+                android:key="aboutATSK" />
+    <Preference android:title="ATSK Documentation"
+                android:summary="View ATSK user guide."
+                android:key="atsk_documentation" />
+
+    
+     
+</PreferenceScreen>
