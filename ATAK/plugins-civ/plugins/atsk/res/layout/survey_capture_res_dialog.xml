@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838"
+    android:imeOptions="flagNoExtractUi"
+    android:orientation="vertical"
+    android:fadeScrollbars="false">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/auto_space_large"
+        android:orientation="vertical">
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/dialog_spinner_text_size"
+                android:text="@string/image_dim"/>
+
+            <RadioGroup
+                android:id="@+id/image_dim_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:orientation="horizontal">
+                <RadioButton
+                    android:id="@+id/image_dim_letter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/image_dim_letter"/>
+                <RadioButton
+                    android:id="@+id/image_dim_full"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/image_dim_full"/>
+            </RadioGroup>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/imgcap_resolution"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/dialog_spinner_text_size" />
+
+            <RadioGroup
+                android:id="@+id/res_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:orientation="horizontal">
+                <RadioButton
+                    android:id="@+id/res_low"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/low"/>
+                <RadioButton
+                    android:id="@+id/res_high"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/high"/>
+            </RadioGroup>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/imgcap_format"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/dialog_spinner_text_size" />
+
+            <RadioGroup
+                android:id="@+id/format_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:orientation="horizontal">
+                <RadioButton
+                    android:id="@+id/format_jpeg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/jpeg"/>
+                <RadioButton
+                    android:id="@+id/format_png"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/png"/>
+            </RadioGroup>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/imgcap_items"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/dialog_spinner_text_size" />
+
+            <RadioGroup
+                android:id="@+id/items_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:orientation="horizontal">
+                <RadioButton
+                    android:id="@+id/items_atsk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/atsk_items"/>
+                <RadioButton
+                    android:id="@+id/items_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/all_items"/>
+            </RadioGroup>
+        </TableRow>
+
+    </TableLayout>
+</ScrollView>

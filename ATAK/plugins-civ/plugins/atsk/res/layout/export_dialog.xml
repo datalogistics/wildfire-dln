@@ -1,0 +1,29 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="6dp">
+
+    <CheckBox
+        android:id="@+id/survey"
+        android:text="Current Survey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"/>
+
+     <CheckBox
+        android:id="@+id/obstacles"
+        android:text="Surrounding Obstacles"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"/>
+
+     <CheckBox
+        android:id="@+id/gradients"
+        android:text="Surrounding Gradients"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"/>
+
+</LinearLayout>

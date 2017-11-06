@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="#383838"
+    android:orientation="vertical" >
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#ff33b5e5" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text="OFFSET DIST:"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size" >
+        </TextView>
+
+        <EditText
+            android:id="@+id/range_offset"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_weight="1"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:inputType="numberDecimal"
+            android:text="10"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size" >
+        </EditText>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/auto_space"
+        android:orientation="horizontal" >
+
+        <CheckBox
+            android:id="@+id/units_feet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="FEET"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size" />
+
+        <CheckBox
+            android:id="@+id/units_m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="METERS"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/angle_static"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:text="DIRECTION:"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size" >
+        </TextView>
+
+        <EditText
+            android:id="@+id/angle_offset"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/auto_space"
+            android:layout_weight="1"
+            android:background="@drawable/base_edit_noborder"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:inputType="numberDecimal"
+            android:text="10"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size" >
+        </EditText>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/auto_space"
+        android:orientation="horizontal" >
+
+        <CheckBox
+            android:id="@+id/angle_true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="TRUE"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size" />
+
+        <CheckBox
+            android:id="@+id/angle_mag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="MAG"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/auto_size" />
+    </LinearLayout>
+
+</LinearLayout>

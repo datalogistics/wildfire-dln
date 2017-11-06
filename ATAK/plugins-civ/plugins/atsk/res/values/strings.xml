@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- description -->
+    <string name="app_desc">Assault Zone Tactical Survey Tool Kit</string>
+
+    <string name="atsk_prefs_title">ATSK Control Preferences</string>
+    <string name="atsk_pitch_percent">atsk_pitch_percent</string>
+
+    <!-- Navigation -->
+    <string name="criteria">Criteria</string>
+    <string name="obstructions">Obstructions</string>
+    <string name="gradients">Gradients</string>
+    <string name="vehicle_obstructions">Vehicle Obstructions</string>
+    <string name="overlay_manager">Overlay Manager</string>
+    <string name="gallery">Image Gallery</string>
+    <string name="remarks">Remarks</string>
+    <string name="export">Export</string>
+    <string name="details">Details</string>
+
+    <!-- Optional button to Skip a PreferenceActivity [CHAR LIMIT=20] -->
+    <string name="atsk_gallery_title">Image Gallery (%1$d images)</string>
+    <string name="atsk_gallery_include_markup">Include Markup</string>
+    <string name="atsk_deg">%1$1.0f°</string>
+    <string name="atsk_deg_north">%1$1.0f° %2$c</string>
+    <string name="atsk_deg_north2">%1$.1f°</string>
+    <string name="atsk_deg_azi">%1$1.0f° %2$s (%3$c)</string>
+    <string name="atsk_deg_hlz">%1$1.0f°%2$c</string>
+    <string name="atsk_alt">%1$5.2f %2$s %3$s</string>
+    <string name="angle_magvar">Angle:  (MAGVAR %.1f)</string>
+    <string name="length">Length</string>
+    <string name="diameter">Diameter</string>
+
+    <!-- Overlay Manager -->
+    <string name="back">Back</string>
+    <string name="survey">Survey</string>
+    <string name="remove_items">Remove Items</string>
+    <string name="obstacles">Obstacles</string>
+    <string name="points">Points</string>
+    <string name="routes">Routes</string>
+    <string name="areas">Areas</string>
+    <string name="vehicles">Vehicles</string>
+    <string name="rab">Range &amp; Bearing</string>
+    <string name="gallery_icons">Gallery Icons</string>
+    <string name="main_outline">Main Outline</string>
+    <string name="invalid_outline">Invalid Outline</string>
+    <string name="shading">Shading</string>
+    <string name="center_line">Center Line</string>
+    <string name="threshold_lines">Threshold Lines</string>
+    <string name="dcps">DCPs</string>
+    <string name="amps">AMPs</string>
+    <string name="min_gradients">Min Gradients</string>
+    <string name="max_gradients">Max Gradients</string>
+    <string name="anchor_points">Anchor Points</string>
+    <string name="large">Large</string>
+    <string name="medium">Medium</string>
+    <string name="small">Small</string>
+    <string name="shoulders">Shoulders</string>
+    <string name="overruns">Overruns</string>
+    <string name="hatching">Hatching</string>
+    <string name="clear_zones">Clear Zones</string>
+    <string name="approach_zones">Approach Zones</string>
+    <string name="center_point">Center Point</string>
+    <string name="heading_arrow">Heading Arrow</string>
+    <string name="point_of_origin">Point of Origin</string>
+    <string name="per_point">PER Point</string>
+    <string name="he_point">HE Point</string>
+    <string name="cds_point">CDS Point</string>
+    <string name="aircraft">Aircraft</string>
+    <string name="farp_rx_shape_title">Receiver (%s):</string>
+    <string name="farp_fam_cart">FAM Cart</string>
+    <string name="farp_left_lines">Left Lines</string>
+    <string name="farp_right_lines">Right Lines</string>
+    <string name="farp_angle_lines">Angle Lines</string>
+    <string name="farp_items">Items</string>
+    <string name="approach_line">Approach Line</string>
+    <string name="departure_line">Departure Line</string>
+    <string name="line_colors">Line Colors</string>
+    <string name="reset_defaults">Restore Defaults</string>
+
+    <!-- Survey Image Capture -->
+    <string name="imgcap_title">Image Capture</string>
+    <string name="imgcap_output_title">Capture Result</string>
+    <string name="imgcap_info_box">Info Box</string>
+    <string name="imgcap_compass">Compass</string>
+    <string name="imgcap_scale_bar">Scale Bar</string>
+    <string name="imgcap_headings">Headings</string>
+    <string name="imgcap_dimensions">Dimensions</string>
+    <string name="imgcap_top_left">TL</string>
+    <string name="imgcap_top_right">TR</string>
+    <string name="imgcap_bottom_left">BL</string>
+    <string name="imgcap_bottom_right">BR</string>
+    <string name="map_imagery">Map Imagery</string>
+    <string name="font_size">Font Size</string>
+    <string name="label_size">Label Size</string>
+    <string name="icon_size">Icon Size</string>
+    <string name="line_weight">Line Weight</string>
+    <string name="save">Save</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
+    <string name="redo">Redo</string>
+    <string name="drop_grid">Drop Grid</string>
+    <string name="edit_grid">Edit Grid</string>
+    <string name="image_dim">Dimensions:</string>
+    <string name="image_dim_full">Full</string>
+    <string name="image_dim_letter">8½ × 11\"</string>
+    <string name="left_pos">Left</string>
+    <string name="right_pos">Right</string>
+    <string name="imgcap_settings">Capture Settings</string>
+    <string name="imgcap_resolution">Resolution:</string>
+    <string name="imgcap_format">Format:</string>
+    <string name="imgcap_items">Items:</string>
+    <string name="low">Low</string>
+    <string name="high">High</string>
+    <string name="custom">Custom</string>
+    <string name="jpeg">JPEG</string>
+    <string name="png">PNG</string>
+    <string name="atsk_items">ATSK Items</string>
+    <string name="all_items">All Items</string>
+
+    <string name="input_waiting">Waiting&#8230;</string>
+    <string name="input_waiting1">Waiting 1 of 2</string>
+    <string name="input_waiting2">Waiting 2 of 2</string>
+    <string name="unknown">UNKNOWN</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="save_busy">Capture is busy saving&#8230;</string>
+    <string name="pdf_fail">Failed to save PDF.</string>
+    <string name="pdf_success">Successfully saved PDF to %s</string>
+
+    <!-- Obstruction Editor -->
+    <string name="location">Location:</string>
+    <string name="elevation">Elevation:</string>
+    <string name="length2">Length:</string>
+    <string name="diameter2">Diameter:</string>
+    <string name="radius">Radius:</string>
+    <string name="width">Width:</string>
+    <string name="height">Height:</string>
+    <string name="rotation">Rotation:</string>
+    <string name="point">Point:</string>
+    <string name="points2">Points:</string>
+    <string name="remark">Remark:</string>
+    <string name="color">Color:</string>
+    <string name="name">Name:</string>
+    <string name="type">Type:</string>
+    <string name="tail">Tail</string>
+    <string name="head">Head</string>
+    <string name="center">Center</string>
+    <string name="radius2">Radius</string>
+    <string name="not_available">N/A</string>
+    <string name="copy_obs">Copy Obstruction</string>
+    <string name="copy">Copy</string>
+    <string name="rename">Rename</string>
+    <string name="rename_item">Rename Item</string>
+    <string name="set_color">Set Color</string>
+    <string name="reset">Reset</string>
+    <string name="remove_item">Remove Item</string>
+    <string name="remove_item_msg">Are you sure you want to remove \"%s\"?</string>
+    <string name="yes">Yes</string>
+
+    <!-- Gradients -->
+    <string name="show_analyzed">SHOW ANALYZED</string>
+    <string name="hide_analyzed">HIDE ANALYZED</string>
+    <string name="show_raw">SHOW RAW</string>
+    <string name="hide_raw">HIDE RAW</string>
+
+    <!-- Details dialog -->
+    <string name="obs_details_title">Obstruction Details</string>
+    <string name="obs_details_failed">Failed to open details for obstruction.</string>
+    <string name="perimeter">Perimeter:</string>
+    <string name="method">Collection Method:</string>
+    <string name="ok">OK</string>
+
+    <!-- Survey Editor -->
+    <string name="leading_edge">Leading Edge:</string>
+    <string name="trailing_edge">Trailing Edge:</string>
+    <string name="elev">ELEV:</string>
+    <string name="dep_eoo">Departure EOO:</string>
+    <string name="app_eoo">Approach EOO:</string>
+    <string name="center_position">Center Position:</string>
+    <string name="overrun">Overrun:</string>
+    <string name="alignment">Alignment:</string>
+    <string name="heading">Heading:</string>
+    <string name="slope_l">Slope L:</string>
+    <string name="slope_w">Slope W:</string>
+    <string name="criteria2">Criteria:</string>
+    <string name="surface_type">Surface Type:</string>
+    <string name="left">L:</string>
+    <string name="right">R:</string>
+    <string name="per">PER:</string>
+    <string name="he">HE:</string>
+    <string name="cds">CDS:</string>
+
+    <string-array name="atsk_altitude_array">
+        <item>100</item>
+        <item>200</item>
+        <item>300</item>
+        <item>400</item>
+        <item>500</item>
+        <item>600</item>
+        <item>700</item>
+        <item>800</item>
+        <item>900</item>
+        <item>1000</item>
+        <item>1100</item>
+        <item>1200</item>
+        <item>1300</item>
+        <item>1400</item>
+        <item>1500</item>
+        <item>1600</item>
+        <item>1700</item>
+        <item>1800</item>
+        <item>1900</item>
+        <item>2000</item>
+        <item>2100</item>
+        <item>2200</item>
+        <item>2300</item>
+        <item>2400</item>
+        <item>2500</item>
+        <item>2600</item>
+        <item>2700</item>
+        <item>2800</item>
+        <item>2900</item>
+        <item>3000</item>
+        <item>4000</item>
+        <item>5000</item>
+        <item>6000</item>
+        <item>7000</item>
+        <item>8000</item>
+        <item>9000</item>
+        <item>10000</item>
+        <item>12000</item>
+        <item>13000</item>
+        <item>14000</item>
+        <item>15000</item>
+        <item>16000</item>
+        <item>17000</item>
+        <item>18000</item>
+        <item>19000</item>
+        <item>20000</item>
+    </string-array>
+    <string-array name="atsk_runway_surface_types">
+        <item>Gravel</item>
+        <item>Sand</item>
+        <item>Silt</item>
+        <item>Clay</item>
+        <item>Grass</item>
+        <item>Silty Gravel</item>
+        <item>Clayey Gravel</item>
+        <item>Silty Sand</item>
+        <item>Clayey Sand</item>
+        <item>Crushed coral (compacted)</item>
+        <item>Crushed coral</item>
+        <item>Shell</item>
+        <item>Asphalt seal (semi-prepared)</item>
+        <item>Concrete seal (semi-prepared)</item>
+        <item>Stabilized Soil</item>
+        <item>Sand Asphalt</item>
+        <item>Macadam</item>
+        <item>Asphalt</item>
+        <item>Concrete</item>
+        <item>Asphalt/Concrete (mixed surface)</item>
+        <item>PCC</item>
+        <item>Freedom</item>
+        <item>Gravel, well-graded</item>
+        <item>Gravel, poorly graded</item>
+        <item>Sand, well graded</item>
+        <item>Sand, poorly graded</item>
+        <item>Clay CH</item>
+        <item>Clay CL</item>
+        <item>Silt MH</item>
+        <item>Silt ML</item>
+    </string-array>
+
+    <string name="atsk_runway_info_usable_width_text">Usable Width:</string>
+    <string name="atsk_runway_info_usable_length_text">Usable Length:</string>
+    <string name="atsk_runway_info_runway_width_text">Runway Width:</string>
+    <string name="atsk_runway_info_runway_length_text">Runway Length:</string>
+    <string name="atsk_runway_shoulder_width_text">Shoulders:</string>
+    <string name="atsk_runway_approach_overrun_length_text">App Overrun:</string>
+    <string name="atsk_runway_departure_overrun_length_text">Dep Overrun:</string>
+
+    <string name="atsk_approach_field">Approach:</string>
+    <string name="atsk_departure_field">Departure:</string>
+    <string name="atsk_gsr_field">GSR:</string>
+    <string name="atsk_threshold_field">Threshold:</string>
+
+    <string-array name="LINE_TYPES">
+        <item>Arresting Gear</item>
+        <item>Barrier</item>
+        <item>Berms</item>
+        <item>Bridge</item>
+        <item>Canal</item>
+        <item>Contour Line</item>
+        <item>Curb</item>
+        <item>Culvert</item>
+        <item>Ditch</item>
+        <item>Fenceline</item>
+        <item>Gate</item>
+        <item>Generic Route</item>
+        <item>Guard Rail</item>
+        <item>Hedges</item>
+        <item>Highway</item>
+        <item>Hill</item>
+        <item>Light Poles with Wires</item>
+        <item>Mountain</item>
+        <item>Path</item>
+        <item>Mound</item>
+        <item>Pipeline</item>
+        <item>Poles with Wires</item>
+        <item>Powerlines</item>
+        <item>Railroad</item>
+        <item>Ridge Line</item>
+        <item>River</item>
+        <item>Road</item>
+        <item>Ruts</item>
+        <item>Slope in Percent</item>
+        <item>Taxiway</item>
+        <item>Trail</item>
+        <item>Treeline</item>
+        <item>Wall</item>
+        <item>Wires</item>
+    </string-array>
+
+
+    <string-array name="DEFAULT_LINE_TYPES">
+        <item>Berms</item>
+        <item>Curb</item>
+        <item>Ditch</item>
+        <item>Fenceline</item>
+        <item>Generic Route</item>
+        <item>Poles with Wires</item>
+        <item>Powerlines</item>
+        <item>Road</item>
+        <item>Ruts</item>
+        <item>Treeline</item>
+    </string-array>
+
+    <string-array name="AREA_TYPES">
+        <item>Apron</item>
+        <item>Generic Area</item>
+        <item>Buildings</item>
+        <item>Bushes</item>
+        <item>Craters</item>
+        <item>Trees</item>
+        <item>Swamp</item>
+        <item>Pool</item>
+        <item>Sand</item>
+        <item>Pond</item>
+        <item>Ocean</item>
+        <item>Lake</item>
+        <item>Gravel</item>
+    </string-array>
+
+    <string-array name="DEFAULT_AREA_TYPES">
+        <item>Generic Area</item>
+        <item>Buildings</item>
+        <item>Bushes</item>
+        <item>Craters</item>
+        <item>Trees</item>
+        <item>Sand</item>
+        <item>Lake</item>
+        <item>Gravel</item>
+    </string-array>
+    
+
+    <string-array name="POINT_TYPES">
+        <item>Airfield Instrument</item>
+        <item>Antenna</item>
+        <item>Berms</item>
+        <item>Building</item>
+        <item>Bush</item>
+        <item>Crater</item>
+        <item>Dumpster</item>
+        <item>Fire Hydrant</item>
+        <item>Flagpole</item>
+        <item>Fuel Tank</item>
+        <item>Generic Point</item>
+        <item>HVAC Unit</item>
+        <item>Label</item>
+        <item>Laser Target</item>
+        <item>Ledge</item>
+        <item>Light</item>
+        <item>Light Pole</item>
+        <item>Mound</item>
+        <item>Peak</item>
+        <item>Pole</item>
+        <item>Pylon</item>
+        <item>R&amp;B Circle</item>
+        <item>R&amp;B Line</item>
+        <item>Rotating Beacon</item>
+        <item>Satellite Dish</item>
+        <item>Sign</item>
+        <item>Transformer</item>
+        <item>Tree</item>
+        <item>Windsock</item>
+        <item>WX Vane</item>
+    </string-array>
+   
+    <string-array name="DEFAULT_POINT_TYPES">
+        <item>Generic Point</item>
+        <item>Label</item>
+        <item>Bush</item>
+        <item>Pole</item>
+        <item>Tree</item>
+        <item>R&amp;B Line</item>
+        <item>R&amp;B Circle</item>
+    </string-array>
+
+    <string-array name="DEFAULT_VEHICLE_TYPES">
+        <item>B-707</item>
+        <item>B-727</item>
+        <item>B-737</item>
+        <item>B-747</item>
+        <item>C-5</item>
+        <item>C-17</item>
+        <item>C-130</item>
+        <item>C-145</item>
+        <item>C-146</item>
+        <item>CASA-212</item>
+        <item>CH-47</item>
+        <item>CV-22</item>
+        <item>DC-10</item>
+        <item>HH-53</item>
+        <item>KC-10</item>
+        <item>KC-135</item>
+        <item>L-1011</item>
+        <item>MH-6</item>
+        <item>PC-12</item>
+        <item>R-11</item>
+        <item>UH-1</item>
+        <item>UH-60</item>
+    </string-array>
+
+    <string-array name="TAXIWAY_TYPES">
+        <item>Taxiway</item>
+        <item>Apron</item>
+    </string-array>
+
+</resources>

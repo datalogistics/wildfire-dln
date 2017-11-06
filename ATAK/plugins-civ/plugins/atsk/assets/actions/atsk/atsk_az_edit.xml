@@ -1,0 +1,19 @@
+<set>
+    <broadcast>
+        <action>AZMenuAction</action>
+        <extras>
+            <string key='OBMenuRequest'>OBMenuRequestEdit</string>
+            <string key='AZMenuUIDSelected'>${SURVEY_UID}</string>
+        </extras>
+    </broadcast>
+    <broadcast>
+        <action>com.atakmap.android.maps.UNFOCUS</action>
+    </broadcast>
+    <broadcast>
+        <action>com.atakmap.android.maps.HIDE_DETAILS</action>
+    </broadcast>
+    <broadcast>
+        <action>com.atakmap.android.maps.HIDE_MENU</action>
+    </broadcast>
+
+</set>

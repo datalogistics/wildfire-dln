@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dzline0">1. All users accept responsibility for damage to equipment, property, and/or injury to personnel in and around DZ.</string>
+    <string name="hlzline0">1. All users accept responsibility for damage to equipment, property, and/or injury to personnel in and around HLZ.</string>
+    
+    <string name="dzline1">2. Coordinates, elevation data derived from __dzElevDerivedFrom__.</string>
+
+    <string name="dzline1a">a. Horizontal margin of error +/-__dzMarginOfError__ meters, Vertical margin of error 1.5 X horizontal error.</string>
+ 
+    <string name="dzline1b">b. MAGVAR __dzMagneticVar__ changing __dzMagChange__ per year derived from WMM 2015 as of __dzMagDerivedDate__.</string>
+
+    <string name="dzline2">3. Administration / Coordination / Planning /  Scheduling Instructions:</string>
+    <string name="dzline3">4. Surveyor Observed Obstacles/Hazards on and within 1,000 meters of the DZ Boundary (All distances from DZ Centerpoint unless otherwise specified)</string>
+    <string name="dzline3_line2">User is responsible for confirming ALL obstacle/hazard locations prior to conducting airdrop operations:  </string>
+    <string name="dzline3a">a. Obstacles/Hazards INSIDE DZ</string>
+    <string name="dzline3b">b. Obstacles/Hazards OUTSIDE DZ</string>
+
+    <string name="dzline4">Surveyor Observed Terrain Obstacles / Hazards:</string>
+    <string name="dzline5">Safety of Flight Review:</string>
+    <string name="dzline5a">a. SOF Review Reported Obstacles/Hazards (including Rapidly Rising / High Terrain) within 5 NM Radius of the DZ Centerpoint:</string>
+    <string name="dzline5b">b. Additional Information and Airspace: </string>
+    <string name="dzline6">Notes:</string>
+    <string name="dzline7">JPADS Remarks:</string>
+
+    <string name="dzline7a">    a. DZ meets JPADS criteria for __dzDayNight__ operations Approved ADE is required prior to operations.</string>
+    <string name="dzline7b">    b. RPIs can be used. __dzCoordElevation__  will be passed for ADE approval prior to use.  </string>
+    <string name="dzline7c">    c. JPADS PI: __dzJpadsPi__</string>
+
+
+
+    <string name="hlzline1">@string/dzline1</string>
+    <string name="hlzline1a">@string/dzline1a</string>
+    <string name="hlzline1b">@string/dzline1b</string>
+    <string name="hlzline3">3. Recommended Approach: __hlzline3approach__M / Departure: __hlzline3departure__M</string>
+    <string name="hlzline4">4. Administration / Coordination / Planning /  Scheduling Instructions:</string>
+    <string name="hlzline5">5. Surveyor Observed Obstacles/Hazards on and within 1,000 meters of the HLZ Boundary (All distances from HLZ Centerpoint unless otherwise specified) </string>
+    <string name="hlzline5_line2">User is responsible fror confirming ALL obstacle/hazard locations prior to conducting airdrop operations:</string>
+    <string name="hlzline5a">a. Obstacles/Hazards INSIDE HLZ</string>
+    <string name="hlzline5b">b. Obstacles/Hazards OUTSIDE HLZ</string>
+    <string name="hlzline5c">c. Quadrant Controlling Obstacle:</string>
+    <string name="hlzline6">6. Surveyor Observed Terrain Obstacles / Hazards:</string>
+    <string name="hlzline7">7. Safety of Flight Review:</string>
+    <string name="hlzline7a">a. SOF Review Reported Obstacles/Hazards (including Rapidly Rising / High Terrain) within 5 NM Radius of the HLZ Centerpoint:</string>
+    <string name="hlzline7b">b. Additional Information and Airspace:</string>
+    <string name="hlzline8">8. Notes:"</string>
+    <string name="hlzline8a">a. Surface Type: __hlzSurfaceType__"</string>
+
+
+
+
+
+
+    <string name="farpstmt1">Tanker aircraft will face __farpHeading__ towards __farpTankerFacing__</string>
+    <string name="farpstmt2">All users accept responsibility for damage to equipment, property, and/or injury to personnel.</string>
+
+    <string name="farpline1">Nose Wheel will be placed at or near the following coordinates:</string>
+    <string name="farpline1a">Tanker Type Aircraft:  __farpAircraftType__ / __$vnl__MGRS: __farpAircraftMgrs__ / __$vnl__LL: __farpAircraftLatLon__</string>
+
+    <string name="farp_tanker_line1">Largest tanker aircraft certified: __farpLargestTanker__ IAW T.O 00-25-172 Additional smaller aircraft: __farpAdditionalSmaller__</string>
+    <string name="farp_receiver_line1">Rotary: __farpRotary__ Fixed Wing Size: __farpFixedWingSize__ aircraft certified IAW T.O. 00-25-172 which meet dimensional and egress criteria</string>
+    <string name="farp_fuel_points_line1">Surveyed for Service points: __farpServicePoints__</string>
+    <string name="farp_tanker_location_marshalling_line1">__farpTankerLocationMarshalling__</string>
+    <string name="farp_receiver_location_marshalling_line1">__farpReceiverLocationMarshalling__</string>
+    <string name="farp_emergency_line1">__farpEmergency__</string>
+    <string name="farp_environment_line1">__farpEnvironment__</string>
+    <string name="farp_obstacles_line1">FARP Obstructions: __farpObstructions__</string>
+    <string name="farp_obstacles_line2">Tanker Obstructions: __farpTankerObstructions__</string>
+    <string name="farp_obstacles_line3">Receiver Obstructions: __farpReceiverObstructions__</string>
+    <string name="farp_cfr_line1">__farpCfr__</string>
+    <string name="farp_additional_info_line1">__farpAdditionalInfo___</string>
+
+
+    <string name="lzpen_line1">1. End of Overrun (EOO)</string>
+    <string name="lzpen_line1a">a. Rwy __lzRunwayDirection__ __lzEndOfUsableMGRS__ / __$vnl__ __lzEndOfUsableLatLon__</string>
+    <string name="lzpen_line1b">b. Rwy __lzInverseRunwayDirection__ __lzInverseEndOfUsableMGRS__ / __$vnl__ __lzInverseEndOfUsableLatLon </string>
+    <string name="lzpen_line2">2. Runway Controlling Obstacle(s):</string>
+    <string name="lzpen_line2a">a. Rwy __lzRunwayDirection__ Controlling Obstacle: ____ __lzControllingObstacle__ ____ Distance from obstacle to end of Clear Zone ____ __lzControllingObstacleDistance__ / __lzControllingObstacleHeight__ above runway __lzRunwayGSR__ GSR.</string>
+    <string name="lzpen_line2a1">2a1. NON STANDARD OVERRUN LENGTH __lzRunwayOverrun__ __lzRunwayGSR__.</string>
+    <string name="lzpen_line2b">b. Rwy __lzInverseRunwayDirection__ Controlling Obstacle: ____ __lzInverseControllingObstacle__ ____ Distance from obstacle to end of Clear Zone ____ __lzInverseControllingObstacleDistance__ / __lzInverseControllingObstacleHeight__ above runway __lzInverseRunwayGSR__ GSR.</string>
+    <string name="lzpen_line2b1">2b1. NON STANDARD OVERRUN LENGTH __lzInverseRunwayOverrun__ __lzInverseRunwayGSR__.</string>
+
+    <string name="lzpen_line3">3. Displaced Threshold:</string>
+    <string name="lzpen_line3a">Rwy __lzRunwayDirection__: __lzRunwayDisplaced__ Displaced / __lzRunwayRemaining__ Remaining / __lzRunwayStdGSR__ GSR __lzDisplacedThresholdMGRS__ __lzDisplacedThresholdLatLon__</string>
+    <string name="lzpen_line3b">Rwy __lzInverseRunwayDirection__: __lzInverseRunwayDisplaced__ Displaced / __lzInverseRunwayRemaining__ Remaining / __lzInverseRunwayStdGSR__ GSR __lzInverseDisplacedThresholdMGRS__ __lzInverseDisplacedThresholdLatLon__ </string>
+
+    
+   
+    <string name="lzline3">4. Surveyor Observed Obstacles/Hazards on and around the LZ (All distances from LZ Centerpoint unless otherwise specified) \nUser and LZSO are responsible for identifying/ confirming ALL obstacles/hazards prior to conducting operations:</string>
+    <string name="lzline3a">Rwy __lzRunwayDirection__ Clear Zone</string>
+    <string name="lzline3b">Rwy __lzInverseRunwayDirection__ Clear Zone</string>
+
+
+    <string name="lzline5">5. Surveyor Observed Obstacles/Hazards on and within 1,000 meters of the LZ Boundary (All distances from LZ Centerpoint unless otherwise specified) </string>
+
+    <string name="lzline7a">a. LZ surface extremely flat  transverse left half runway), drainage criteria less than prescribed by aircraft criteria. Precipitation may result in standing/pooling water on surface. Check Runway Condition Rating (RCR)/Runway Surface Condition (RSC) and Runway Friction Factor (RFF)</string>
+
+     
+    <string name="lzline8">8. Runway DCP Data processed with PCASE 2.09 / __lzRunwayDCPReadings__  readings taken to a depth of __lzRunwayDCPDepth__ inches.</string>
+
+    <string name="lzline8a">a. Surface: __lzRunwaySurfaceBaseReadings__  CBR __lzRunwaySurfaceCBRReadings__ / Subbase __lzRunwaySubbaseReadings__ CBR __lzRunwaySubbaseCBRReadings__ / Subgrade __lzRunwaySubgradeReadings__ CBR __lzRunwaySubgradeCBRReadings__</string>
+    <string name="lzline8b">b. Controlling Layer:__$vnl__ __lzRunwayControllingSurface__ CBR __lzRunwayControllingCBR__ </string>
+    <string name="lzline8c">c. __$vnl__C-17 @ 486,000 lbs = __lzRunwayC17Passes__ Passes /__$vnl__ C-130 @ 175,000 lbs = __lzRunwayC130Passes__ Passes /__$vnl__ C-130J @ 175,000 lbs = __lzRunwayC130JPasses__ Passes /__$vnl__ C-130J-30 @ 175,000 lbs = __lzRunwayC130J30Passes__ Passes /__$vnl__ C-146A @  31,000 lbs =  __lzRunwayC146APasses__ Passes /__$vnl__ PC-12 or C-145A @  15,000 lbs =  __lzRunwayC145APasses__ Passes"</string>
+
+    <string name="lzline9">9. Taxiway DCP Data processed with PCASE 2.09 /__$vnl__ __lzTaxiwayDCPReadings__  readings taken to a depth of __lzTaxiwayDCPDepth__ inches.</string>
+    <string name="lzline9a">a. Surface: __lzTaxiwaySurfaceBaseReadings__  __$vnl__CBR __lzTaxiwaySurfaceCBRReadings__ /__$vnl__ Subbase __lzTaxiwaySubbaseReadings__ __$vnl__CBR __lzTaxiwaySubbaseCBRReadings__ /__$vnl__ Subgrade __lzTaxiwaySubgradeReadings__ __$vnl__CBR __lzTaxiwaySubgradeCBRReadings__</string>
+    <string name="lzline9b">b. Controlling Layer: __lzTaxiwayControllingSurface__ CBR __lzTaxiwayControllingCBR__ </string>
+    <string name="lzline9c">c.__$vnl__ C-17 @ 486,000 lbs = __lzTaxiwayC17Passes__ Passes /__$vnl__ C-130 @ 175,000 lbs = __lzTaxiwayC130Passes__ Passes /__$vnl__ C-130J @ 175,000 lbs = __lzTaxiwayC130JPasses__ Passes /__$vnl__ C-130J-30 @ 175,000 lbs = __lzTaxiwayC130J30Passes__ Passes /__$vnl__ C-146A @  31,000 lbs =  __lzTaxiwayC146APasses__ Passes /__$vnl__ PC-12 or C-145A @  15,000 lbs =  __lzTaxiwayC145APasses__ Passes"</string>
+
+    <string name="lzline10">10. Apron DCP Data processed with PCASE 2.09 / __lzApronDCPReadings__ DCP readings taken to a depth of __lzApronDCPDepth__ inches.</string>
+    <string name="lzline10a">a. Surface: __lzApronSurfaceBaseReadings__  CBR __lzApronSurfaceCBRReadings__ /__$vnl__ Subbase __lzApronSubbaseReadings__ CBR __lzApronSubbaseCBRReadings__ /__$vnl__ Subgrade __lzApronSubgradeReadings__ CBR __lzApronSubgradeCBRReadings__</string>
+    <string name="lzline10b">b. Controlling Layer: __lzApronControllingSurface__ CBR __lzApronControllingCBR__ </string>
+    <string name="lzline10c">c.__$vnl__ C-17 @ 486,000 lbs = __lzApronC17Passes__ Passes /__$vnl__ C-130 @ 175,000 lbs = __lzApronC130Passes__ Passes /__$vnl__ C-130J @ 175,000 lbs = __lzApronC130JPasses__ Passes /__$vnl__ C-130J-30 @ 175,000 lbs = __lzApronC130J30Passes__ Passes /__$vnl__ C-146A @  31,000 lbs =  __lzApronC146APasses__ Passes /__$vnl__ PC-12 or C-145A @  15,000 lbs =  __lzApronC145APasses__ Passes"</string>
+
+
+    <string-array name="restrictions">
+          <item>RESTRICTED FOR USE TO SOF AIRCRAFT ONLY</item>
+    </string-array>
+
+    <string-array name="restrictionsltfw">
+          <item>RESTRICTED FOR USE TO SOF AIRCRAFT ONLY</item>
+          <item>FOR USE ONLY BY LTFW AIRCRAFT THAT MEET SURVEYED CRITERIA</item>
+    </string-array>
+
+
+    <string-array name="gpsource">
+       <item>R8 RTK Differential GPS</item>
+       <item>R10 RTK Differential GPS</item>
+       <item>Internal GPS</item>
+    </string-array>
+
+    <string-array name="he">
+        <item>0.01m</item>
+        <item>3m</item>
+        <item>10m</item>
+        <item>20m</item>
+        <item>30m</item>
+        <item>40m</item>
+        <item>50m</item>
+    </string-array>
+
+    <string-array name="hlzstmt">
+        <item>FOR SPECIAL OPERATIONS ONLY</item>
+        <item>CAUTION: BROWN OUT CONDITIONS MAY EXIST!</item>
+        <item>Supported units commander accepts responsibility for damage to equipment, property, and/or injury to personnel on and around the HLZ.</item>
+    </string-array>
+
+    <string-array name="dzstmt">
+        <item>SOF JUMPERS</item>
+        <item>SOF AIRCRAFT</item>
+        <item>SOF JUMPERS AND AIRCRAFT</item>
+    </string-array>
+
+    <string-array name="hazards">
+        <item>FIRE</item>
+        <item>FLOODING</item>
+        <item>ELECTRICAL</item>
+        <item>ROCK SLIDE</item>
+        <item>WEATHER</item>
+    </string-array>
+
+    <string-array name="dzpassing">
+        <item>Coordinates</item>
+        <item>Elevations</item>
+        <item>Coordinates and Elevations</item>
+    </string-array>
+
+    <string-array name="rotary">
+        <item>MH-53</item>
+        <item>UH-1</item>
+        <item>HH-60</item>
+        <item>CV-22</item>
+        <item>MH-47E</item>
+        <item>MH-6/AH-6</item>
+    </string-array>
+
+    <string-array name="fwsize">
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+
+    <string-array name="servicepoints">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+
+</resources>

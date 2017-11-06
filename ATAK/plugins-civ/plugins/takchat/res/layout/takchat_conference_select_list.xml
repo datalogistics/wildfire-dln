@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <EditText
+        android:id="@+id/takchat_conference_search_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="1"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="16sp"
+        android:imeOptions="flagNoFullscreen"
+        android:hint="@string/search_hint"
+        android:visibility="gone"/>
+
+    <ListView
+        android:id="@+id/takchat_conference_list"
+        android:fadeScrollbars="false"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+</LinearLayout>

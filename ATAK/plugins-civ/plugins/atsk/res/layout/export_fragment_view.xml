@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#383838"
+    android:orientation="vertical" >
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:fadeScrollbars="false"
+        android:clickable="true" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/scroll_margin"
+            android:layout_marginLeft="@dimen/scroll_margin"
+            android:clickable="true"
+            android:orientation="vertical" >
+
+             <Button
+                android:id="@+id/save"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/auto_space"
+                android:text="Save"
+                android:textSize="14sp" />
+             <Button
+                android:id="@+id/share"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/auto_space"
+                android:text="Share"
+                android:textSize="14sp" />
+            <Button
+                android:id="@+id/save_gallery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/auto_space"
+                android:text="Export Survey Gallery"
+                android:textSize="14sp"/>
+             <Button
+                android:id="@+id/export_survey"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/auto_space"
+                android:text="Export"
+                android:textSize="14sp" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Capture Survey with Imagery"
+                android:id="@+id/image_cap_button"
+                android:textSize="14sp"
+                android:layout_marginTop="@dimen/auto_space"/>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="5dp"
+              android:gravity="center_vertical"
+              android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/takchat_contactselect_image"
+            android:layout_width="20dip"
+            android:layout_height="20dip"
+            android:src="@drawable/xmpp_badge"/>
+
+        <TextView
+            android:id="@+id/takchat_contactselect_alias"
+            android:paddingLeft="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/takchat_contactselect_image"
+            android:textSize="24sp"
+            android:singleLine="true"
+            android:text="Conversation Title"/>
+
+        <CheckBox
+            android:id="@+id/takchat_contactselect_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/takchat_contactselect_status"
+            android:paddingLeft="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text="Contact Status"/>
+    </LinearLayout>
+
+</LinearLayout>

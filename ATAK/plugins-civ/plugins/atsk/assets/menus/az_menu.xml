@@ -1,0 +1,9 @@
+<menu buttonBg='bgs/button.xml' buttonWidth='90' buttonSpan='180' buttonRadius='65'>
+
+    <button icon='icons/edit2.png' 
+            onClick='actions/atsk/atsk_az_edit.xml' />
+    
+    <button icon='icons/details.png'
+            onClick='actions/atsk/atsk_az_info.xml' />
+    
+</menu>

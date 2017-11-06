@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- description -->
+    <string name="app_desc"></string>
+    <string-array name="gotenna_types">
+        <item>v1</item>
+        <item>Mesh</item>
+        <item>Pro</item>
+    </string-array>
+</resources>

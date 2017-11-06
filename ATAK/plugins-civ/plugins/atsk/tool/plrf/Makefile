@@ -1,0 +1,3 @@
+
+all:
+	javac PLRFSim.java

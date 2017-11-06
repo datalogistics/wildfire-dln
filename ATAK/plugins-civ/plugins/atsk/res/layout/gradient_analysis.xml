@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/auto_space"
+        android:paddingLeft="@dimen/auto_space"
+        android:paddingRight="@dimen/auto_space"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/filter"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:minHeight="32dp"
+            android:layout_weight="1"
+            android:background="@drawable/fullborder_background"
+            android:text="FILTER"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"/>
+        <Button
+            android:id="@+id/analyze"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:minHeight="32dp"
+            android:layout_weight="1"
+            android:background="@drawable/fullborder_background"
+            android:text="ANALYZE"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/auto_space"
+        android:paddingLeft="@dimen/auto_space"
+        android:paddingRight="@dimen/auto_space"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/hide_raw"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:minHeight="32dp"
+            android:background="@drawable/fullborder_background"
+            android:text="@string/hide_raw"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"/>
+        <Button
+            android:id="@+id/hide_filtered"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:minHeight="32dp"
+            android:background="@drawable/fullborder_background"
+            android:text="@string/hide_analyzed"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+
+
+    <TextView
+        android:id="@+id/topPBName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:paddingTop="@dimen/auto_space"
+        android:text=" "
+        android:textColor="#FFFFFF"
+        android:textSize="14sp">
+    </TextView>
+
+    <ProgressBar
+        android:id="@+id/topPB"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="false"
+        android:max="100"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:progress="1"/>
+
+    <TextView
+        android:id="@+id/bottomPBName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:text=" "
+        android:textColor="#FFFFFF"
+        android:textSize="14sp">
+    </TextView>
+
+    <ProgressBar
+        android:id="@+id/bottomPB"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="false"
+        android:max="100"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:progress="1"/>
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fadeScrollbars="false"
+        android:paddingTop="5dp">
+    </ListView>
+
+</LinearLayout>

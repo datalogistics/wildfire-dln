@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="takchat_synctime_entries">
+        <item>None</item>
+        <item>1 hour</item>
+        <item>1 day</item>
+        <item>1 week</item>
+    </string-array>
+
+    <string-array name="takchat_synctime_values">
+        <item>-1</item>
+        <item>3600000</item>
+        <item>86400000</item>
+        <item>604800000</item>
+    </string-array>
+
+</resources>

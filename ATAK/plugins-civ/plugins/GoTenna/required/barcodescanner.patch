@@ -1,0 +1,75 @@
+diff --git a/core/build.gradle b/core/build.gradle
+index cc4dabe..1c8eb5a 100644
+--- a/core/build.gradle
++++ b/core/build.gradle
+@@ -9,5 +9,5 @@ ext {
+ }
+ 
+ dependencies {
+-    compile libraries.support_v4
++    provided files('../../../ATAK/libs/android-support-v4-slim.jar')
+ }
+diff --git a/core/src/main/java/me/dm7/barcodescanner/core/BarcodeScannerView.java b/core/src/main/java/me/dm7/barcodescanner/core/BarcodeScannerView.java
+index 42863e1..94393b4 100644
+--- a/core/src/main/java/me/dm7/barcodescanner/core/BarcodeScannerView.java
++++ b/core/src/main/java/me/dm7/barcodescanner/core/BarcodeScannerView.java
+@@ -6,7 +6,7 @@ import android.content.res.TypedArray;
+ import android.graphics.Color;
+ import android.graphics.Rect;
+ import android.hardware.Camera;
+-import android.support.annotation.ColorInt;
++//import android.support.annotation.ColorInt;
+ import android.util.AttributeSet;
+ import android.util.Log;
+ import android.view.Gravity;
+@@ -26,8 +26,8 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
+     private boolean mShouldScaleToFill = true;
+ 
+     private boolean mIsLaserEnabled = true;
+-    @ColorInt private int mLaserColor = getResources().getColor(R.color.viewfinder_laser);
+-    @ColorInt private int mBorderColor = getResources().getColor(R.color.viewfinder_border);
++    /** @ColorInt **/ private int mLaserColor = getResources().getColor(R.color.viewfinder_laser);
++    /** @ColorInt **/ private int mBorderColor = getResources().getColor(R.color.viewfinder_border);
+     private int mMaskColor = getResources().getColor(R.color.viewfinder_mask);
+     private int mBorderWidth = getResources().getInteger(R.integer.viewfinder_border_width);
+     private int mBorderLength = getResources().getInteger(R.integer.viewfinder_border_length);
+diff --git a/core/src/main/java/me/dm7/barcodescanner/core/CameraWrapper.java b/core/src/main/java/me/dm7/barcodescanner/core/CameraWrapper.java
+index c030a01..d574c65 100644
+--- a/core/src/main/java/me/dm7/barcodescanner/core/CameraWrapper.java
++++ b/core/src/main/java/me/dm7/barcodescanner/core/CameraWrapper.java
+@@ -1,13 +1,13 @@
+ package me.dm7.barcodescanner.core;
+ 
+ import android.hardware.Camera;
+-import android.support.annotation.NonNull;
++//import android.support.annotation.NonNull;
+ 
+ public class CameraWrapper {
+     public final Camera mCamera;
+     public final int mCameraId;
+ 
+-    private CameraWrapper(@NonNull Camera camera, int cameraId) {
++    private CameraWrapper(/** @NonNull **/ Camera camera, int cameraId) {
+         if (camera == null) {
+             throw new NullPointerException("Camera cannot be null");
+         }
+diff --git a/dependencies.gradle b/dependencies.gradle
+index 075b1dd..526d848 100644
+--- a/dependencies.gradle
++++ b/dependencies.gradle
+@@ -9,7 +9,7 @@ ext.versions = [
+ ]
+ 
+ ext.libraries = [
+-        support_v4          : "com.android.support:support-v4:$versions.support_lib",
++//        support_v4          : "com.android.support:support-v4:19.0.0",
+         appcompat_v7        : "com.android.support:appcompat-v7:$versions.support_lib",
+         design_support      : "com.android.support:design:$versions.support_lib",
+         zxing_core          : "com.google.zxing:core:$versions.zxing",
+diff --git a/settings.gradle b/settings.gradle
+index 8b363d8..ee48191 100644
+--- a/settings.gradle
++++ b/settings.gradle
+@@ -1 +1 @@
+-include "core", "zxing", "zxing-sample", "zbar", "zbar-sample"
++include "core", "zxing", "zbar"

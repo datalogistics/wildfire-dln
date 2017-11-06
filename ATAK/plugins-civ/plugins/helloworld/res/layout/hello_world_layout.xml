@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   android:orientation="vertical" >
+
+<ScrollView
+    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fadeScrollbars="false"
+    android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp">
+
+<LinearLayout
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   android:orientation="vertical" >
+   <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Hello, World" />
+   <Button android:id="@+id/smallerButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Smaller" />
+   <Button android:id="@+id/largerButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Larger" />
+   <Button android:id="@+id/fly"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Fly" />
+   <Button android:id="@+id/specialWheelMarker"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Special Marker" />
+   <Button android:id="@+id/listRoutes"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="List Routes" />
+   <Button android:id="@+id/showSeachIcon"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Show Search Icon" />
+   <Button android:id="@+id/addXRoute"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Add Route" />
+   <Button android:id="@+id/reXRoute"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Reroute" />
+   <Button android:id="@+id/emergency"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Emergency" />
+   <Button android:id="@+id/no_emergency"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="No Emergency" />
+   <Button android:id="@+id/rbcircle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Range/Bearing Circle" />
+   <Button android:id="@+id/externalGps"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Simulate External GPS" />
+   <Button android:id="@+id/staleoutMarker"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Stale out Marker" />
+   <Button android:id="@+id/surfaceAtCenter"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Query surface data"/>
+   <Button android:id="@+id/fakeContentProvider"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Fake Content Provider"/>
+   <Button android:id="@+id/pluginNotification"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Notification with Plugin Icon"/>
+   <Button android:id="@+id/addStream"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Add Streams"/>
+   <Button android:id="@+id/removeStream"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      style="@style/darkButton" android:padding="6dp"
+      android:text="Remove Streams"/>
+</LinearLayout>
+</ScrollView>
+</LinearLayout>

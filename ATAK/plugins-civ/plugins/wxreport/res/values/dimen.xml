@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <!-- font size big enough for most things; MGRS coordinate, etc, so at least ~18 characters of MGRS in a typical dropdown width -->
+    <dimen name="fontSize">14sp</dimen>        
+    
+    <!-- font size that can fit longer text strings, like lat-lon on the nineline screen, which can easily get up to ~26 characters 
+         optimally, fields using this value should be auto-resizing text to fit, since it's important that it all show, but in general
+         this value should suffice -->
+    <dimen name="smallerFontSize">14sp</dimen>
+    
+    <!-- Spinner right-side padding; the default value is too generous for some spinners (ie the location spinner on nineline), 
+         especially on normal-sized screens, this is a smaller value -->
+    <dimen name="spinnerPaddingRight">35dp</dimen>
+    
+    <!-- Toolbar buttons are a fixed size across all platforms, so they get a fixed text size -->
+    <dimen name="draper_toolbar_font">11sp</dimen>
+            
+    <!-- Putting res values in MapLibrary since most project libraries reference it -->
+    <dimen name="draper_verylarge_font">18sp</dimen>
+    <dimen name="draper_title_font">13sp</dimen>
+    <dimen name="draper_font">10sp</dimen>
+    <dimen name="draper_small_font">8sp</dimen>
+
+    <dimen name="spinnerFontSize">14sp</dimen>
+    <dimen name="labelFontSize">13sp</dimen>
+    <dimen name="jmDetailsFontSize">14sp</dimen>
+
+    <dimen name="nineline_line_height">32dp</dimen>
+    
+    <!-- Slant Report -->
+    <dimen name="small_button_height">30dp</dimen>
+    <dimen name="small_button_width">40dp</dimen>
+    
+    <dimen name="inputFontSize">14sp</dimen>
+    
+    <dimen name="padding_bottom">7dp</dimen>
+    
+    <dimen name="margin_left">3dp</dimen>
+    <dimen name="margin_right">3dp</dimen>
+    <dimen name="margin_bottom">5dp</dimen>
+</resources>
+

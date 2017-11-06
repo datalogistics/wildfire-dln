@@ -1,0 +1,64 @@
+-dontshrink
+-dontoptimize
+
+############### ACRA specifics
+# we need line numbers in our stack traces otherwise they are pretty useless
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
+
+
+
+-dontwarn sun.misc.**
+-dontwarn com.lowagie.**
+-dontwarn org.achartengine.**
+-dontwarn harmony.java.**
+-dontwarn com.google.**
+-dontwarn com.gmeci.Conversions.ElevationsTester
+
+-applymapping <atak.proguard.mapping>
+
+-keepattributes *Annotation*
+-keepattributes Signature
+
+
+# Preserve all native method names and the names of their classes.
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
+
+# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keepclassmembers class * {
+    @org.simpleframework.xml.* *;
+}
+
+-keep class * implements java.lang.ProcessManager.* {
+    private final int pid;
+}
+ 
+-keep class com.atakmap.android.atsk.** {*;}
+-keep class com.gmeci.** {*;}
+
+-keep class com.lowagie.** {*;}
+-keep class com.google.** {*;}
+-keep class org.achartengine.** {*;}
+-keep class com.sromku.** {*;}
+
+
+-keep class * implements transapps.maps.plugin.tool.Tool {
+}
+-keep class * implements transapps.maps.plugin.lifecycle.Lifecycle {
+}

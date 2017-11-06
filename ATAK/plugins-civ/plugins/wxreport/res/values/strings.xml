@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- description -->
+    <string name="app_desc"></string>
+
+
+    <!-- App -->
+    <string name="app_name">Weather Report</string>
+    <string name="wxView">Wx Report</string>
+    <string name="wxCoord">-- \n-- ft MSL</string>
+    <string name="wxPan">Pan</string>
+    <string name="wxDate">Date: </string>
+    <string name="wxLocation">Location</string>
+    <string name="wxTemperature">Temperature</string>
+    <string name="wxCondition">Condition</string>
+    <string name="wxOverlayItemTitle">Unknown</string>
+    <string name="wxOverlayItemToggleImage">wxOverlayItemToggleImage</string>
+    <string name="_10_day_forecast">10 Day Forecast</string>
+    <string name="currently">Currently</string>
+    <string name="conditions">Conditions</string>
+    <string name="problem_retrieving_weather_data_please_check_your_connection">Problem Retrieving Weather Data Please Check Your Connection Or Try Again Later</string>
+    <string name="retrieving_weather_data_for_location">Retrieving Weather Data For Location...</string>
+    <string name="manually_enter_location">Manually Enter Location</string>
+    <string-array name="tempUnitEntries">
+        <item>Fahrenheit</item>
+        <item>Celsius</item>
+    </string-array>
+    <string-array name="tempUnitValues">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+</resources>

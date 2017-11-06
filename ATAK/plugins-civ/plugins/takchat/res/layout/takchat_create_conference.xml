@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:fadeScrollbars="false">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Conference Chat Server"/>
+            <EditText
+                android:id="@+id/create_conference_server"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Conference ID"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="1">
+                <EditText
+                    android:id="@+id/create_conference_name"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.65"
+                    android:layout_height="wrap_content"
+                    android:hint="Conference ID is required"/>
+                <CheckBox
+                    android:id="@+id/create_conference_persistent"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:checked="false"
+                    android:layout_weight="0.35"
+                    android:singleLine="true"
+                    android:text="Permanent"/>
+            </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/create_conference_optionalLayout"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:orientation="vertical">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/lighter_gray"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textSize="8dp"
+                android:textColor="@color/white"
+                android:text="Optional Fields"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Alias"/>
+            <EditText
+                android:id="@+id/create_conference_alias"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Local alias is optional"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Password"/>
+            <EditText
+                android:id="@+id/create_conference_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:hint="Password may not be required"
+                android:enabled="true"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/create_conference_desc_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dip"
+                    android:text="Description"
+                    android:textSize="8dp"
+                    android:layout_alignParentTop="true"/>
+                <EditText
+                    android:id="@+id/create_conference_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:layout_below="@+id/create_conference_desc_label"/>
+            </RelativeLayout>
+        </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customWmsMapSource>
+    <name>Cloud Cover</name>
+    <minZoom>0</minZoom>
+    <maxZoom>18</maxZoom>
+    <tileType>png</tileType>
+    <url>http://geo.weather.gc.ca/geomet/</url>
+    <coordinatesystem>EPSG:3857</coordinatesystem>
+    <layers>GDPS.ETA_NT</layers>
+    <styles>CLOUD</styles>
+    <north>85.0511</north>
+    <east>180.0</east>
+    <south>-85.0511</south>
+    <west>-180.0</west>
+    <backgroundColor>#000000</backgroundColor>
+    <aditionalparameters>&amp;transparent=true</aditionalparameters>
+</customWmsMapSource>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838"
+    android:orientation="vertical" >
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fadeScrollbars="false">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/scroll_margin"
+            android:layout_marginLeft="@dimen/scroll_margin"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/save"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/atsk_save"
+                    android:text="" />
+
+                <Button
+                    android:id="@+id/cancel"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/atsk_cancel"
+                    android:text="" />
+            </LinearLayout>
+
+            <com.gmeci.atsk.gradient.surfacedistress.SurfaceDistressTypeSpinner
+                android:id="@+id/distress_type_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bordered_spinner_selector"
+                android:paddingTop="@dimen/auto_space" />
+
+            <com.gmeci.atsk.gradient.surfacedistress.SurfaceDistressSeveritySpinner
+                android:id="@+id/distress_severity_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bordered_spinner_selector"
+                android:paddingTop="@dimen/auto_space" />
+
+            <TextView
+                android:id="@+id/Location_static"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:paddingTop="@dimen/auto_space"
+                android:text="@string/location"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/auto_size"
+                 >
+            </TextView>
+
+            <TextView
+                android:id="@+id/Location"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:gravity="center"
+                android:paddingTop="@dimen/auto_space"
+                android:text="NA "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/auto_size"
+                 >
+            </TextView>
+
+            <Button
+                android:id="@+id/add_distress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/auto_space"
+                android:layout_marginLeft="@dimen/auto_space"
+                android:layout_marginRight="@dimen/auto_space"
+                android:background="@drawable/fullborder_background"
+                android:paddingBottom="@dimen/auto_space"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingTop="@dimen/auto_space"
+                android:text="ADD DISTRESS"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/auto_size" />
+        </LinearLayout>
+    </ScrollView>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#ffFFFFFF" />
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="fill_parent"
+            android:layout_height="0px"
+        android:choiceMode="singleChoice" >
+    </ListView>
+
+</LinearLayout>

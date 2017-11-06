@@ -1,0 +1,17 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <CheckBox
+        android:id="@+id/cb_gen_markup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generate markup"/>
+
+    <CheckBox
+        android:id="@+id/cb_pdf_export"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Export to PDF"/>
+
+</LinearLayout>

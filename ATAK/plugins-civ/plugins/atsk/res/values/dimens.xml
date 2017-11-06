@@ -1,0 +1,33 @@
+<resources>
+
+    <!-- font size big enough for most things; MGRS coordinate, etc, so at least ~18 characters of MGRS in a typical dropdown width -->
+    <dimen name="fontSize">14sp</dimen>
+    <dimen name="smallFont">12sp</dimen>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+
+    <!-- Preference fragment padding, bottom -->
+    <!-- Preference fragment padding, sides -->
+
+    <!-- outsideOverlay -->
+    <dimen name="notification_size">15dp</dimen>
+    <dimen name="auto_size">18sp</dimen>
+    <dimen name="auto_size_small">10sp</dimen>
+    <dimen name="auto_size_big">22sp</dimen>
+    <dimen name="auto_space">2dp</dimen>
+    <dimen name="auto_space_big">4dp</dimen>
+    <dimen name="auto_space_large">6dp</dimen>
+    <dimen name="scroll_margin">10dp</dimen>
+    <dimen name="nav_icon_size">40dp</dimen>
+    <dimen name="color_btn">48dp</dimen>
+
+    
+    <!-- STANDARD FRAGMENT SIZES -->
+
+    <!-- STANDARD DIALOG SIZES -->
+    <dimen name="dialog_spinner_text_size">18sp</dimen>
+    
+    
+    <!-- REMARK BUILDER DIALOG SIZES -->
+
+</resources>

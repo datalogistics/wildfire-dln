@@ -1,0 +1,8 @@
+VERSION 1.1,,,,,,,
+#AC name, Boundary Length, Boundary Width, Taxiway Width,Runway Offset,Buffer,Units,Block
+C-130,30,40,47.5,58,7.5,meters,atsk/ac_block_files/C-130.block
+C-17,53,60,59.5,65.5,7.5,meters,atsk/ac_block_files/C-17.block
+CASA-212,16.5,20,27.5,58,7.5,meters,atsk/ac_block_files/CASA-212.block
+L-1101,54,47,54.5,58,7.5,meters,atsk/ac_block_files/L-1011.block
+,,,,,,,
+,,acNames,,,,,

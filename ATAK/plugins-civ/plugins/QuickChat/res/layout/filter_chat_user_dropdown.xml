@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/backImageButton"
+            android:src="@drawable/chat_back"
+            android:background="@android:color/transparent"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:adjustViewBounds="true"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/chat_message_n_popup_listing"
+            android:id="@+id/chatFilterTitleTextView"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical"
+            />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/searchEditText"
+            android:inputType="text"
+            android:typeface="sans"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:hint="@string/enter_search_here"
+            android:maxLength="25"
+            android:maxLines="1"
+            android:minLines="1"
+            android:imeOptions="flagNoExtractUi"
+            android:windowSoftInputMode="adjustPan"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            >
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/searchFilterImageButton"
+                android:src="@drawable/ic_action_search"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:padding="5dp"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/addFilterUserImageButton"
+                android:background="@android:color/transparent"
+                android:src="@drawable/group_icon_add"
+                android:scaleType="fitCenter"
+                android:padding="5dp"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/deleteFilterUserImageButton"
+                android:background="@android:color/transparent"
+                android:src="@drawable/group_icon_delete"
+                android:adjustViewBounds="false"
+                android:cropToPadding="false"
+                android:scaleType="fitCenter"
+                android:padding="5dp"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/sortImageButton"
+                android:src="@drawable/alpha_sort"
+                android:padding="5dp"
+                android:adjustViewBounds="false"
+                android:background="@android:color/transparent"
+                />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/okButton"
+                android:src="@drawable/ic_checkmark"
+                android:background="@android:color/transparent"
+                android:cropToPadding="false"
+                android:padding="5dp"
+                android:adjustViewBounds="false"
+                android:scaleType="centerCrop"/>
+
+            <ImageButton
+                android:src="@drawable/ic_delete_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/deleteAllButton"
+                android:cropToPadding="false"
+                android:padding="5dp"
+                android:background="@android:color/transparent"
+                android:adjustViewBounds="false"
+                android:scaleType="centerCrop"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+    </HorizontalScrollView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/containerRelativeLayout"
+        android:background="@android:color/black">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/addUsersLinearLayout">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:text="@string/individual"
+                    android:id="@+id/individualButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@android:style/Widget.Holo.Button"/>
+
+                <Button
+                    android:text="@string/groups"
+                    android:id="@+id/groupsButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@android:style/Widget.Holo.Button"/>
+            </TableRow>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/black">
+
+                <TextView
+                    android:text="@string/no_users_connected"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/noUsersListTextView"
+                    android:visibility="visible"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:textSize="12sp"
+                    android:padding="16dp"/>
+
+                <ListView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/addUsersListView"
+                    android:animateLayoutChanges="true"
+                    android:clickable="true"/>
+            </RelativeLayout>
+
+         </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/listingLinearLayout">
+
+            <ListView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/filterUsersListView"
+                android:headerDividersEnabled="false"
+                android:animateLayoutChanges="true"
+                />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/no_saved_users"
+            android:id="@+id/noSavedUsersTextView"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_marginTop="10dp"/>
+    </RelativeLayout>
+</LinearLayout>

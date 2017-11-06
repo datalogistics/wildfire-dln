@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:summary="If enabled, shows a popup banner when a specific user sends you a chat message"
+        android:key="chat_message_popup_dialog"
+        android:title="Enable message popups"
+        android:defaultValue="true"/>
+
+    <Preference
+        android:summary="Set the location where the banner will appear inside ATAK"
+        android:title="Banner screen location"
+        android:key="banner_location"/>
+
+    <Preference
+        android:summary="Set the color theme of the banner popup"
+        android:title="Banner color theme"
+        android:key="banner_theme"/>
+
+    <Preference
+        android:title="Quick reply button text"
+        android:summary="Sets the text to send when clicking the click reply button on the chat popup banner"
+        android:key="quick_reply_text_button"/>
+
+    <CheckBoxPreference
+        android:summary="If enabled, the message time displayed on the banner will present in 24 hour format"
+        android:title="Use 24 hour time"
+        android:defaultValue="true"
+        android:key="popup_24hr_time"/>
+
+    <CheckBoxPreference
+        android:key="popup_text_message_size"
+        android:summary="If enabled, message text size will appear in the largest scale, longer message will have to be scrolled"
+        android:title="Enlarge message text"
+        android:defaultValue="true"/>
+    <CheckBoxPreference
+        android:key="vibrate_on_popup"
+        android:defaultValue="false"
+        android:title="Vibrate device on popup"
+        android:summary="If enabled, your device will vibrate when receiving a popup message"/>
+
+    <CheckBoxPreference
+        android:key="popup_mark_message_read"
+        android:summary="If enabled, marks chat messages popups received as read in chat"
+        android:title="Mark messages read"
+        android:defaultValue="true"/>
+
+    <CheckBoxPreference
+        android:title="Clear message history on ATAK exit"
+        android:summary="If enabled, all stored messages in history received as a popup will delete when exiting Atak"
+        android:key="clear_history_on_exit"
+        android:defaultValue="false"/>
+    <Preference
+        android:title="Export history"
+        android:summary="Exports all quick chat message history to a local file"
+        android:key="chat_message_popups_history_export"/>
+    <Preference
+        android:title="Reset All Stored Plugin Data"
+        android:summary="Clears out all stored data for this plugin which will include chat history, filtered users and settings"
+        android:key="clear_cmp_history"/>
+
+    <Preference
+        android:title="Plugin documentation"
+        android:summary="Get help with using this tool by browsing the documentation"
+        android:icon="@drawable/chatmessageplugin72"
+        android:key="chat_message_popups_documentation"/>
+
+</PreferenceScreen>

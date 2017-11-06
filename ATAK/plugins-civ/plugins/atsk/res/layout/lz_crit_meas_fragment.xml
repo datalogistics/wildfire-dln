@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838"
+    android:orientation="vertical" >
+
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:fadeScrollbars="false"
+        android:clickable="true" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:layout_marginRight="@dimen/scroll_margin"
+            android:layout_marginLeft="@dimen/scroll_margin"
+            android:orientation="vertical" >
+
+            <Button
+                android:id="@+id/reverse_ends"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reverse Ends"
+                android:visibility="gone"/>
+
+            <View style="@style/atsk_Divider" />
+
+            <TextView
+                android:id="@+id/dz_crit_meas_text_pos_label"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:gravity="left"
+                android:text="@string/app_eoo"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/auto_size" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/dz_crit_meas_text_pos_val"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:gravity="right"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/auto_size" >
+            </TextView>
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+            <TextView
+                android:id="@+id/dz_crit_meas_text_appthres_label"
+                style="@style/atsk_LabelTextView"
+                android:text="@string/overrun" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/dz_crit_meas_text_appthres_val"
+                style="@style/atsk_ValueTextView" >
+            </TextView>
+            <TextView
+                android:id="@+id/dz_crit_meas_text_appthresh_units"
+                style="@style/atsk_UnitsTextView" >
+            </TextView>
+            </LinearLayout>
+
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_app_elev_label"
+                    style="@style/atsk_LabelTextView"
+                    android:text="@string/elev" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_app_elev_val"
+                    style="@style/atsk_ValueTextView" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_app_elev_units"
+                    style="@style/atsk_UnitsTextView" >
+                </TextView>
+            </LinearLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="#FFFFFFFF" />
+
+
+            <TextView
+                android:id="@+id/dz_crit_meas_text_dep_label"
+                style="@style/atsk_LabelTextView"
+                android:text="@string/dep_eoo" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/dz_crit_meas_text_dep_val"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:gravity="right"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/auto_size" >
+            </TextView>
+
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+            <TextView
+                android:id="@+id/dz_crit_meas_text_depthres_label"
+                style="@style/atsk_LabelTextView"
+                android:text="@string/overrun" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/dz_crit_meas_text_depthres_val"
+                style="@style/atsk_ValueTextView" >
+            </TextView>
+            <TextView
+                android:id="@+id/dz_crit_meas_text_depthresh_units"
+                style="@style/atsk_UnitsTextView" >
+            </TextView>
+            </LinearLayout>
+
+
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_dep_elev_label"
+                    style="@style/atsk_LabelTextView"
+                    android:text="@string/elev" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_dep_elev_val"
+                    style="@style/atsk_ValueTextView" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_dep_elev_units"
+                    style="@style/atsk_UnitsTextView" >
+                </TextView>
+            </LinearLayout>
+
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="#FFFFFFFF" />
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_length_label"
+                    style="@style/atsk_LabelTextView"
+                    android:text="@string/length2" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_length_val"
+                    style="@style/atsk_ValueTextView" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_length_units"
+                    style="@style/atsk_UnitsTextView" >
+                </TextView>
+            </LinearLayout>
+
+            <View style="@style/atsk_Divider" />
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_width_label"
+                    style="@style/atsk_LabelTextView"
+                    android:text="@string/width" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_width_val"
+                    style="@style/atsk_ValueTextView" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_width_units"
+                    style="@style/atsk_UnitsTextView" />
+            </LinearLayout>
+
+            <View style="@style/atsk_Divider" />
+
+            <LinearLayout style="@style/atsk_TextButtonLinearLayout" >
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_dragheading_label"
+                    style="@style/atsk_LabelTextView"
+                    android:text="@string/heading" />
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_dragheading_val"
+                    style="@style/atsk_ValueTextView" />
+
+                <TextView
+                    android:id="@+id/dz_crit_meas_text_dragheading_units"
+                    style="@style/atsk_UnitsTextView"
+                    android:visibility="visible"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="#FFFFFFFF" />
+
+            <TextView
+                style="@style/atsk_LabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/criteria2" />
+
+
+            <com.gmeci.atsk.az.spinners.LZSpinner
+                 android:id="@+id/lz_crit_crit_spin_ac_type"
+                 android:layout_width="fill_parent"
+                 android:layout_height="wrap_content" />
+
+            <View style="@style/atsk_Divider" />
+            <TextView
+                android:id="@+id/surface_type_label"
+                style="@style/atsk_LabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/surface_type" />
+
+            <com.gmeci.atsk.az.spinners.ATSKSpinner
+                android:id="@+id/runway_surface_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/atsk_runway_surface_types" />
+
+            <Button
+                android:id="@+id/details_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/auto_space_big"
+                style="?android:attr/buttonStyleSmall"
+                android:text="@string/details"
+                android:textSize="@dimen/auto_size"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

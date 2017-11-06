@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   android:orientation="vertical"
+   android:layout_width="fill_parent"
+   android:layout_weight="1"
+   android:layout_height="fill_parent" >
+
+
+   <ScrollView 
+      android:layout_width="fill_parent"
+      android:layout_weight="10"
+      android:layout_height="fill_parent" >
+
+     <LinearLayout android:id="@+id/list"
+
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+      </LinearLayout>
+    </ScrollView>
+
+    <Button
+      android:id="@+id/pdf"
+      android:layout_width="fill_parent"
+      android:text="Generate PDF"
+      android:layout_weight="0"
+      android:layout_height="wrap_content" />
+
+</LinearLayout>

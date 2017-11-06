@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#383838" 
+    android:orientation="horizontal"
+    android:paddingTop="10sp"
+    android:paddingBottom="10sp">
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Survey Name: "
+        android:id="@+id/rename_survey_dialog_text_label" 
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"/>
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="" 
+        android:id="@+id/rename_survey_dialog_edit_surveyname"
+        android:textSize="22sp"
+        android:textCursorDrawable="@null"/>
+        
+</LinearLayout>
