@@ -1,4 +1,4 @@
-package com.atakmap.android.plugintemplate.plugin;
+package com.atakmap.android.wildfiredln.plugin;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 import com.atakmap.android.maps.MapComponent;
 import com.atakmap.android.maps.MapView;
-import com.atakmap.android.plugintemplate.PluginTemplateMapComponent;
+import com.atakmap.android.wildfiredln.PluginTemplateMapComponent;
 
 import transapps.maps.plugin.lifecycle.Lifecycle;
 import android.app.Activity;

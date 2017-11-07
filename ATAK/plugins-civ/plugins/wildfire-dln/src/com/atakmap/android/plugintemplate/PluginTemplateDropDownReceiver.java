@@ -1,5 +1,5 @@
 
-package com.atakmap.android.plugintemplate;
+package com.atakmap.android.wildfiredln;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.atakmap.android.maps.MapView;
-import com.atakmap.android.plugintemplate.plugin.R;
+import com.atakmap.android.wildfiredln.plugin.R;
 import com.atakmap.android.dropdown.DropDown.OnStateListener;
 import com.atakmap.android.dropdown.DropDownReceiver;
 
@@ -18,7 +18,7 @@ public class PluginTemplateDropDownReceiver extends DropDownReceiver implements
 
     public static final String TAG = PluginTemplateDropDownReceiver.class.getSimpleName();
 
-    public static final String SHOW_PLUGIN_TEMPLATE = "com.atakmap.android.plugintemplate.SHOW_PLUGIN_TEMPLATE";
+    public static final String SHOW_PLUGIN_TEMPLATE = "com.atakmap.android.wildfiredln.SHOW_PLUGIN_TEMPLATE";
     private final View templateView;
     private final Context pluginContext;
 

@@ -1,4 +1,4 @@
 
-APKNAME=PluginTemplate
+APKNAME=wildfiredln
 
 include ../common.mk

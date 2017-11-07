@@ -1,5 +1,5 @@
 
-package com.atakmap.android.plugintemplate;
+package com.atakmap.android.wildfiredln;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,7 +9,7 @@ import com.atakmap.android.maps.MapView;
 import com.atakmap.android.dropdown.DropDownMapComponent;
 
 import com.atakmap.coremap.log.Log;
-import com.atakmap.android.plugintemplate.plugin.R;
+import com.atakmap.android.wildfiredln.plugin.R;
 
 public class PluginTemplateMapComponent extends DropDownMapComponent {
 

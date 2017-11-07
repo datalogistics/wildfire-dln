@@ -1,7 +1,7 @@
-package com.atakmap.android.plugintemplate.plugin;
+package com.atakmap.android.wildfiredln.plugin;
 
 import com.atakmap.android.ipc.AtakBroadcast;
-import com.atakmap.android.plugintemplate.PluginTemplateDropDownReceiver;
+import com.atakmap.android.wildfiredln.PluginTemplateDropDownReceiver;
 
 import android.app.Activity;
 import android.content.Context;

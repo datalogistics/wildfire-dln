@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.atakmap.android.plugintemplate.plugin"
+    package="com.atakmap.android.wildfiredln.plugin"
     android:versionCode="1"
     android:versionName="DEV" >
 
@@ -8,7 +8,7 @@
     <application 
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
-        android:label="Plugin Template"
+        android:label="WildfireDLN"
         android:description="@string/app_desc"
 
         android:theme="@style/AppTheme" >
