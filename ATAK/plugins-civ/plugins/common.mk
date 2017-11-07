@@ -1,8 +1,11 @@
 ####################################################################################################
 # Command line functionality.
-SVNVERSION=$(shell basename $(subst Revision: ,,$(shell svn info | grep "^Revision:" || echo "1")))
-SVNBRANCH=$(shell basename $(subst URL: ,,$(shell svn info | grep "^URL:" || echo "none")))
-SVNID=$(SVNBRANCH)-$(SVNVERSION)
+#SVNVERSION=$(shell basename $(subst Revision: ,,$(shell svn info | grep "^Revision:" || echo "1")))
+#SVNBRANCH=$(shell basename $(subst URL: ,,$(shell svn info | grep "^URL:" || echo "none")))
+#SVNID=$(SVNBRANCH)-$(SVNVERSION)
+SVNVERSION=0
+SVNBRANCH=0
+SVNID=0
 
 APK=build/$(APKNAME)-$(SVNVERSION).apk
 
