@@ -9,14 +9,16 @@ import lace, logging
 
 from libdlt.util import util
 from libdlt.depot import Depot
-from unis.models import Exnode, Service, Node
+from unis.models import Exnode, Service, Node, schemaLoader
 from unis.runtime import Runtime
 
-### Configuration
+GEOLOC="http://unis.crest.iu.edu/schema/ext/dln/1/geoloc#"
+FERRY_SERVICE="http://unis.crest.iu.edu/schema/ext/dln/1/ferry#"
 UNIS_URL="http://localhost:8888"
-### End Configuration
-
 log = None
+
+DLNFerry = schemaLoader.get_class(FERRY_SERVICE)
+GeoLoc = schemaLoader.get_class(GEOLOC)
 
 def register(rt, name):
     n = rt.nodes.where({"name": name})
@@ -31,19 +33,23 @@ def register(rt, name):
     try:
         s = next(s)
     except:
-        s = Service()
+        s = DLNFerry()
         s.runningOn = n
+        s.serviceType="datalogistics:wdln:ferry"
+        s.name = name
+        s.accessPoint = "ibp://{}:6714".format(name)
+        s.status = "READY"
         rt.insert(s, commit=True)
 
     # simply update the timestamps on our node and service resources
     def touch(n,s):
         while True:
+            time.sleep(5)
             try:
                 n.poke()
                 s.poke()
             except Exception as e:
                 log.error("Could not update node/service resources: {}".format(e))
-            time.sleep(5)
         
     th = threading.Thread(
         name='toucher',
@@ -53,18 +59,30 @@ def register(rt, name):
     )
     th.start()
 
+    return (n,s)
+    
 def init_runtime(url):
     while True:
         try:
-            rt = Runtime([{"default": True, "url": url}])
+            rt = Runtime([{"default": True, "url": url}],
+                         **{"preload": ["nodes", "services"]})
             return rt
         except:
             log.warn("Could not contact UNIS at {}, retrying...".format(url))
         time.sleep(5)
     
-def run():
+def run(n, s):
+    i=0
     while True:
-        log.info("In main loop...")
+        (i%5) or log.info("Waiting for some action...")
+        if s.status == "UPDATE":
+            dl_list = s.new_exnodes
+            log.debug("List of exnodes to download locally: {}".format(dl_list))
+            time.sleep(1)
+            s.status = "READY"
+            s.commit()
+            
+        i+=1
         time.sleep(1)
     
 def init_logging(args):
@@ -99,10 +117,11 @@ def main():
     rt = init_runtime(args.host)
     
     # Start the registration loop
-    register(rt, name)
+    # returns handles to the node and service objects
+    (n,s) = register(rt, name)
 
     # run our main loop
-    run()
+    run(n,s)
     
 if __name__ == "__main__":
     main()
