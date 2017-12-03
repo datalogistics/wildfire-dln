@@ -6,7 +6,7 @@ import hmac
 import json
 import time
 
-from flanged.settings import MIME
+from idms.settings import MIME
 
 class _BaseHandler(object):
     def __init__(self, conf, db):
