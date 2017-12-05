@@ -13,7 +13,7 @@ class PolicyHandler(_BaseHandler):
     @falcon.after(_BaseHandler.encode_response)
     @get_body
     def on_post(self, req, resp, body):
-        assert("files" in body and "policy" in body, "Bad request form client")
+        assert "files" in body and "policy" in body, "Bad request form client"
         if 'ferry_name' not in body['policy']:
             raise ValueError("Invalid format in policy - {}".format(body['policy']))
         policy = self._db._policies[body['policy']]
