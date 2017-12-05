@@ -66,18 +66,17 @@ def register(rt, name, fqdn):
 
     return (n,s)
     
-def init_runtime(url):
+def init_runtime(remote, local):
     while True:
         try:
-            rt = Runtime([{"default": True, "url": url},
-                          {"url": "http://{}:{}".format(LOCAL_UNIS_HOST,LOCAL_UNIS_PORT)}],
+            rt = Runtime([{"default": True, "url": remote}, {"url": local}],
                          **{"preload": ["nodes", "services"]})
             return rt
         except:
-            log.warn("Could not contact UNIS at {}, retrying...".format(url))
+            log.warn("Could not contact UNIS servers {}, retrying...".format(remote+','+local))
         time.sleep(5)
     
-def run(sess, n, s, dldir):
+def run(sess, n, s, dldir, rt):
     i=0
     while True:
         (i%5) or log.info("Waiting for some action...")
@@ -97,9 +96,9 @@ def run(sess, n, s, dldir):
                            dsize,
                            res.size))
                 else:
-                    print ("{0} ({1} {2:.2f} MB/s) {3}".format(res.name, res.size,
-                                                               res.size/1e6/diff,
-                                                               res.selfRef))
+                    log.debug("{0} ({1} {2:.2f} MB/s) {3}".format(res.name, res.size,
+                                                                  res.size/1e6/diff,
+                                                                  res.selfRef))
             time.sleep(1)
             s.status = "READY"
             s.commit()
@@ -145,14 +144,14 @@ def main():
         pass
     except OSError as exp:
         raise exp
-    
-    # get our initial UNIS-RT instance
-    rt = init_runtime(args.host)
 
+    # use fqdn to determine local endpoints
     LOCAL_DEPOT={"ibp://{}:6714".format(fqdn): { "enabled": True}}
-    #LOCAL_DEPOT={"ibp://wdln-ferry-00:6714": { "enabled": True}}
-    sess = libdlt.Session([{"default": True,
-                            "url": "http://{}:{}".format(LOCAL_UNIS_HOST,LOCAL_UNIS_PORT)}],
+    LOCAL_UNIS = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
+    
+    # get our initial UNIS-RT and libdlt sessions
+    rt = init_runtime(args.host, LOCAL_UNIS)
+    sess = libdlt.Session([{"default": True, "url": LOCAL_UNIS}],
                           bs="5m", depots=LOCAL_DEPOT, threads=1)
 
     # Start the registration loop
@@ -160,7 +159,7 @@ def main():
     (n,s) = register(rt, name, fqdn)
 
     # run our main loop
-    run(sess, n, s, dldir)
+    run(sess, n, s, dldir, rt)
     
 if __name__ == "__main__":
     main()
