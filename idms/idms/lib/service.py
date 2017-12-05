@@ -4,7 +4,7 @@ from collections import defaultdict
 from libdlt import Session
 from libdlt.schedule import AbstractSchedule, BaseDownloadSchedule
 
-class IDSMService(RuntimeService):
+class IDMSService(RuntimeService):
     class ForceUpload(AbstractSchedule):
         def __init__(self, sources):
             self._ls = cycle(sources)
