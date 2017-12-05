@@ -17,7 +17,7 @@ class PolicyHandler(_BaseHandler):
         if 'ferry_name' not in body['policy']:
             raise ValueError("Invalid format in policy - {}".format(body['policy']))
         policy = self._db._policies[body['policy']]
-        self.rt.pending_exnodes[policy['ferry_name']].extend(list(map(lambda x: (self.rt.find(x), policy['data_lifetime']]), body['files'])))
+        self.rt.pending_exnodes[policy['ferry_name']].extend(list(map(lambda x: (self.rt.find(x), policy['data_lifetime']), body['files'])))
     
     #@falcon.before(_BaseHandler.do_auth)
     @get_body

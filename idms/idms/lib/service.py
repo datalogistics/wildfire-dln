@@ -19,7 +19,7 @@ class IDSMService(RuntimeService):
         runtime.pending_exnodes = defaultdict(list)
     
     def update(self, resource):
-        if resource.STATUS == 'READY' and self._runtime.pending_exnodes[resource.id]:
+        if resource.STATUS == 'READY' and self._runtime.pending_exnodes[resource.name]:
             try:
                 tmpRT = Runtime(resource.unis_url, defer_update=True)
             except Exception as exp:
