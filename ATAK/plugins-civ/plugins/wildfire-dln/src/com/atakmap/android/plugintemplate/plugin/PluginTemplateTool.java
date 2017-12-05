@@ -2,6 +2,7 @@ package com.atakmap.android.wildfiredln.plugin;
 
 import com.atakmap.android.ipc.AtakBroadcast;
 import com.atakmap.android.wildfiredln.PluginTemplateDropDownReceiver;
+import com.atakmap.android.wildfiredln.plugin.R;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,7 +25,7 @@ public class PluginTemplateTool extends Tool implements ToolDescriptor {
 
     @Override
     public String getDescription() {
-        return "PluginTemplate Tool";
+        return context.getString(R.string.app_desc);
     }
 
     @Override
@@ -39,7 +40,7 @@ public class PluginTemplateTool extends Tool implements ToolDescriptor {
 
     @Override
     public String getShortDescription() {
-        return "PluginTemplate Tool";
+        return context.getString(R.string.app_name);
     }
 
     @Override
