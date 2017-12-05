@@ -3,6 +3,7 @@ import falcon
 import json
 
 from idms.handlers import PolicyHandler, AuthHandler, SSLCheck
+from idms.lib.service import IDMSService
 from unis import Runtime
 
 # TMP Mock database object
@@ -36,7 +37,7 @@ class _Database(object):
             if k == usr:
                 if v.get("pwd", "") != pwd:
                     raise falcon.HTTPForbidden("Incorrect password")
-            
+                    
                 return v["prv"]
         raise falcon.HTTPForbidden("Unknown username")
         
@@ -45,17 +46,17 @@ class _Database(object):
             if not usr or usr == k:
                 for f in ls:
                     yield f
-
-    def insert(self, usr, flangelet):
+    
+    def insert(self, filename, policy):
         if usr not in self._store:
-            self._store[usr] = []
-        self._store[usr].append(flangelet)
+            self._store[filename] = []
+        self._store[filename].append(policy)
 
 def _get_app(unis):
     conf = { "auth": False, "secret": "a4534asdfsberwregoifgjh948u12" }
     db = _Database()
     rt = Runtime(unis, defer_update=True)
-    
+    rt.addService(IDMSService)
     auth      = AuthHandler(conf, db)
     policy    = PolicyHandler(conf, db, rt)
     
