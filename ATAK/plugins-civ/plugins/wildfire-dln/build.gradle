@@ -1,9 +1,12 @@
  buildscript {
     repositories {
         mavenCentral()
+        maven {
+           url 'https://maven.google.com'
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.+'
+        classpath 'com.android.tools.build:gradle:3.0.1'
     }
  }
 
@@ -11,7 +14,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'idea'
 
 dependencies {
-    provided files('../../ATAK/libs/android-support-v4-slim.jar')
+    /*provided files('../../ATAK/libs/android-support-v4-slim.jar')
     provided files('../../ATAK/libs/core-14.0.2.1.jar')
     provided files('../../ATAK/libs/host-14.0.2.1.jar')
     provided files('../../MapCoreInterfaces/libs/commons.geom.jar')
@@ -19,7 +22,7 @@ dependencies {
     provided files('../../MapCoreInterfaces/libs/ExtensionPoints.jar')
     provided files('../../MapCoreInterfaces/build/libs/classes.jar')
     provided files('../../ATAKMapEngine/build/libs/classes.jar')
-    provided files('../../ATAK/build/libs/classes.jar')
+    provided files('../../ATAK/build/libs/classes.jar')*/
 
 
     // strictly for the plugin sdk do not remove 
@@ -52,7 +55,7 @@ def getSvnRevision() {
 
 android {
     compileSdkVersion 15
-    buildToolsVersion "25"
+    buildToolsVersion '26.0.2'
 
    dexOptions {
         jumboMode = true
@@ -118,3 +121,7 @@ android {
     }
 
 }
+
+ repositories {
+     google()
+ }
