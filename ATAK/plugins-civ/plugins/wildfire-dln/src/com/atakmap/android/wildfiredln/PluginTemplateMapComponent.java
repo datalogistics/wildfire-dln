@@ -23,11 +23,11 @@ public class PluginTemplateMapComponent extends DropDownMapComponent {
         super.onCreate(context, intent, view);
         pluginContext = context;
 
-        PluginTemplateDropDownReceiver ddr = new PluginTemplateDropDownReceiver(view,context);
+        com.atakmap.android.wildfiredln.PluginTemplateDropDownReceiver ddr = new com.atakmap.android.wildfiredln.PluginTemplateDropDownReceiver(view,context);
 
         Log.d(TAG, "registering the show plugin template filter");
         DocumentedIntentFilter ddFilter = new DocumentedIntentFilter();
-        ddFilter.addAction(PluginTemplateDropDownReceiver.SHOW_PLUGIN_TEMPLATE);
+        ddFilter.addAction(com.atakmap.android.wildfiredln.PluginTemplateDropDownReceiver.SHOW_PLUGIN_TEMPLATE);
         this.registerReceiver(context, ddr, ddFilter);
         Log.d(TAG, "registered the show plugin template filter");
     }
