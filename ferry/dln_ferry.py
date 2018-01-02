@@ -92,6 +92,8 @@ def file_cb(ex):
 
 def local_download(sess, exnodes):
     for f in exnodes:
+        if not len(f.extents):
+            continue
         log.info("Downloading: {} ({} bytes)".format(f.name, f.size))
         try:
             diff, dsize, res = sess.download(f.selfRef, "{}/{}".format(DOWNLOAD_DIR,f.name))
