@@ -1,15 +1,24 @@
 
 package com.atakmap.android.wildfiredln;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.atakmap.android.maps.MapView;
 import com.atakmap.android.wildfiredln.plugin.R;
 import com.atakmap.android.dropdown.DropDown.OnStateListener;
 import com.atakmap.android.dropdown.DropDownReceiver;
+import com.atakmap.android.wildfiredln.WildfireDLN;
 
 import com.atakmap.coremap.log.Log;
 
@@ -47,6 +56,11 @@ public class PluginTemplateDropDownReceiver extends DropDownReceiver implements
         if (intent.getAction().equals(SHOW_PLUGIN_TEMPLATE)) {
             
             showDropDown(templateView, HALF_WIDTH, FULL_HEIGHT, FULL_WIDTH, HALF_HEIGHT, false);
+
+            WildfireDLN dlnInstance = new WildfireDLN(this.pluginContext, this.templateView);
+
+            //updateContent();
+
         }
     }
 
@@ -65,6 +79,7 @@ public class PluginTemplateDropDownReceiver extends DropDownReceiver implements
     @Override
     public void onDropDownClose() {
     }
+
 
     /************************* Helper Methods *************************/
 }

@@ -2,7 +2,8 @@
 <resources>
     <!-- App -->
     <!-- description -->
-    <string name="app_desc"></string>
+    <string name="app_desc">"WildfireDLN Plugin enables delay tolerant connectivity via pi ferry nodes"</string>
+    <string name="app_name">"WildfireDLN"</string>
 
 
 
