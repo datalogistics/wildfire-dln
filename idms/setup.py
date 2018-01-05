@@ -18,10 +18,9 @@ if sys.version_info[0] < 3:
 setup(
     name="idms",
     version=version,
-    packages=["idms"],
+    packages=["idms", "idms.handlers", "idms.lib"],
     author="Jeremy Musser, Ezra Kissel",
     license="http://www.apache.org/licenses/LICENSE-2.0",
-    
     dependency_links=[
         "git+https://github.com/periscope-ps/lace.git/@master#egg=lace",
         "git+https://github.com/periscope-ps/unisrt.git/@multisource#egg=unisrt",

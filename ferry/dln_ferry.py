@@ -5,7 +5,7 @@ import time
 import argparse
 import socket
 import threading
-import lace, logging
+from lace import logging
 
 import libdlt
 from unis.models import Exnode, Service, Node, schemaLoader
@@ -73,8 +73,8 @@ def init_runtime(url):
                           {"url": "http://{}:{}".format(LOCAL_UNIS_HOST,LOCAL_UNIS_PORT)}],
                          **{"preload": ["nodes", "services"]})
             return rt
-        except:
-            log.warn("Could not contact UNIS at {}, retrying...".format(url))
+        except Exception as exp:
+            log.warn("{} - Could not contact UNIS, retrying...".format(exp, url))
         time.sleep(5)
     
 def run(sess, n, s, dldir):
@@ -110,7 +110,7 @@ def run(sess, n, s, dldir):
 def init_logging(args):
     level = logging.DEBUG if args.verbose else logging.INFO
     level = logging.CRITICAL if args.quiet else level
-    log = lace.logging.getLogger("ferry")
+    log = logging.getLogger("ferry")
     log.setLevel(level)
     return log
         
