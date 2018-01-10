@@ -5,7 +5,7 @@ import time
 import argparse
 import socket
 import threading
-import lace, logging
+from lace import logging
 
 import libdlt
 from unis.models import Exnode, Service, Node, schemaLoader
@@ -82,8 +82,6 @@ def init_runtime(remote, local, local_only):
             rt = Runtime(urls, **opts)
             return rt
         except Exception as e:
-            #import traceback
-            #traceback.print_exc()
             log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
         time.sleep(5)
 
@@ -134,7 +132,7 @@ def run_remote(sess, n, s, rt):
 def init_logging(args):
     level = logging.DEBUG if args.verbose else logging.INFO
     level = logging.CRITICAL if args.quiet else level
-    log = lace.logging.getLogger("ferry")
+    log = logging.getLogger("ferry")
     log.setLevel(level)
     return log
         
