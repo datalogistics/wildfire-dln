@@ -53,7 +53,6 @@ class _Database(object):
             self._store[filename] = []
         self._store[filename].append(policy)
 
-<<<<<<< HEAD
 def _get_app(unis, depots, policies, viz):
     conf = { "auth": False, "secret": "a4534asdfsberwregoifgjh948u12" }
     db = _Database()
@@ -65,35 +64,18 @@ def _get_app(unis, depots, policies, viz):
     
     ensure_ssl = SSLCheck(conf)
     app = falcon.API(middleware=[FalconCORS()])
-=======
-def _get_app(unis, depots):
-    conf = { "auth": False, "secret": "a4534asdfsberwregoifgjh948u12" }
-    db = _Database()
-    rt = Runtime(unis, defer_update=True, preload=["nodes", "services"])
-    rt.addService(IDMSService(depots))
-    auth      = AuthHandler(conf, db)
-    policy    = PolicyHandler(conf, db, rt)
-    
-    ensure_ssl = SSLCheck(conf)
-    app = falcon.API(middleware=[FalconCORS()])
-    #app = falcon.API()
->>>>>>> 0552500d73c329fec28da4aaa9de1a87c005f82a
     app.add_route('/', policy)
     
     return app
     
 def main():
     from lace import logging
-<<<<<<< HEAD
     from lace.logging import trace
-=======
->>>>>>> 0552500d73c329fec28da4aaa9de1a87c005f82a
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-u', '--unis', default='http://wdln-base-station:8888', type=str,
                         help='Set the comma diliminated urls to the unis instances of interest')
     parser.add_argument('-H', '--host', default='wdln-base-station', type=str, help='Set the host for the server')
     parser.add_argument('-p', '--port', default=8000, type=int, help='Set the port for the server')
-<<<<<<< HEAD
     parser.add_argument('-P', '--policies', default='http://dlt.open.sice.indiana.edu:8000/test.json', type=str, help='Set the source for valid policies')
     parser.add_argument('-d', '--debug', default="NONE", type=str, help='Set the log level')
     parser.add_argument('-D', '--depots', default='', type=str, help='Provide a file for the depot decriptions')
@@ -106,29 +88,14 @@ def main():
     log.setLevel(level)
     trace.setLevel(level)
     trace.setLevel(level)
-=======
-    parser.add_argument('-d', '--debug', default=0, type=int, help='Set the log level')
-    parser.add_argument('-D', '--depots', default='', type=str, help='Provide a file for the depot decriptions')
-    args = parser.parse_args()
-    
-    from unis import logging as ulog
-    level = [logging.NOTSET, logging.INFO, logging.DEBUG][args.debug]
-    ulog.setLevel(level)
-    logging.getLogger().setLevel(level)
-    logging.trace.setLevel(level)
->>>>>>> 0552500d73c329fec28da4aaa9de1a87c005f82a
     port = args.port
     unis = [str(u) for u in args.unis.split(',')]
     depots = None
     if args.depots:
         with open(args.depots) as f:
             depots = json.load(f)
-<<<<<<< HEAD
     viz = "{}:{}".format(args.visualize, args.viz_port) if args.visualize else None
     app = _get_app(unis, depots, args.policies, viz)
-=======
-    app = _get_app(unis, depots)
->>>>>>> 0552500d73c329fec28da4aaa9de1a87c005f82a
     
     from wsgiref.simple_server import make_server
     server = make_server(args.host, port, app)
