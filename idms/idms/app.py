@@ -53,44 +53,49 @@ class _Database(object):
             self._store[filename] = []
         self._store[filename].append(policy)
 
-def _get_app(unis, depots):
+def _get_app(unis, depots, policies, viz):
     conf = { "auth": False, "secret": "a4534asdfsberwregoifgjh948u12" }
     db = _Database()
     rt = Runtime(unis, defer_update=True, preload=["nodes", "services"])
-    rt.addService(IDMSService(depots))
+    service = IDMSService(depots, policies, viz)
+    rt.addService(service)
     auth      = AuthHandler(conf, db)
-    policy    = PolicyHandler(conf, db, rt)
+    policy    = PolicyHandler(conf, db, service)
     
     ensure_ssl = SSLCheck(conf)
     app = falcon.API(middleware=[FalconCORS()])
-    #app = falcon.API()
     app.add_route('/', policy)
     
     return app
     
 def main():
     from lace import logging
+    from lace.logging import trace
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-u', '--unis', default='http://wdln-base-station:8888', type=str,
                         help='Set the comma diliminated urls to the unis instances of interest')
     parser.add_argument('-H', '--host', default='wdln-base-station', type=str, help='Set the host for the server')
     parser.add_argument('-p', '--port', default=8000, type=int, help='Set the port for the server')
-    parser.add_argument('-d', '--debug', default=0, type=int, help='Set the log level')
+    parser.add_argument('-P', '--policies', default='http://dlt.open.sice.indiana.edu:8000/test.json', type=str, help='Set the source for valid policies')
+    parser.add_argument('-d', '--debug', default="NONE", type=str, help='Set the log level')
     parser.add_argument('-D', '--depots', default='', type=str, help='Provide a file for the depot decriptions')
+    parser.add_argument('-v', '--visualize', default='', type=str, help='Set the server for the visualization effects')
+    parser.add_argument('-q', '--viz_port', default='42424', type=str, help='Set the port fo the visualization effects')
     args = parser.parse_args()
-    
-    from unis import logging as ulog
-    level = [logging.NOTSET, logging.INFO, logging.DEBUG][args.debug]
-    ulog.setLevel(level)
-    logging.getLogger().setLevel(level)
-    logging.trace.setLevel(level)
+
+    level = {"NONE": logging.NOTSET, "INFO": logging.INFO, "DEBUG": logging.DEBUG}[args.debug]
+    log = logging.getLogger()
+    log.setLevel(level)
+    trace.setLevel(level)
+    trace.setLevel(level)
     port = args.port
     unis = [str(u) for u in args.unis.split(',')]
     depots = None
     if args.depots:
         with open(args.depots) as f:
             depots = json.load(f)
-    app = _get_app(unis, depots)
+    viz = "{}:{}".format(args.visualize, args.viz_port) if args.visualize else None
+    app = _get_app(unis, depots, args.policies, viz)
     
     from wsgiref.simple_server import make_server
     server = make_server(args.host, port, app)

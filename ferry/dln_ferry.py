@@ -15,11 +15,11 @@ GEOLOC="http://unis.crest.iu.edu/schema/ext/dln/1/geoloc#"
 FERRY_SERVICE="http://unis.crest.iu.edu/schema/ext/dln/1/ferry#"
 
 UNIS_URL="http://localhost:8888"
-LOCAL_UNIS_HOST="localhost"
-LOCAL_UNIS_PORT=9000
+LOCAL_UNIS_HOST="wdln-ferry-00"
+LOCAL_UNIS_PORT=8891
 
 # globals
-DOWNLOAD_DIR="/depot/web"
+DOWNLOAD_DIR=".cache"
 log = None
 sess = None
 
@@ -34,10 +34,11 @@ def register(rt, name, fqdn):
         n = Node();
         n.name = name
         rt.insert(n, commit=True)
-
-    s = rt.services.where({"runningOn": n})
+        
+    s = rt.services.where(lambda x: x.runningOn.href == n.selfRef)
     try:
         s = next(s)
+        s.status = "READY"
     except:
         s = DLNFerry()
         s.runningOn = n
@@ -48,14 +49,18 @@ def register(rt, name, fqdn):
         s.status = "READY"
         rt.insert(s, commit=True)
 
+    rt.flush()
+    
     # simply update the timestamps on our node and service resources
     def touch(n,s):
         while True:
             time.sleep(5)
             try:
-                n.poke()
-                s.poke()
+                n.touch()
+                s.touch()
             except Exception as e:
+                import traceback
+                traceback.print_exc()
                 log.error("Could not update node/service resources: {}".format(e))
         
     th = threading.Thread(
@@ -65,7 +70,7 @@ def register(rt, name, fqdn):
         args=(n,s,),
     )
     th.start()
-
+    
     return (n,s)
     
 def init_runtime(remote, local, local_only):
@@ -76,12 +81,14 @@ def init_runtime(remote, local, local_only):
                 opts = {"preload": ["nodes", "services", "exnodes"], "subscribe": {"exnodes": file_cb}}
                 log.debug("Connecting to UNIS instance(s): {}".format(local))
             else:
-                urls = [{"default": True, "url": remote}, {"url": local}]
+                urls = [{"default": True, "url": remote}, {"default": False, "url": local}]
                 opts = {"preload": ["nodes", "services"]}
                 log.debug("Connecting to UNIS instance(s): {}".format(remote+','+local))
             rt = Runtime(urls, **opts)
             return rt
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
         time.sleep(5)
 
@@ -94,20 +101,22 @@ def local_download(sess, exnodes):
             continue
         log.info("Downloading: {} ({} bytes)".format(f.name, f.size))
         try:
-            diff, dsize, res = sess.download(f.selfRef, "{}/{}".format(DOWNLOAD_DIR,f.name))
+            diff, res = sess.download(f.selfRef, "{}/{}".format(DOWNLOAD_DIR,f.name))
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             log.error("Could not download file: {}".format(e))
             continue
-        if dsize != res.size:
-            log.warn("WARNING: {}: transferred {} of {} bytes \
-            (check depot file)".format(res.name,
-                                       dsize,
-                                       res.size))
-        else:
-            log.info("{0} ({1} {2:.2f} MB/s) {3}".format(res.name, res.size,
-                                                         res.size/1e6/diff,
-                                                         res.selfRef))
-            
+            #if dsize != res.size:
+            #    log.warn("WARNING: {}: transferred {} of {} bytes \
+            #    (check depot file)".format(res.name,
+            #                               dsize,
+            #                               res.size))
+            #else:
+        log.info("{0} ({1} {2:.2f} MB/s) {3}".format(res.name, res.size,
+                                                     res.size/1e6/diff,
+                                                     res.selfRef))
+    
 def run_local(sess, n, s, rt):
     i=0
     while True:
@@ -118,14 +127,14 @@ def run_local(sess, n, s, rt):
 def run_remote(sess, n, s, rt):
     i=0
     while True:
-        (i%5) or log.info("Waiting for some remote action...")
+        (i%5) or log.info("Waiting for some remote action...{}".format(s.status))
         if s.status == "UPDATE":
             dl_list = s.new_exnodes
             log.info("Caught UPDATE status with {} new exnodes".format(len(dl_list)))
             local_download(sess, dl_list)
             time.sleep(1)
             s.status = "READY"
-            s.commit()
+            rt.flush()
         i+=1
         time.sleep(1)
     
@@ -159,7 +168,7 @@ def main():
     log = init_logging(args)
     
     name = socket.gethostname()
-    fqdn = socket.getfqdn()
+    fqdn = LOCAL_UNIS_HOST or socket.getfqdn()
     log.info("Ferry \"{}\" reporting for duty".format(name))
     if args.name:
         name = args.name
@@ -172,10 +181,10 @@ def main():
         pass
     except OSError as exp:
         raise exp
-
+    
     # use fqdn to determine local endpoints
     LOCAL_DEPOT={"ibp://{}:6714".format(fqdn): { "enabled": True}}
-
+    
     # allow an alternative UNIS instance (non-ferry) in local mode
     if (args.local and args.host != UNIS_URL):
         LOCAL_UNIS=args.host
@@ -186,11 +195,11 @@ def main():
     rt = init_runtime(args.host, LOCAL_UNIS, args.local)
     sess = libdlt.Session([{"default": True, "url": LOCAL_UNIS}],
                           bs="5m", depots=LOCAL_DEPOT, threads=1)
-
+    
     # Start the registration loop
     # returns handles to the node and service objects
     (n,s) = register(rt, name, fqdn)
-
+    
     # run our main loop
     if args.local:
         run_local(sess, n, s, rt)
