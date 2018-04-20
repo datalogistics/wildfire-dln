@@ -1,5 +1,9 @@
 import base64
+<<<<<<< HEAD
 #import bson
+=======
+import bson
+>>>>>>> 0552500d73c329fec28da4aaa9de1a87c005f82a
 import falcon
 import hashlib
 import hmac
@@ -49,8 +53,13 @@ class _BaseHandler(object):
         
         if req.client_accepts(MIME['PSJSON']) or req.client_accepts(MIME['JSON']):
             resp.body = json.dumps(resp.body)
+<<<<<<< HEAD
         #elif req.client_accepts(MIME['PSBSON']) or req.client_accepts(MIME['BSON']):
         #    resp.body = bson.dumps(resp.body)
+=======
+        elif req.client_accepts(MIME['PSBSON']) or req.client_accepts(MIME['BSON']):
+            resp.body = bson.dumps(resp.body)
+>>>>>>> 0552500d73c329fec28da4aaa9de1a87c005f82a
         
     def authorize(self, grants):
         return True
