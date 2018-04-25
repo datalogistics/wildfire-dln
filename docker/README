@@ -1,0 +1,31 @@
+== Wildfire-DLN Base Station Image ==
+
+=== Requirements ===
+  * Docker environment with external network connectivity
+
+=== Quick Start ===
+
+Within this directory, run:
+
+ > docker build -t "wdln-base" .
+
+Docker will pull the required base image and begin building the
+WDLN software.  This may take a considerable amount of time
+depending on your hardware.
+
+Once the build is complete, you may launch the base station:
+
+ > docker run "wdln-base"
+
+ use -d flag to run in background.
+
+For an interactive shell in your container:
+
+ > docker run -ti "wdln-base" /bin/bash
+
+To list running images:
+ > docker ps      # to list images
+
+To stop a running image:
+ > docker stop <id>
+
