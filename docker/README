@@ -7,25 +7,24 @@
 
 Within this directory, run:
 
- > docker build -t "wdln-base" .
+ > ./wdln_setup.sh
+ > ./wdln_run.sh
 
-Docker will pull the required base image and begin building the
-WDLN software.  This may take a considerable amount of time
-depending on your hardware.
+To list running images:
+ > docker ps      # to list images
 
-Once the build is complete, you may launch the base station:
-
- > docker run "wdln-base"
-
- use -d flag to run in background.
+To attach to a running container:
+ > docker attach <name>  # e.g. "wdln-base"
+ Ctrl-P Ctrl-Q to detach
 
 For an interactive shell in your container:
 
  > docker run -ti "wdln-base" /bin/bash
 
-To list running images:
- > docker ps      # to list images
-
 To stop a running image:
  > docker stop <id>
+or
+ > ./wdln_stop.sh
+
+
 
