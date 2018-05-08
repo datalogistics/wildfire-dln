@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PREFIX=/opt
+export PREFIX=/opt
 
 echo "Setting up IBP Server..."
 cd ibp_server
@@ -8,12 +8,12 @@ cmake .
 make -j 4
 sudo make install
 sudo mkdir -p /depot/ibp_resources
-sudo bash -c 'cat <<EOF > /usr/local/etc/ibp/ibp.cfg
+sudo -E bash -c 'cat <<EOF > /usr/local/etc/ibp/ibp.cfg
 [server]
 user=root
 group=root
 pidfile=/var/run/ibp_server.pid
-interfaces=wdln-base-00:6714;
+interfaces=__HOSTNAME__:6714;
 port=6714
 lazy_allocate=1
 threads=16
@@ -33,5 +33,5 @@ cd -
 
 echo "Setting up Periscope..."
 cd unis
-sudo python2 setup.py install
+sudo python2 setup.py develop
 cd -
