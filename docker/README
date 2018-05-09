@@ -20,6 +20,8 @@ To attach to a running container:
 For an interactive shell in your container:
 
  > docker run -ti "wdln-base" /bin/bash
+or
+ > docker run -ti "wdln-ferry" /bin/bash
 
 To stop a running image:
  > docker stop <id>
@@ -28,4 +30,8 @@ or
 
 Windows users:
 
-Installation of Docker for Windows requires enabling Hyper-V, which disables VirtualBox and VMware. 
+Installation of Docker for Windows requires enabling Hyper-V, which disables VirtualBox and VMware,
+which is hardly ideal. It is possible to instead install on Linux VM; a tutorial is here:
+Instead install on a Linux VM via https://www.linux.com/learn/intro-to-linux/2017/11/how-install-and-use-docker-linux
+You needn't follow it after reaching the Pulling Images section. Run the scripts as above.
+Allow wdln_setup.sh 15-20 minutes to complete.
