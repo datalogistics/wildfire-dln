@@ -26,5 +26,6 @@ To stop a running image:
 or
  > ./wdln_stop.sh
 
+Windows users:
 
-
+Installation of Docker for Windows requires enabling Hyper-V, which disables VirtualBox and VMware. 
