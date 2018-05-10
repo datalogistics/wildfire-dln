@@ -11,6 +11,7 @@ import subprocess
 import libdlt
 from unis.models import Exnode, Service, Node, schemaLoader
 from unis.runtime import Runtime
+from gps3 import gps3
 
 GEOLOC="http://unis.crest.iu.edu/schema/ext/dln/1/geoloc#"
 FERRY_SERVICE="http://unis.crest.iu.edu/schema/ext/dln/1/ferry#"
@@ -19,12 +20,7 @@ UNIS_URL="http://localhost:8888"
 LOCAL_UNIS_HOST="localhost"
 LOCAL_UNIS_PORT=9000
 
-GPS_DEV_LOC='/dev/ttyS0' # path/location to the Hat's GPS device
-GPS_DEV_READ_LEN=50 # number of lines of output to read from said device
-MAX_GPS_READ_ATTEMPTS=3 # number of times to attempt extraction of GPS coordinates
-
-# the call to read the data
-GPS_DEV_PROC_CALL='sudo cat %s | head -n %d' % (GPS_DEV_LOC,GPS_DEV_READ_LEN)
+GPS_DEV_READ_LEN=50 # number of lines of output to read from gps3
 
 # default values for the location of the ferry. for now, Bloomington, Indiana.
 BLOOMINGTON_LATITUDE=39.16533 # "vertical axis" ~ y
@@ -37,6 +33,60 @@ sess = None
 
 DLNFerry = schemaLoader.get_class(FERRY_SERVICE)
 GeoLoc = schemaLoader.get_class(GEOLOC)
+
+# for retrieving GPS coordinates via gps3
+gps_socket = gps3.GPSDSocket()
+gps_data_stream = gps3.DataStream()
+gps_socket.connect()
+gps_socket.watch()
+
+def retrieve_gps():
+    read_count = 0
+
+    lack_lat = True
+    lack_long = True
+    lack_alt = True
+
+    for new_data in gps_socket:
+        if new_data:
+            gps_data_stream.unpack(new_data)
+            read_count = read_count + 1
+
+            latitude = gps_data_stream.TPV['lat']
+            longitude = gps_data_stream.TPV['lon']
+            altitude = gps_data_stream.TPV['alt']
+
+            if lack_lat and latitude != 'n/a' and type(latitude) == float:
+                latitude = float(latitude)
+                lack_lat = False
+
+            if lack_long and longitude != 'n/a' and type(longitude) == float:
+                longitude = float(longitude)
+                lack_long = False
+
+            if lack_alt and altitude != 'n/a' and type(altitude) == float:
+                altitude = float(altitude)
+                lack_alt = False
+
+            if not lack_lat and not lack_long: # optional: and not lack_alt
+                log.info('Ferry location identified as %f,%f' % (latitude,longitude))
+                return (latitude,longitude)
+
+            if read_count > GPS_DEV_READ_LEN:
+                break
+
+    log.info('Ferry location estimated to be %f,%f' % (latitude,longitude))
+    return (BLOOMINGTON_LATITUDE,BLOOMINGTON_LONGITUDE)
+
+# the following is a less elegant solution to the problem of retrieving GPS
+# coordinates from the Hat. it is left here in case of emergency.
+'''
+GPS_DEV_LOC='/dev/ttyS0' # path/location to the Hat's GPS device
+GPS_DEV_READ_LEN=50 # number of lines of output to read from said device
+MAX_GPS_READ_ATTEMPTS=3 # number of times to attempt extraction of GPS coordinates
+
+# the call to read the data
+GPS_DEV_PROC_CALL='sudo cat %s | head -n %d' % (GPS_DEV_LOC,GPS_DEV_READ_LEN)
 
 # small function to parse out latitude/longitude values from device output.
 # this function naively assumes that the input string S contains the data
@@ -100,6 +150,7 @@ def retrieve_gps():
 
     log.info('Ferry location estimated to be %f,%f' % (latitude,longitude))
     return (latitude,longitude)
+'''
 
 def register(rt, name, fqdn):
     n = rt.nodes.where({"name": name})
@@ -181,10 +232,13 @@ def local_download(sess, exnodes):
             continue
         if dsize != res.size:
             log.warn("WARNING: {}: transferred {} of {} bytes \
-            (check depot file)".format(res.name,dsize,res.size))
+            (check depot file)".format(res.name,
+                                       dsize,
+                                       res.size))
         else:
             log.info("{0} ({1} {2:.2f} MB/s) {3}".format(res.name, res.size,
-                res.size/1e6/diff,res.selfRef))
+                                                         res.size/1e6/diff,
+                                                         res.selfRef))
             
 def run_local(sess, n, s, rt):
     i=0
@@ -221,17 +275,17 @@ def main():
     
     parser = argparse.ArgumentParser(description="DLN Mobile Ferry Agent")
     parser.add_argument('-H', '--host', type=str, default=UNIS_URL,
-        help='UNIS instance for registration and metadata')
+                        help='UNIS instance for registration and metadata')
     parser.add_argument('-n', '--name', type=str, default=None,
-        help='Set ferry node name (ignore system hostname)')
+                        help='Set ferry node name (ignore system hostname)')
     parser.add_argument('-d', '--download', type=str, default=DOWNLOAD_DIR,
-        help='Set local download directory')
+                        help='Set local download directory')
     parser.add_argument('-l', '--local', action='store_true',
-        help='Run using only local UNIS instance (on-ferry)')
+                        help='Run using only local UNIS instance (on-ferry)')
     parser.add_argument('-v', '--verbose', action='store_true',
-        help='Produce verbose output from the script')
+                        help='Produce verbose output from the script')
     parser.add_argument('-q', '--quiet', action='store_true',
-        help='Quiet mode, no logging output')
+                        help='Quiet mode, no logging output')
 
     args = parser.parse_args()
     log = init_logging(args)
@@ -263,7 +317,7 @@ def main():
     # get our initial UNIS-RT and libdlt sessions
     rt = init_runtime(args.host, LOCAL_UNIS, args.local)
     sess = libdlt.Session([{"default": True, "url": LOCAL_UNIS}],
-        bs="5m", depots=LOCAL_DEPOT, threads=1)
+                          bs="5m", depots=LOCAL_DEPOT, threads=1)
 
     # Start the registration loop
     # returns handles to the node and service objects
