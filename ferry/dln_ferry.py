@@ -79,11 +79,11 @@ def init_runtime(remote, local, local_only):
         try:
             if local_only:
                 urls = [{"default": True, "url": local}]
-                opts = {"preload": ["nodes", "services", "exnodes"], "subscribe": {"exnodes": file_cb}}
+                opts = {"cache": { "preload": ["nodes", "services", "exnodes"] }, "subscribe": {"exnodes": file_cb}}
                 log.debug("Connecting to UNIS instance(s): {}".format(local))
             else:
                 urls = [{"default": True, "url": remote}, {"url": local}]
-                opts = {"preload": ["nodes", "services"]}
+                opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": False }}
                 log.debug("Connecting to UNIS instance(s): {}".format(remote+','+local))
             rt = Runtime(urls, **opts)
             return rt
