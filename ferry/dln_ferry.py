@@ -11,7 +11,8 @@ import subprocess
 import libdlt
 from unis.models import Exnode, Service, Node, schemaLoader
 from unis.runtime import Runtime
-from gps3 import gps3
+from gps import GPS
+from log import log
 
 GEOLOC="http://unis.crest.iu.edu/schema/ext/dln/1/geoloc#"
 FERRY_SERVICE="http://unis.crest.iu.edu/schema/ext/dln/1/ferry#"
@@ -20,139 +21,14 @@ UNIS_URL="http://localhost:8888"
 LOCAL_UNIS_HOST="localhost"
 LOCAL_UNIS_PORT=9000
 
-GPS_DEV_READ_LEN=50 # number of lines of output to read from gps3
-
-# default values for the location of the ferry. for now, Bloomington, Indiana.
-BLOOMINGTON_LATITUDE=39.16533 # "vertical axis" ~ y
-BLOOMINGTON_LONGITUDE=-86.52639 # "horizontal axis" ~ x
-
 # globals
 DOWNLOAD_DIR="/depot/web"
-log = None
 sess = None
 
 DLNFerry = schemaLoader.get_class(FERRY_SERVICE)
 GeoLoc = schemaLoader.get_class(GEOLOC)
 
-# for retrieving GPS coordinates via gps3
-gps_socket = gps3.GPSDSocket()
-gps_data_stream = gps3.DataStream()
-gps_socket.connect()
-gps_socket.watch()
-
-def retrieve_gps():
-    read_count = 0
-
-    lack_lat = True
-    lack_long = True
-    lack_alt = True
-
-    for new_data in gps_socket:
-        if new_data:
-            gps_data_stream.unpack(new_data)
-            read_count = read_count + 1
-
-            latitude = gps_data_stream.TPV['lat']
-            longitude = gps_data_stream.TPV['lon']
-            altitude = gps_data_stream.TPV['alt']
-
-            if lack_lat and latitude != 'n/a' and type(latitude) == float:
-                latitude = float(latitude)
-                lack_lat = False
-
-            if lack_long and longitude != 'n/a' and type(longitude) == float:
-                longitude = float(longitude)
-                lack_long = False
-
-            if lack_alt and altitude != 'n/a' and type(altitude) == float:
-                altitude = float(altitude)
-                lack_alt = False
-
-            if not lack_lat and not lack_long: # optional: and not lack_alt
-                log.info('Ferry location identified as %f,%f' % (latitude,longitude))
-                return (latitude,longitude)
-
-            if read_count > GPS_DEV_READ_LEN:
-                break
-
-    log.info('Ferry location estimated to be %f,%f' % (latitude,longitude))
-    return (BLOOMINGTON_LATITUDE,BLOOMINGTON_LONGITUDE)
-
-# the following is a less elegant solution to the problem of retrieving GPS
-# coordinates from the Hat. it is left here in case of emergency.
-'''
-GPS_DEV_LOC='/dev/ttyS0' # path/location to the Hat's GPS device
-GPS_DEV_READ_LEN=50 # number of lines of output to read from said device
-MAX_GPS_READ_ATTEMPTS=3 # number of times to attempt extraction of GPS coordinates
-
-# the call to read the data
-GPS_DEV_PROC_CALL='sudo cat %s | head -n %d' % (GPS_DEV_LOC,GPS_DEV_READ_LEN)
-
-# small function to parse out latitude/longitude values from device output.
-# this function naively assumes that the input string S contains the data
-# needed and formatted as expected--explosions incurred from parsing failures
-# are to be caught in the calling function.
-def extract_coords(S):
-    S0 = S.split(',')
-
-    latitude = float(S0[2]) / 100.
-    lat_dir = S0[3]
-    longitude = float(S0[4]) / 100.
-    long_dir = S0[5]
-
-    if lat_dir == 'S':
-        latitude = -latitude
-
-    if long_dir == 'W':
-        longitude = -longitude
-
-    return (latitude,longitude)
-
-# attempts to retrieve the device's current GPS coordinates, reading
-# GPS_DEV_READ_LEN lines of output from GPS_DEV_LOC per attempt, with
-# at most MAX_GPS_READ_ATTEMPTS attempts. 
-def retrieve_gps():
-    latitude = BLOOMINGTON_LATITUDE 
-    longitude = BLOOMINGTON_LONGITUDE
-
-    for i in range(MAX_GPS_READ_ATTEMPTS):
-        p = subprocess.Popen(GPS_DEV_PROC_CALL,shell=True,
-                stdin=subprocess.PIPE,stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE) # for tidiness
-
-        for j in range(GPS_DEV_READ_LEN):
-            S = p.stdout.readline()
-
-            # convert bytes->str (ASCII) if necessary
-            if type(S) == bytes:
-                try: # sometimes fails
-                    S = S.decode('ascii')
-                except: # conversion failed! try the next line
-                    continue
-
-            # now that we have a string, search it for an indicator
-            # of the presence of GPS coordinate data
-            if 'GPGGA' in S: # specifically this
-                try: # attempt parsing
-                    (latitude,longitude) = extract_coords(S)
-                except: # parsing failed! try the next line
-                    continue
-
-                # parsing successful!
-                p.kill() # cleanup
-
-                log.info('Ferry location identified as %f,%f' % (latitude,longitude))
-                return (latitude,longitude)
-
-        # no line of output contained the data we needed. cleanup
-        # and try again, if so desired.
-        p.kill() 
-
-    log.info('Ferry location estimated to be %f,%f' % (latitude,longitude))
-    return (latitude,longitude)
-'''
-
-def register(rt, name, fqdn):
+def register(rt, name, fqdn, **kwargs):
     n = rt.nodes.where({"name": name})
     try:
         n = next(n)
@@ -160,9 +36,6 @@ def register(rt, name, fqdn):
         n = Node();
         n.name = name
         rt.insert(n, commit=True)
-
-    # add GPS coordinates extracted from the Hat
-    n.location.latitude,n.location.longitude = retrieve_gps()
 
     s = rt.services.where({"runningOn": n})
     try:
@@ -177,13 +50,17 @@ def register(rt, name, fqdn):
         s.status = "READY"
         rt.insert(s, commit=True)
 
+    gps = GPS()
+        
     # simply update the timestamps on our node and service resources
-    def touch(n,s):
+    def touch(n,s,gps):
         while True:
             time.sleep(5)
             try:
-                n.poke()
-                s.poke()
+                (n.location.latitude,
+                 n.location.longitude) = gps.query()
+                n.touch()
+                s.touch()
             except Exception as e:
                 log.error("Could not update node/service resources: {}".format(e))
         
@@ -191,7 +68,7 @@ def register(rt, name, fqdn):
         name='toucher',
         target=touch,
         daemon=True,
-        args=(n,s,),
+        args=(n,s,gps),
     )
     th.start()
 
@@ -260,16 +137,8 @@ def run_remote(sess, n, s, rt):
             s.commit()
         i+=1
         time.sleep(1)
-    
-def init_logging(args):
-    level = logging.DEBUG if args.verbose else logging.INFO
-    level = logging.CRITICAL if args.quiet else level
-    log = lace.logging.getLogger("ferry")
-    log.setLevel(level)
-    return log
         
 def main():
-    global log
     global DOWNLOAD_DIR
     global sess
     
@@ -288,7 +157,11 @@ def main():
                         help='Quiet mode, no logging output')
 
     args = parser.parse_args()
-    log = init_logging(args)
+
+    # configure logging level
+    level = logging.DEBUG if args.verbose else logging.INFO
+    level = logging.CRITICAL if args.quiet else level
+    log.setLevel(level)
     
     name = socket.gethostname()
     fqdn = socket.getfqdn()

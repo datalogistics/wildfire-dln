@@ -36,7 +36,8 @@ setup(
         "setuptools",
         "lace",
         "unisrt",
-        "libdlt"
+        "libdlt",
+        "gps3"
     ],
     dependency_links=[
         "git+https://github.com/periscope-ps/lace.git/@master#egg=lace",
