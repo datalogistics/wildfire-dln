@@ -42,7 +42,7 @@ setup(
     ],
     dependency_links=[
         "git+https://github.com/periscope-ps/lace.git/@master#egg=lace",
-        "git+https://github.com/periscope-ps/unisrt.git/@multisource#egg=unisrt",
+        "git+https://github.com/periscope-ps/unisrt.git/@develop#egg=unisrt",
         "git+https://github.com/datalogistics/libdlt.git/@develop#egg=libdlt",
     ],
     entry_points = {
