@@ -1,11 +1,8 @@
+import ferry.settings as settings
 from gps3 import gps3
-from log import log
+from ferry.log import log
 
 GPS_DEV_READ_LEN=50 # number of lines of output to read from gps3
-
-# default values for the location of the ferry. for now, Bloomington, Indiana.
-BLOOMINGTON_LATITUDE=39.16533 # "vertical axis" ~ y
-BLOOMINGTON_LONGITUDE=-86.52639 # "horizontal axis" ~ x
 
 # for retrieving GPS coordinates via gps3
 class GPS:
@@ -24,7 +21,7 @@ class GPS:
 
     def query(self):
         if not self.sock:
-            return (BLOOMINGTON_LATITUDE,BLOOMINGTON_LONGITUDE)
+            return (settings.GPS_DEFAULT[0], settings.GPS_DEFAULT[1])
         
         lack_lat = True
         lack_long = True
@@ -58,5 +55,6 @@ class GPS:
             if self.read_count > GPS_DEV_READ_LEN:
                 break
 
-        log.debug('Ferry location estimated to be %f,%f' % (latitude,longitude))
-        return (BLOOMINGTON_LATITUDE,BLOOMINGTON_LONGITUDE)
+            # only return default if socket is dead
+            # otherwise location will jump if GPS signal is lost
+            return (None,None)

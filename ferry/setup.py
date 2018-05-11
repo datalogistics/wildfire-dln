@@ -32,6 +32,7 @@ setup(
     author = "Ezra Kissel",
     author_email="ezkissel@indiana.edu",
     license="http://www.apache.org/licenses/LICENSE-2.0",
+    packages = ["ferry"],
     install_requires=[
         "setuptools",
         "lace",
