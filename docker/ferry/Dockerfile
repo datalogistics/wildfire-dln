@@ -25,7 +25,7 @@ RUN git clone https://github.com/datalogistics/ibp_server
 RUN git clone -b develop https://github.com/periscope-ps/unis
 RUN git clone -b develop https://github.com/periscope-ps/unisrt
 RUN git clone -b master https://github.com/periscope-ps/lace
-RUN git clone -b develop https://github.com/datalogistics/libdlt
+RUN git clone -b asyncio https://github.com/datalogistics/libdlt
 RUN git clone -b master https://github.com/datalogistics/wildfire-dln
 
 ADD build.sh .
