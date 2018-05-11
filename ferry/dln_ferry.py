@@ -76,7 +76,7 @@ def init_runtime(remote, local, local_only):
         try:
             if local_only:
                 urls = [{"default": True, "url": local}]
-                opts = {"cache": { "preload": ["nodes", "services", "exnodes"]}
+                opts = {"cache": { "preload": ["nodes", "services", "exnodes"]}}
                 log.debug("Connecting to UNIS instance(s): {}".format(local))
             else:
                 urls = [{"default": True, "url": remote}, {"url": local}]
