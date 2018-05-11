@@ -10,28 +10,43 @@ Within this directory, run:
  > ./wdln_setup.sh
  > ./wdln_run.sh
 
-To list running images:
+wdln_setup will take some time to run (~15 minutes). wdln_run will start a base station and two ferries. 
+
+To list running containers:
  > docker ps      # to list images
 
-To attach to a running container:
- > docker attach <name>  # e.g. "wdln-base"
- Ctrl-P Ctrl-Q to detach
+To list all containers, running and exited:
+ > docker ps -a
 
-For an interactive shell in your container:
-
+To run a fresh instance of a container (not restarting a stopped container):
  > docker run -ti "wdln-base" /bin/bash
 or
  > docker run -ti "wdln-ferry" /bin/bash
+ 
+To start a stopped container:
+ > docker start <name or container ID>
 
-To stop a running image:
- > docker stop <id>
+To attach to a running container:
+ > docker attach <name or container ID>  # e.g. "wdln-base"
+ Ctrl-P Ctrl-Q to detach
+
+To open an interactive shell in an already running your container:
+
+ > docker exec -ti "wdln-base" /bin/bash
+or
+ > docker exec -ti "wdln-ferry" /bin/bash
+
+To stop a running container:
+ > docker stop <container id>
 or
  > ./wdln_stop.sh
 
-Windows users:
+To preserve an image of a container, including data:
+ > docker commit <container id> "<optional name>":"<optional tag>"
 
-Installation of Docker for Windows requires enabling Hyper-V, which disables VirtualBox and VMware,
-which is hardly ideal. It is possible to instead install on Linux VM; a tutorial is here:
-Instead install on a Linux VM via https://www.linux.com/learn/intro-to-linux/2017/11/how-install-and-use-docker-linux
+=== Warning for Windows users ===
+
+Installation of Docker for Windows requires enabling Hyper-V, which disables VirtualBox and VMware. 
+It is preferable to install on a Linux VM, as shown in the following tutorial:
+https://www.linux.com/learn/intro-to-linux/2017/11/how-install-and-use-docker-linux
 You needn't follow it after reaching the Pulling Images section. Run the scripts as above.
-Allow wdln_setup.sh 15-20 minutes to complete.
