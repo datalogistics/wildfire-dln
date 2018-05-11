@@ -53,7 +53,6 @@ def register(rt, name, fqdn, **kwargs):
             time.sleep(5)
             try:
                 (lat, lon) = gps.query()
-                print (lat, lon)
                 if lat and lon:
                     n.location.latitude = lat
                     n.location.longitude = lon
