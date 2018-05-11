@@ -5,13 +5,13 @@ import time
 import argparse
 import socket
 import threading
-import lace, logging
+import logging
 import subprocess
 
 import libdlt
 import ferry.settings as settings
 from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
-from unis.models import Exnode, Service, Node, schemaLoader
+from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from ferry.gps import GPS
 from ferry.log import log
@@ -28,7 +28,7 @@ def register(rt, name, fqdn, **kwargs):
     try:
         n = next(n)
     except StopIteration:
-        n = Node();
+        n = Node()
         n.name = name
         rt.insert(n, commit=True)
 
@@ -44,9 +44,9 @@ def register(rt, name, fqdn, **kwargs):
         s.unis_url = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
         s.status = "READY"
         rt.insert(s, commit=True)
-
+    
     gps = GPS()
-        
+    
     # simply update the timestamps on our node and service resources
     def touch(n,s,gps):
         while True:
@@ -68,7 +68,7 @@ def register(rt, name, fqdn, **kwargs):
         args=(n,s,gps),
     )
     th.start()
-
+    
     return (n,s)
     
 def init_runtime(remote, local, local_only):
@@ -85,8 +85,8 @@ def init_runtime(remote, local, local_only):
             rt = Runtime(urls, **opts)
             return rt
         except Exception as e:
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
             log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
         time.sleep(5)
 
@@ -186,8 +186,7 @@ def main():
     
     # get our initial UNIS-RT and libdlt sessions
     rt = init_runtime(args.host, LOCAL_UNIS, args.local)
-    sess = libdlt.Session([{"default": True, "url": LOCAL_UNIS}],
-                          bs="5m", depots=LOCAL_DEPOT, threads=1)
+    sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)
 
     # Start the registration loop
     # returns handles to the node and service objects
@@ -201,3 +200,4 @@ def main():
     
 if __name__ == "__main__":
     main()
+    
