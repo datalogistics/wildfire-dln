@@ -9,24 +9,19 @@ import lace, logging
 import subprocess
 
 import libdlt
+import ferry.settings as settings
+from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
 from unis.models import Exnode, Service, Node, schemaLoader
 from unis.runtime import Runtime
-from gps import GPS
-from log import log
-
-GEOLOC="http://unis.crest.iu.edu/schema/ext/dln/1/geoloc#"
-FERRY_SERVICE="http://unis.crest.iu.edu/schema/ext/dln/1/ferry#"
-
-UNIS_URL="http://localhost:8888"
-LOCAL_UNIS_HOST="localhost"
-LOCAL_UNIS_PORT=9000
+from ferry.gps import GPS
+from ferry.log import log
 
 # globals
 DOWNLOAD_DIR="/depot/web"
 sess = None
 
-DLNFerry = schemaLoader.get_class(FERRY_SERVICE)
-GeoLoc = schemaLoader.get_class(GEOLOC)
+DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
+GeoLoc = schemaLoader.get_class(settings.GEOLOC)
 
 def register(rt, name, fqdn, **kwargs):
     n = rt.nodes.where({"name": name})
@@ -57,8 +52,10 @@ def register(rt, name, fqdn, **kwargs):
         while True:
             time.sleep(5)
             try:
-                (n.location.latitude,
-                 n.location.longitude) = gps.query()
+                (lat, lon) = gps.query()
+                if lat and lon:
+                    n.location.latitude = lat
+                    n.location.longitude = lon
                 n.touch()
                 s.touch()
             except Exception as e:
@@ -79,7 +76,7 @@ def init_runtime(remote, local, local_only):
         try:
             if local_only:
                 urls = [{"default": True, "url": local}]
-                opts = {"cache": { "preload": ["nodes", "services", "exnodes"] }, "subscribe": {"exnodes": file_cb}}
+                opts = {"cache": { "preload": ["nodes", "services", "exnodes"]}
                 log.debug("Connecting to UNIS instance(s): {}".format(local))
             else:
                 urls = [{"default": True, "url": remote}, {"url": local}]
@@ -88,8 +85,8 @@ def init_runtime(remote, local, local_only):
             rt = Runtime(urls, **opts)
             return rt
         except Exception as e:
-            #import traceback
-            #traceback.print_exc()
+            import traceback
+            traceback.print_exc()
             log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
         time.sleep(5)
 

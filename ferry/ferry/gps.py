@@ -1,16 +1,16 @@
+import random
+from ferry.settings import GPS_DEFAULT, GPS_BOX
 from gps3 import gps3
-from log import log
+from ferry.log import log
+from shapely.geometry import box, Point
 
 GPS_DEV_READ_LEN=50 # number of lines of output to read from gps3
-
-# default values for the location of the ferry. for now, Bloomington, Indiana.
-BLOOMINGTON_LATITUDE=39.16533 # "vertical axis" ~ y
-BLOOMINGTON_LONGITUDE=-86.52639 # "horizontal axis" ~ x
 
 # for retrieving GPS coordinates via gps3
 class GPS:
     sock = None
     stream = None
+    gps_box = None
     read_count = 0
     
     def __init__(self):
@@ -22,9 +22,18 @@ class GPS:
         except Exception as e:
             log.info("Could not initialize GPS: {}".format(e))
 
+        if len(GPS_BOX) == 4:
+            self.gps_box = box(GPS_BOX[0], GPS_BOX[1],
+                               GPS_BOX[2], GPS_BOX[3])
+            log.info("Created GPS box")
+            
     def query(self):
         if not self.sock:
-            return (BLOOMINGTON_LATITUDE,BLOOMINGTON_LONGITUDE)
+            if self.gps_box:
+                min_x, min_y, max_x, max_y = self.gps_box.bounds
+                pt = Point([random.uniform(min_x, max_x), random.uniform(min_y, max_y)])
+                return (pt.x, pt.y)
+            return (GPS_DEFAULT[0], GPS_DEFAULT[1])
         
         lack_lat = True
         lack_long = True
@@ -58,5 +67,6 @@ class GPS:
             if self.read_count > GPS_DEV_READ_LEN:
                 break
 
-        log.debug('Ferry location estimated to be %f,%f' % (latitude,longitude))
-        return (BLOOMINGTON_LATITUDE,BLOOMINGTON_LONGITUDE)
+            # only return default if socket is dead
+            # otherwise location will jump if GPS signal is lost
+            return (None,None)

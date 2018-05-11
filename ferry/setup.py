@@ -32,16 +32,18 @@ setup(
     author = "Ezra Kissel",
     author_email="ezkissel@indiana.edu",
     license="http://www.apache.org/licenses/LICENSE-2.0",
+    packages = ["ferry"],
     install_requires=[
         "setuptools",
         "lace",
         "unisrt",
         "libdlt",
-        "gps3"
+        "gps3",
+        "shapely"
     ],
     dependency_links=[
         "git+https://github.com/periscope-ps/lace.git/@master#egg=lace",
-        "git+https://github.com/periscope-ps/unisrt.git/@multisource#egg=unisrt",
+        "git+https://github.com/periscope-ps/unisrt.git/@develop#egg=unisrt",
         "git+https://github.com/datalogistics/libdlt.git/@develop#egg=libdlt",
     ],
     entry_points = {
