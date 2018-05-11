@@ -32,7 +32,7 @@ def register(rt, name, fqdn, **kwargs):
     n = rt.nodes.where({"name": name})
     try:
         n = next(n)
-    except:
+    except StopIteration:
         n = Node();
         n.name = name
         rt.insert(n, commit=True)
@@ -40,7 +40,7 @@ def register(rt, name, fqdn, **kwargs):
     s = rt.services.where({"runningOn": n})
     try:
         s = next(s)
-    except:
+    except StopIteration:
         s = DLNFerry()
         s.runningOn = n
         s.serviceType="datalogistics:wdln:ferry"
