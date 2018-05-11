@@ -38,7 +38,8 @@ setup(
         "lace",
         "unisrt",
         "libdlt",
-        "gps3"
+        "gps3",
+        "shapely"
     ],
     dependency_links=[
         "git+https://github.com/periscope-ps/lace.git/@master#egg=lace",
