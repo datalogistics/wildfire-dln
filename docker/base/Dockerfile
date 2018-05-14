@@ -27,10 +27,10 @@ RUN git clone -b wdln https://github.com/datalogistics/dlt-web
 RUN git clone -b develop https://github.com/periscope-ps/unis
 #RUN git clone https://github.com/datalogistics/wildfire-dln
 
-ADD properties.js $HOME/dlt-web/
-
 ADD build.sh .
 RUN bash ./build.sh
+
+ADD properties.js $HOME/dlt-web/
 
 ADD run.sh .
 CMD bash ./run.sh
