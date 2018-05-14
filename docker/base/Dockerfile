@@ -23,7 +23,7 @@ ENV HOME /home/wdln
 WORKDIR $HOME
 
 RUN git clone https://github.com/datalogistics/ibp_server
-RUN git clone -b topology https://github.com/datalogistics/dlt-web
+RUN git clone -b wdln https://github.com/datalogistics/dlt-web
 RUN git clone -b develop https://github.com/periscope-ps/unis
 #RUN git clone https://github.com/datalogistics/wildfire-dln
 
