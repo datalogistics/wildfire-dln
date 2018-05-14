@@ -43,7 +43,7 @@ def register(rt, name, fqdn, **kwargs):
         s.accessPoint = "ibp://{}:6714".format(fqdn)
         s.unis_url = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
         s.status = "READY"
-        s.ttl = settings.UPDATE_INTERVAL
+        s.ttl = 600 # 10m
         rt.insert(s, commit=True)
     
     gps = GPS()
