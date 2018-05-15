@@ -2,11 +2,12 @@ FROM python:3.6-stretch
 
 MAINTAINER Ezra Kissel <ezkissel@indiana.edu>
 
+EXPOSE 80/tcp
 EXPOSE 6714/tcp
 EXPOSE 9000/tcp
 
 RUN apt-get update
-RUN apt-get -y install sudo cmake gcc libaprutil1-dev libapr1-dev mongodb redis-server python-setuptools python-pip python-m2crypto supervisor
+RUN apt-get -y install sudo cmake gcc libaprutil1-dev libapr1-dev mongodb redis-server python-setuptools python-pip python-m2crypto supervisor nginx
 
 RUN export uid=1000 gid=1000 && \
     mkdir -p /home/wdln && \
@@ -34,6 +35,7 @@ RUN bash ./build.sh
 
 ADD ferry.conf /etc/supervisor/conf.d/
 ADD unis.conf /etc/supervisor/conf.d/
+ADD nginx-wdln /etc/nginx/sites-available/default
 
 ADD run.sh .
 CMD bash ./run.sh

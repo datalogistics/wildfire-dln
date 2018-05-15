@@ -21,6 +21,7 @@ cd wildfire-dln/ferry
 python3 setup.py develop
 cd -
 
+sudo /etc/init.d/nginx start
 sudo /etc/init.d/mongodb start
 sudo /etc/init.d/redis-server start
 sudo /etc/init.d/supervisor start
