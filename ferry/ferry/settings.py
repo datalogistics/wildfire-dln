@@ -4,8 +4,11 @@ LOCAL_UNIS_HOST="localhost"
 LOCAL_UNIS_PORT=9000
 
 GPS_DEFAULT = [39.16533, -86.52639] # Bloomington, IN
-GPS_BOX = [-117.170799, 32.702719,
-           -117.156406, 32.712358]  # San Diego CC
+GPS_BOX = [32.702719, -117.170799,
+           32.712358, -117.156406]  # San Diego CC
+
+# seconds between service/node updates
+UPDATE_INTERVAL = 5
 
 # WDLN schema
 GEOLOC="http://unis.crest.iu.edu/schema/ext/dln/1/geoloc#"

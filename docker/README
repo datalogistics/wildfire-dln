@@ -10,7 +10,10 @@ Within this directory, run:
  > ./wdln_setup.sh
  > ./wdln_run.sh
 
-wdln_setup will take some time to run (~15 minutes). wdln_run will start a base station and two ferries. 
+wdln_setup will take some time to run (~15 minutes). wdln_run will start a base
+station and two ferries.  If you need to rebuild an image from scratch (e.g., if
+git repository dependencies change or the image needs a fundamental rework, add
+`--no-cache` after a docker build command.
 
 To list running containers:
  > docker ps      # to list images

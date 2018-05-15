@@ -13,14 +13,14 @@ var self = {
   },
   sslOpt : {
     // Example of domain
-    'dlt.incntre.iu.edu' : {
+    'dlt.open.sice.indiana.edu' : {
       key : './cert/server.key',
       cert : './cert/server.crt' 
       // ca : "./ssl/dlt-client.csr"
     }
   },  
   nat_map_file : './misc/idms_nat_map',
-  freegeoipUrl : "http://dlt.crst.iu.edu:8080",
+  freegeoipUrl : "http://dlt.crest.iu.edu:8080",
   jnlpMap : {
     'download': {
       'template': './misc/dlt-client.jnlp.tmpl',
@@ -70,15 +70,15 @@ var self = {
   // Add a callback to process data for various routes
   routeCb : {
     // All functions are present in routeCb.js
-    'services' : "addLocation",
-    'services_id' : "addLocation"
+    'services' : "",
+    'services_id' : ""
   },
   filterMap : {
-    services : "serviceType=ceph,ceph-mon,ceph-osd,ibp_server",
+    services : "serviceType=datalogistics:wdln:ferry",
     exnodes : "inline"
   },
   wsfilterMap : {
-    services : '{"serviceType":{"in":["ceph","ceph-mon","ceph-osd","ibp_server"]}}'
+    services : '{"serviceType":{"in":["datalogistics:wdln:ferry"]}}'
   },
   serviceMap : {
     local : {

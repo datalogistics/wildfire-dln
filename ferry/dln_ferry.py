@@ -43,6 +43,7 @@ def register(rt, name, fqdn, **kwargs):
         s.accessPoint = "ibp://{}:6714".format(fqdn)
         s.unis_url = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
         s.status = "READY"
+        s.ttl = 600 # 10m
         rt.insert(s, commit=True)
     
     gps = GPS()
@@ -50,7 +51,7 @@ def register(rt, name, fqdn, **kwargs):
     # simply update the timestamps on our node and service resources
     def touch(n,s,gps):
         while True:
-            time.sleep(5)
+            time.sleep(settings.UPDATE_INTERVAL)
             try:
                 (lat, lon) = gps.query()
                 if lat and lon:
