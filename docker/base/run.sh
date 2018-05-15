@@ -17,4 +17,4 @@ pm2 start --name dlt-web server.js
 cd -
 
 echo "Base Station IP : `hostname --ip-address`"
-periscoped --port=9000 -d DEBUG
+periscoped --port=9000 -d $DEBUG

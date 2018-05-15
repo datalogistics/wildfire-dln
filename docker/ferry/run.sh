@@ -2,6 +2,8 @@
 
 HOSTNAME=`hostname`
 
+sudo sed -i "s/__DEBUG__/${DEBUG}/" /etc/supervisor/conf.d/unis.conf
+
 sudo sed -i "s/__HOSTNAME__/${HOSTNAME}/" /usr/local/etc/ibp/ibp.cfg
 sudo ibp_server -d /usr/local/etc/ibp/ibp.cfg
 get_version $HOSTNAME

@@ -2,13 +2,10 @@ FROM python:3.6-stretch
 
 MAINTAINER Ezra Kissel <ezkissel@indiana.edu>
 
-EXPOSE 6714/tcp
-EXPOSE 9000/tcp
-EXPOSE 42424/tcp
 EXPOSE 9001/tcp
 
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get -y install sudo cmake gcc libaprutil1-dev libapr1-dev mongodb redis-server python-setuptools python-pip python-m2crypto nodejs
+RUN apt-get update
+RUN apt-get -y install sudo cmake gcc libaprutil1-dev libapr1-dev python-setuptools python-pip
 
 RUN export uid=1000 gid=1000 && \
     mkdir -p /home/wdln && \
@@ -24,12 +21,10 @@ ENV HOME /home/wdln
 ENV DEBUG INFO
 WORKDIR $HOME
 
-RUN git clone https://github.com/datalogistics/ibp_server
-RUN git clone -b topology https://github.com/datalogistics/dlt-web
-RUN git clone -b develop https://github.com/periscope-ps/unis
-#RUN git clone https://github.com/datalogistics/wildfire-dln
+RUN git clone -b master https://github.com/datalogistics/wildfire-dln
+RUN git clone -b asyncio https://github.com/datalogistics/libdlt
 
-ADD properties.js $HOME/dlt-web/
+ADD .dlt .
 
 ADD build.sh .
 RUN bash ./build.sh

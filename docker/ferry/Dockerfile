@@ -19,6 +19,7 @@ RUN export uid=1000 gid=1000 && \
 
 USER wdln
 ENV HOME /home/wdln
+ENV DEBUG INFO
 WORKDIR $HOME
 
 RUN git clone https://github.com/datalogistics/ibp_server

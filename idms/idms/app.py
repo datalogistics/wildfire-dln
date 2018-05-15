@@ -76,13 +76,12 @@ def main():
                         help='Set the comma diliminated urls to the unis instances of interest')
     parser.add_argument('-H', '--host', default='wdln-base-station', type=str, help='Set the host for the server')
     parser.add_argument('-p', '--port', default=8000, type=int, help='Set the port for the server')
-    parser.add_argument('-P', '--policies', default='http://dlt.open.sice.indiana.edu:8000/test.json', type=str, help='Set the source for valid policies')
     parser.add_argument('-d', '--debug', default="NONE", type=str, help='Set the log level')
     parser.add_argument('-D', '--depots', default='', type=str, help='Provide a file for the depot decriptions')
     parser.add_argument('-v', '--visualize', default='', type=str, help='Set the server for the visualization effects')
     parser.add_argument('-q', '--viz_port', default='42424', type=str, help='Set the port fo the visualization effects')
     args = parser.parse_args()
-
+    
     level = {"NONE": logging.NOTSET, "INFO": logging.INFO, "DEBUG": logging.DEBUG}[args.debug]
     log = logging.getLogger()
     log.setLevel(level)

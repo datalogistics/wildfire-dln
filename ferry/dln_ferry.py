@@ -85,8 +85,8 @@ def init_runtime(remote, local, local_only):
             rt = Runtime(urls, **opts)
             return rt
         except Exception as e:
-            #import traceback
-            #traceback.print_exc()
+            import traceback
+            traceback.print_exc()
             log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
         time.sleep(5)
 
