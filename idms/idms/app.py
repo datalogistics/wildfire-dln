@@ -53,11 +53,11 @@ class _Database(object):
             self._store[filename] = []
         self._store[filename].append(policy)
 
-def _get_app(unis, depots, policies, viz):
+def _get_app(unis, depots, viz):
     conf = { "auth": False, "secret": "a4534asdfsberwregoifgjh948u12" }
     db = _Database()
     rt = Runtime(unis, defer_update=True, preload=["nodes", "services"])
-    service = IDMSService(depots, policies, viz)
+    service = IDMSService(depots, db._policies, viz)
     rt.addService(service)
     auth      = AuthHandler(conf, db)
     policy    = PolicyHandler(conf, db, service)
@@ -94,7 +94,7 @@ def main():
         with open(args.depots) as f:
             depots = json.load(f)
     viz = "{}:{}".format(args.visualize, args.viz_port) if args.visualize else None
-    app = _get_app(unis, depots, args.policies, viz)
+    app = _get_app(unis, depots, viz)
     
     from wsgiref.simple_server import make_server
     server = make_server(args.host, port, app)
