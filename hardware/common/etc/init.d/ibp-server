@@ -1,0 +1,110 @@
+#!/bin/bash
+#
+# Init file for the IBP Depot Server
+#
+# chkconfig: 2345 60 20
+# description: IBP Server
+#
+# processname: ibp_server
+#
+
+
+PREFIX=/usr/local
+if [ -z ${PREFIX} ]; then
+IBPBINDIR=/usr/bin
+else
+IBPBINDIR=${PREFIX}/bin
+fi
+CONFDIR=${PREFIX}/etc/ibp
+CONFFILE=${PREFIX}/etc/ibp/ibp.cfg
+IBPVARDIR=/var
+PIDFILE=${IBPVARDIR}/run/ibp_server.pid
+LOGFILE=${IBPVARDIR}/log/ibp_server.log
+DEBUGLEVEL=9
+
+IBP="${IBPBINDIR}/ibp_server -d ${CONFFILE}"
+#IBP_CONFIGURE="${IBPBINDIR}/ibp_configure.py"
+
+ERROR=0
+ARGV="$@"
+if [ "x$ARGV" = "x" ] ; then
+    ARGS="help"
+fi
+
+for ARG in $@ $ARGS
+do
+    # check for pidfile
+    if [ -f $PIDFILE ] ; then
+        PID=`cat $PIDFILE`
+        if [ "x$PID" != "x" ] && kill -0 $PID 2>/dev/null ; then
+            STATUS="ibp_server (pid $PID) running"
+            RUNNING=1
+        else
+            STATUS="ibp_server (pid $PID?) not running"
+            RUNNING=0
+        fi
+    else
+        RUNNING=0
+    fi
+
+    case $ARG in
+    start)
+        if [ $RUNNING -eq 1 ]; then
+            echo "$0 $ARG: ibp_server (pid $PID) already running"
+            continue
+        fi
+
+        if [ -f $IBP_CONFIGURE ] ; then
+          $IBP_CONFIGURE
+        fi
+
+        grep -e '^%include' -e '^\[resource' ${CONFFILE} >/dev/null 2>&1
+        if [[ $? -gt 0 ]]; then
+            echo "WARNING: You don't appear to have added any resources to this server"
+            echo "         This is probably unintentional, please read the README at:"
+            echo "         https://github.com/datalogistics/ibp_server/blob/master/README"
+        fi
+        echo $IBP
+
+        if $IBP ; then
+            echo `pidof ibp_server` > $PIDFILE
+            echo "$0 $ARG: ibp_server started"
+        else
+            echo "$0 $ARG: ibp_server could not be started"
+            ERROR=3
+        fi
+        ;;
+    stop)
+        if [ "x$PID" != "x" ]; then
+	    kill $PID
+            echo "$0 $ARG: ibp_server stopped"
+	elif pkill -o ibp_server; then
+	    echo "$0 $ARG: ibp_server stopped"
+        else
+            echo "$0 $ARG: ibp_server could not be stopped"
+            ERROR=4
+        fi
+        ;;
+    restart)
+        $0 stop; echo "waiting..."; sleep 2; $0 start;
+        ;;
+    *)
+        echo "usage: $0 (start|stop|restart|help)"
+        cat <<EOF
+
+start      - start ibp_server
+stop       - stop ibp_server
+restart    - restart ibp_server if running by sending a SIGHUP or start if 
+             not running
+help       - this screen
+
+EOF
+        ERROR=2
+    ;;
+
+    esac
+
+done
+
+exit $ERROR
+
