@@ -1,0 +1,19 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          gps-date
+# Required-Start:    $remote_fs $syslog $network $gpsd
+# Should-Start:      
+# Required-Stop:     $remote_fs $syslog $network $gpsd
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Start-Before:    ntp
+# Short-Description: GPS (Global Positioning System) Date Snapshot
+# Description:       Grab the current date from GPS device before NTP syncs
+#                   
+### END INIT INFO
+
+echo -n "Acquiring date from GPS... "
+
+GPSDATE=`gpspipe -w | head -10 | grep TPV | sed -r 's/.*"time":"([^"]*)".*/\1/' | head -1`
+echo $GPSDATE
+date -s $GPSDATE
