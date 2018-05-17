@@ -3,6 +3,7 @@
 HOSTNAME=`hostname`
 
 sudo sed -i "s/__HOSTNAME__/${HOSTNAME}/" /usr/local/etc/ibp/ibp.cfg
+sudo sed -i "s/^minfree_size.*/minfree_size = 100/" /usr/local/etc/ibp/ibp.cfg
 sudo ibp_server -d /usr/local/etc/ibp/ibp.cfg
 get_version $HOSTNAME
 
