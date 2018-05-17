@@ -48,7 +48,8 @@ setup(
     ],
     entry_points = {
         'console_scripts': [
-            'dln_ferry = dln_ferry:main'
+            'dln_ferry = dln_ferry:main',
+            'dln_base = dln_base:main'
         ]
     },
 )
