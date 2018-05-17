@@ -1,24 +1,5 @@
 {
     "ibp://wdln-base:6714": {
 	"enabled": true
-    },
-    "ibp://wdln-ferry-00:6714": {
-        "enabled": false
-    },
-    "ibp://wdln-ferry-01:6714": {
-	"enabled": false,
-	"duration": 155520000
-    },
-    "ibp://dresci.crest.iu.edu:6714": {
-        "enabled": false
-    },
-    "ibp://eodn.mtri.org:6714": {
-	"enabled": false
-    },
-    "ibp://192.70.161.60:6714": {
-	"enabled": false
-    },
-    "ibp://eodn1.rcac.purdue.edu:6714": {
-	"enabled": false
     }
 }
