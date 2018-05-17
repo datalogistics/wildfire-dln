@@ -75,15 +75,16 @@ def register(rt, name, fqdn, **kwargs):
 def init_runtime(remote, local, local_only):
     while True:
         try:
+            opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": False }}
             if local_only:
                 urls = [{"default": True, "url": local}]
-                opts = {"cache": { "preload": ["nodes", "services", "exnodes"]}}
                 log.debug("Connecting to UNIS instance(s): {}".format(local))
             else:
                 urls = [{"default": True, "url": remote}, {"url": local}]
-                opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": False }}
                 log.debug("Connecting to UNIS instance(s): {}".format(remote+','+local))
             rt = Runtime(urls, **opts)
+            if local_only:
+                rt.exnodes.addCallback(file_cb)
             return rt
         except Exception as e:
             import traceback
@@ -91,9 +92,10 @@ def init_runtime(remote, local, local_only):
             log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
         time.sleep(5)
 
-def file_cb(ex):
-    time.sleep(2)
-    local_download(sess, [ex])
+def file_cb(ex, event):
+    if event == "new":
+        time.sleep(2)
+        local_download(sess, [ex])
 
 def local_download(sess, exnodes):
     for f in exnodes:
