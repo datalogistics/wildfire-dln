@@ -31,7 +31,20 @@ sudo npm install -g pm2 bower
 bower install
 cd -
 
+echo "Setting up UNIS-RT..."
+cd lace
+sudo python3 setup.py develop
+cd -
+cd unisrt
+sudo python3 setup.py develop
+cd -
+
 echo "Setting up Periscope..."
 cd unis
 sudo python2 setup.py develop
+cd -
+
+echo "Setting up WDLN-BASE..."
+cd wildfire-dln/ferry
+sudo python3 setup.py develop
 cd -

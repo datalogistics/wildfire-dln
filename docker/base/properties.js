@@ -74,11 +74,11 @@ var self = {
     'services_id' : ""
   },
   filterMap : {
-    services : "serviceType=datalogistics:wdln:ferry",
+    services : "serviceType=datalogistics:wdln:ferry,datalogistics:wdln:base",
     exnodes : "inline"
   },
   wsfilterMap : {
-    services : '{"serviceType":{"in":["datalogistics:wdln:ferry"]}}'
+    services : '{"serviceType":{"in":["datalogistics:wdln:ferry,datalogistics:wdln:base"]}}'
   },
   serviceMap : {
     local : {

@@ -24,10 +24,10 @@ WORKDIR $HOME
 RUN git clone -b master https://github.com/datalogistics/wildfire-dln
 RUN git clone -b asyncio https://github.com/datalogistics/libdlt
 
-ADD .dlt .
-
 ADD build.sh .
 RUN bash ./build.sh
+
+ADD .dlt .
 
 ADD run.sh .
 CMD bash ./run.sh

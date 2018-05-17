@@ -8,7 +8,7 @@ EXPOSE 42424/tcp
 EXPOSE 9001/tcp
 
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get -y install sudo cmake gcc libaprutil1-dev libapr1-dev mongodb redis-server python-setuptools python-pip python-m2crypto nodejs
+RUN apt-get -y install sudo cmake gcc libaprutil1-dev libapr1-dev mongodb redis-server python-setuptools python-pip python-m2crypto nodejs supervisor
 
 RUN export uid=1000 gid=1000 && \
     mkdir -p /home/wdln && \
@@ -27,11 +27,15 @@ WORKDIR $HOME
 RUN git clone https://github.com/datalogistics/ibp_server
 RUN git clone -b wdln https://github.com/datalogistics/dlt-web
 RUN git clone -b develop https://github.com/periscope-ps/unis
-#RUN git clone https://github.com/datalogistics/wildfire-dln
+RUN git clone -b develop https://github.com/periscope-ps/unisrt
+RUN git clone -b master https://github.com/periscope-ps/lace
+RUN git clone https://github.com/datalogistics/wildfire-dln
 
 ADD build.sh .
 RUN bash ./build.sh
 
+ADD base.conf /etc/supervisor/conf.d/
+ADD unis.conf /etc/supervisor/conf.d/
 ADD properties.js $HOME/dlt-web/
 
 ADD run.sh .

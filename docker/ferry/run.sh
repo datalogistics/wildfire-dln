@@ -18,7 +18,7 @@ git -C wildfire-dln pull
 
 # re-apply setup for dev purposes
 cd wildfire-dln/ferry
-python3 setup.py develop
+sudo python3 setup.py develop
 cd -
 
 sudo /etc/init.d/nginx start
