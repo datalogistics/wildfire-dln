@@ -15,7 +15,8 @@ class PolicyHandler(_BaseHandler):
     def on_get(self, req, resp):
         policies = {}
         for dest in self._db.get_policies():
-            name = "Send to {}".format(dest['ferry_name'])
+            name = "to_{}".format(dest['ferry_name'])
+            dest['description'] = "Send to {}".format(dest['ferry_name'])
             policies[name] = dest
         resp.body = policies
         resp.status = falcon.HTTP_200
