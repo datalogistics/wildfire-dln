@@ -15,7 +15,7 @@ sudo chown wdln:wdln /depot/web
 git -C unis pull
 git -C unisrt pull
 git -C libdlt pull
-git -C wildfire-dln pull
+#git -C wildfire-dln pull
 
 # re-apply setup for dev purposes
 cd wildfire-dln/ferry

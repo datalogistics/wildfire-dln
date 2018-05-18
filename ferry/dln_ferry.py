@@ -85,6 +85,11 @@ def init_runtime(remote, local, local_only):
             rt = Runtime(urls, **opts)
             if local_only:
                 rt.exnodes.addCallback(file_cb)
+            else:
+                def fn(v,t):
+                    if v.status == 'UPDATE':
+                        print(v.to_JSON())
+                rt.services.addCallback(fn)
             return rt
         except Exception as e:
             import traceback
@@ -159,6 +164,7 @@ def main():
     args = parser.parse_args()
 
     # configure logging level
+    print("########################### Running custom local version ############################")
     level = logging.DEBUG if args.verbose else logging.INFO
     level = logging.CRITICAL if args.quiet else level
     log.setLevel(level)
