@@ -1,5 +1,11 @@
 {
     "ibp://wdln-base:6714": {
-	"enabled": true
+	"enabled": false
+    },
+    "ibp://wdln-ferry-00:6714": {
+	"enabled": false
+    },
+    "ibp://wdln-ferry-01:6714": {
+	"enabled": false
     }
 }
