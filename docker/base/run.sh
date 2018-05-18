@@ -21,4 +21,9 @@ pm2 start --name dlt-web server.js
 cd -
 
 echo "Base Station IP : `hostname --ip-address`"
+
+while [ ! -f /var/log/base.log ]
+do
+    sleep 1
+done
 tail -f /var/log/base.log
