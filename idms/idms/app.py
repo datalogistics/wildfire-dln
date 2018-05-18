@@ -2,69 +2,33 @@ import argparse
 import falcon
 import json
 
-from idms.handlers import PolicyHandler, AuthHandler, SSLCheck
-from idms.lib.service import IDMSService
+from idms.handlers import PolicyHandler, PolicyTracker, SSLCheck
+from idms.lib.db import DBLayer
 from idms.lib.middleware import FalconCORS
+from idms.lib.service import IDMSService
+
 from unis import Runtime
 
-# TMP Mock database object
-class _Database(object):
-    def __init__(self):
-        self._store = {}
-        self._policies = {
-            "Ferry-Backpack-00": {
-                "ferry_name": "wdln-ferry-00",
-                "data_lifetime": 21600
-            },
-            "Ferry-Mule-17": {
-                "ferry_name": "wdln-ferry-17",
-                "data_lifetime": 108000
-            },
-            "Ferry-Drone-03": {
-                "ferry_name": "wdln-ferry-03",
-                "data-lifetime": 3600
-            }
-        }
-        self._usrs = {
-            "admin": { "pwd": "admin", "prv": ["ls", "x", "v"] },
-            "reader": { "pwd": "reader", "prv": ["ls"] },
-            "programmer": { "pwd": "programmer", "prv": ["x"] },
-            "qa": { "pwd": "qa", "prv": ["v"] }
-        }
-        
-    ### DO NOT ACTUALLY USE THIS, IT IS horribly INSECURE ###
-    def get_usr(self, usr, pwd):
-        for k, v in self._usrs.items():
-            if k == usr:
-                if v.get("pwd", "") != pwd:
-                    raise falcon.HTTPForbidden("Incorrect password")
-                    
-                return v["prv"]
-        raise falcon.HTTPForbidden("Unknown username")
-        
-    def find(self, usr=None):
-        for k, ls in self._store.items():
-            if not usr or usr == k:
-                for f in ls:
-                    yield f
-    
-    def insert(self, filename, policy):
-        if usr not in self._store:
-            self._store[filename] = []
-        self._store[filename].append(policy)
+routes = {
+    "p": {"handler": PolicyHandler},
+    "a": {"handler": PolicyTracker},
+    "a/{exnode}": {"handler": PolicyTracker}
+}
 
 def _get_app(unis, depots, viz):
-    conf = { "auth": False, "secret": "a4534asdfsberwregoifgjh948u12" }
-    db = _Database()
+    conf = {"auth": False, "secret": "a4534asdfsberwregoifgjh948u12"}
     rt = Runtime(unis, defer_update=True, preload=["nodes", "services"])
-    service = IDMSService(depots, db._policies, viz)
+    db = DBLayer(rt, depots)
+    service = IDMSService(db, viz)
     rt.addService(service)
-    auth      = AuthHandler(conf, db)
-    policy    = PolicyHandler(conf, db, service)
+    routes['p']['service'] = service
     
     ensure_ssl = SSLCheck(conf)
     app = falcon.API(middleware=[FalconCORS()])
-    app.add_route('/', policy)
+    for k,v in routes.items():
+        handler = v["handler"]
+        del v["handler"]
+        app.add_route("/{}".format(k), handler(conf, dblayer=db, **v))
     
     return app
     

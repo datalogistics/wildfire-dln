@@ -127,7 +127,7 @@ def run_local(sess, n, s, rt):
 def run_remote(sess, n, s, rt):
     i=0
     while True:
-        (i%5) or log.info("Waiting for some remote action...")
+        (i%5) or log.info("[{}]Waiting for some remote action...".format(s.status))
         if s.status == "UPDATE":
             dl_list = s.new_exnodes
             log.info("Caught UPDATE status with {} new exnodes".format(len(dl_list)))

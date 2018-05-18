@@ -9,9 +9,9 @@ import time
 from idms.settings import MIME
 
 class _BaseHandler(object):
-    def __init__(self, conf, db):
+    def __init__(self, conf, dblayer):
         self._conf = conf
-        self._db = db
+        self._db = dblayer
     
     @classmethod
     def do_auth(self, req, resp, resource, params):
