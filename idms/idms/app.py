@@ -7,6 +7,7 @@ from idms.lib.db import DBLayer
 from idms.lib.middleware import FalconCORS
 from idms.lib.service import IDMSService
 
+from asyncio import TimeoutError
 from lace import logging
 from unis import Runtime
 from unis.exceptions import ConnectionError
@@ -22,11 +23,11 @@ def _get_app(unis, depots, viz):
     while True:
         try:
             rt = Runtime(unis, defer_update=True, preload=["nodes", "services"])
-            break
-        except ConnectionError:
+        except (ConnectionError, TimeoutError):
             msg = "Failed to start runtime, retrying..."
             logging.getLogger('idms').warn(msg)
-            pass
+            continue
+        break
     
     db = DBLayer(rt, depots)
     service = IDMSService(db, viz)
