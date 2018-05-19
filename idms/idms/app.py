@@ -7,7 +7,9 @@ from idms.lib.db import DBLayer
 from idms.lib.middleware import FalconCORS
 from idms.lib.service import IDMSService
 
+from lace import logging
 from unis import Runtime
+from unis.exceptions import ConnectionError
 
 routes = {
     "p": {"handler": PolicyHandler},
@@ -17,7 +19,15 @@ routes = {
 
 def _get_app(unis, depots, viz):
     conf = {"auth": False, "secret": "a4534asdfsberwregoifgjh948u12"}
-    rt = Runtime(unis, defer_update=True, preload=["nodes", "services"])
+    while True:
+        try:
+            rt = Runtime(unis, defer_update=True, preload=["nodes", "services"])
+            break
+        except ConnectionError:
+            msg = "Failed to start runtime, retrying..."
+            logging.getLogger('idms').warn(msg)
+            pass
+    
     db = DBLayer(rt, depots)
     service = IDMSService(db, viz)
     rt.addService(service)
@@ -33,8 +43,6 @@ def _get_app(unis, depots, viz):
     return app
     
 def main():
-    from lace import logging
-    from lace.logging import trace
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-u', '--unis', default='http://wdln-base-station:8888', type=str,
                         help='Set the comma diliminated urls to the unis instances of interest')
@@ -47,10 +55,8 @@ def main():
     args = parser.parse_args()
     
     level = {"NONE": logging.NOTSET, "INFO": logging.INFO, "DEBUG": logging.DEBUG}[args.debug]
-    log = logging.getLogger()
+    log = logging.getLogger("idms")
     log.setLevel(level)
-    trace.setLevel(level)
-    trace.setLevel(level)
     port = args.port
     unis = [str(u) for u in args.unis.split(',')]
     depots = None
