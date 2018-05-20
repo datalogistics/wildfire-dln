@@ -31,7 +31,7 @@ class IDMSService(RuntimeService):
             self.download(policy.sendto['$exact'], exnode, policy.meta['data_lifetime'])
         
     def download(self, ferry, exnode, lifetime):
-        with Session(self.runtime, self._db.get_depots(), viz_url=self._viz) as sess:
+        with Session(self.runtime, self._db.get_depots(), threads=1, viz_url=self._viz) as sess:
             sess.download(exnode.selfRef, exnode.name)
         self._pending[ferry].append((exnode.name, lifetime))
     
@@ -46,7 +46,7 @@ class IDMSService(RuntimeService):
         if resource.status == 'READY' and self._pending[resource.name]:
             self.runtime.addSources([{'url': resource.unis_url, 'default': False, 'ssl': None, 'verify': False, 'enabled': True}])
             self.runtime.settings['default_source'] = resource.unis_url
-            with Session(self.runtime, self._db.get_depots(), bs="5m", viz_url=self._viz) as sess:
+            with Session(self.runtime, self._db.get_depots(), bs="5m", threads=1, viz_url=self._viz) as sess:
                 for name, lifetime in self._pending[resource.name]:
                     upload = self.ForceUpload([resource.accessPoint])
                     try:
