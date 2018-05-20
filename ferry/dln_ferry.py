@@ -103,7 +103,8 @@ def local_download(sess, exnodes):
             continue
         log.info("Downloading: {} ({} bytes)".format(f.name, f.size))
         try:
-            diff, dsize, res = sess.download(f.selfRef, "{}/{}".format(DOWNLOAD_DIR,f.name))
+            result = sess.download(f.selfRef, "{}/{}".format(DOWNLOAD_DIR,f.name))
+            res, diff, dsize = result.exnode, result.time, result.t_size
         except Exception as e:
             log.error("Could not download file: {}".format(e))
             continue

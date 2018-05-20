@@ -50,8 +50,8 @@ class IDMSService(RuntimeService):
                 for name, lifetime in self._pending[resource.name]:
                     upload = self.ForceUpload([resource.accessPoint])
                     try:
-                        new_exnode = sess.upload(name, schedule=upload, duration=lifetime)
-                        resource.new_exnodes.append(new_exnode[1])
+                        result = sess.upload(name, schedule=upload, duration=lifetime)
+                        resource.new_exnodes.append(result.exnode)
                     except:
                         import traceback
                         traceback.print_exc()
