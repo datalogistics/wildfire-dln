@@ -26,9 +26,10 @@ class PolicyHandler(_BaseHandler):
     @get_body
     def on_post(self, req, resp, body):
         assert "policies" in body, "No policies specified in request"
+        assert "nodes" in body, "No nodes specified in request"
         for policy in body['policies']:
             try:
-                desc = {"selfRef": {"$in": [x['selfRef'] for x in policy['nodes']]}}
+                desc = {"selfRef": {"$in": [x['selfRef'] for x in body['nodes']]}}
                 sendto = { "$exact": policy['ferry_name']}
                 policy = Policy(desc, sendto, {"data_lifetime": policy.get('data_lifetime', 10800)})
                 self._db.register_policy(policy)
