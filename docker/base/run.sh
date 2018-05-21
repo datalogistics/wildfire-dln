@@ -10,7 +10,10 @@ get_version $HOSTNAME
 git -C unis pull
 git -C unisrt pull
 git -C wildfire-dln pull
+
+git -C dlt-web stash
 git -C dlt-web pull
+git -C dlt-web stash pop
 
 sudo /etc/init.d/mongodb start
 sudo /etc/init.d/redis-server start
