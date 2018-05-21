@@ -48,6 +48,7 @@ var self = {
   exnodeParent_UsingSelfRef : true,
   // Try to login and maintain cookie for the following UNIS instances
   authArr : [],
+  idms_server : "http://wdln-idms:9001",
   routeMap : {
     // Aggregate from the following by default
     'default': ['local'],
@@ -65,7 +66,8 @@ var self = {
     'data': [],
     'data_id': [],
     'ports': [],
-    'ports_id' : []
+    'ports_id' : [],
+    'wildfire' : ['policies']
   },
   // Add a callback to process data for various routes
   routeCb : {
@@ -85,6 +87,11 @@ var self = {
       url : "localhost",
       port : "9000",
       use_ssl : false
+    },
+    policies : {
+      url: "wdln-idms",
+      port: 9001,
+      use_ssl: false
     },
     msu: {
 	url : "msu-ps01.osris.org",
