@@ -23,8 +23,8 @@ def _get_app(unis, depots, viz):
     while True:
         try:
             rt = Runtime(unis, defer_update=True, preload=["nodes", "services"])
-        except (ConnectionError, TimeoutError):
-            msg = "Failed to start runtime, retrying..."
+        except (ConnectionError, TimeoutError) as exp:
+            msg = "Failed to start runtime, retrying... - {}".format(exp)
             logging.getLogger('idms').warn(msg)
             continue
         break
