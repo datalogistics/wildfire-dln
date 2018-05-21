@@ -18,11 +18,14 @@ RUN export uid=1000 gid=1000 && \
     chmod 0440 /etc/sudoers.d/wdln && \
     chown ${uid}:${gid} -R /home/wdln && \
     chown ${uid}:${gid} -R /opt
-
+    
 USER wdln
 ENV HOME /home/wdln
 ENV DEBUG INFO
 WORKDIR $HOME
+
+RUN git config --global user.email "wdln@wdln-base"
+RUN git config --global user.name "WILDFIRE-DLN"
 
 RUN git clone https://github.com/datalogistics/ibp_server
 RUN git clone -b wdln https://github.com/datalogistics/dlt-web
