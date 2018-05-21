@@ -1,6 +1,7 @@
 import argparse
 import falcon
 import json
+import time
 
 from idms.handlers import PolicyHandler, PolicyTracker, SSLCheck
 from idms.lib.db import DBLayer
@@ -26,6 +27,7 @@ def _get_app(unis, depots, viz):
         except (ConnectionError, TimeoutError) as exp:
             msg = "Failed to start runtime, retrying... - {}".format(exp)
             logging.getLogger('idms').warn(msg)
+            time.sleep(1)
             continue
         break
     
