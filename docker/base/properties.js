@@ -80,7 +80,7 @@ var self = {
     exnodes : "inline"
   },
   wsfilterMap : {
-    services : '{"serviceType":{"in":["datalogistics:wdln:ferry,datalogistics:wdln:base"]}}'
+    services : '{"serviceType":{"in":["datalogistics:wdln:ferry","datalogistics:wdln:base"]}}'
   },
   serviceMap : {
     local : {
