@@ -1,8 +1,10 @@
+import io
 import random
 from ferry.settings import GPS_DEFAULT, GPS_BOX
 from gps3 import gps3
 from ferry.log import log
 from shapely.geometry import box, Point
+from contextlib import redirect_stderr
 
 GPS_DEV_READ_LEN=50 # number of lines of output to read from gps3
 
@@ -14,18 +16,29 @@ class GPS:
     read_count = 0
     
     def __init__(self):
-        try:
-            self.sock = gps3.GPSDSocket()
-            self.stream = gps3.DataStream()
+        self.sock = gps3.GPSDSocket()
+        self.stream = gps3.DataStream()
+        
+        # GPS3 throws no exceptions and returns no status,
+        # so we have to capture stdout and do string matching, sigh
+        f = io.StringIO()
+        with redirect_stderr(f):
             self.sock.connect()
+        if "Connection refused" in f.getvalue():
+            log.warn("Could not connect to GPSD socket, continuing with GPS_BOX")
+            self.sock = None
+        else:
+            log.info("Connected to GPSD socket")
             self.sock.watch()
-        except Exception as e:
-            log.info("Could not initialize GPS: {}".format(e))
-
+            
+        # we will use the GPS_BOX setting to determine if
+        # queries will return locations within a specified range
         if len(GPS_BOX) == 4:
             self.gps_box = box(GPS_BOX[0], GPS_BOX[1],
                                GPS_BOX[2], GPS_BOX[3])
             log.info("Created GPS box")
+        else:
+            log.warn("Invalid GPS_BOX size, using GPS_DEFAULT")
             
     def query(self):
         if not self.sock:
@@ -40,6 +53,10 @@ class GPS:
         lack_alt = True
         
         for new_data in self.sock:
+            latitude = 'n/a'
+            longitude = 'n/a'
+            altitude = 'n/a'
+            
             if new_data:
                 self.stream.unpack(new_data)
                 self.read_count = self.read_count + 1
