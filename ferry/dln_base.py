@@ -52,7 +52,8 @@ def register(rt, name, fqdn, **kwargs):
                 if lat and lon:
                     n.location.latitude = lat
                     n.location.longitude = lon
-                n.touch()
+                else:
+                    n.touch()
                 s.touch()
             except Exception as e:
                 log.error("Could not update node/service resources: {}".format(e))

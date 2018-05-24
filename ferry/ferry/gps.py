@@ -15,10 +15,10 @@ class GPS:
     
     def __init__(self):
         try:
-            sock = gps3.GPSDSocket()
-            stream = gps3.DataStream()
-            sock.connect()
-            sock.watch()
+            self.sock = gps3.GPSDSocket()
+            self.stream = gps3.DataStream()
+            self.sock.connect()
+            self.sock.watch()
         except Exception as e:
             log.info("Could not initialize GPS: {}".format(e))
 
