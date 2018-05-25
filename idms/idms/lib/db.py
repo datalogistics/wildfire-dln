@@ -13,8 +13,15 @@ class DBLayer(object):
     
     def register_policy(self, policy):
         self._active.append(policy)
-    def get_active_policies(self):
-        return self._active
+    def get_active_policies(self, exnode=None):
+        if exnode:
+            exnode = next(self._rt.exnodes.where({'id': exnode}))
+            for policy in self._active:
+                if policy.match(exnode):
+                    yield policy
+        else:
+            for policy in self._active:
+                yield policy
     
     def get_policies(self):
         dests = []
@@ -24,7 +31,6 @@ class DBLayer(object):
     
     def get_depots(self):
         depots = copy.deepcopy(self._custom_depots)
-        print(depots)
         for ferry in self._get_ferry_list():
             depots[ferry.accessPoint] = {"enabled": True}
         for depot in self._rt.services.where({"serviceType": "ibp_server"}):
