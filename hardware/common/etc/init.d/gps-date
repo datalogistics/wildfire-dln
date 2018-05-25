@@ -12,8 +12,16 @@
 #                   
 ### END INIT INFO
 
+NAME=gps-date
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+. /lib/lsb/init-functions
+
 echo -n "Acquiring date from GPS... "
 
-GPSDATE=`gpspipe -w | head -10 | grep TPV | sed -r 's/.*"time":"([^"]*)".*/\1/' | head -1`
+GPSDATE=`gpspipe -w | head -10 | grep time | sed -r 's/.*"time":"([^"]*)".*/\1/' | head -1`
 echo $GPSDATE
-date -s $GPSDATE
+date -s $GPSDATE &> /dev/null
+log_daemon_msg "Setting date from GPS $GPSDATE" $NAME
+log_end_msg $?
