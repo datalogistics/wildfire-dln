@@ -52,11 +52,12 @@ class IDMSService(RuntimeService):
                     try:
                         result = sess.upload(name, schedule=upload, duration=lifetime)
                         resource.new_exnodes.append(result.exnode)
-                    except:
+                    except Exception as exp:
                         import traceback
                         traceback.print_exc()
                         type(self).lock = False
-                        raise
+                        self._log.warn("Failed to upload to target - {}".format(exp))
+                        return
                 resource.status = 'UPDATE'
                 self.runtime.update(resource)
                 self.runtime.flush()
