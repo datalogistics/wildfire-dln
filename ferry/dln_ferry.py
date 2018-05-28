@@ -14,6 +14,7 @@ from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from ferry.gps import GPS
+from ferry.ibp_iface import IBPWatcher
 from ferry.log import log
 
 # globals
@@ -72,7 +73,7 @@ def register(rt, name, fqdn, **kwargs):
         args=(n,s,gps),
     )
     th.start()
-    
+
     return (n,s)
     
 def init_runtime(remote, local, local_only):
@@ -155,6 +156,8 @@ def main():
                         help='Set local download directory')
     parser.add_argument('-l', '--local', action='store_true',
                         help='Run using only local UNIS instance (on-ferry)')
+    parser.add_argument('-i', '--ibp', action='store_true',
+                        help='Update IBP config to reflect interface changes on system')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Produce verbose output from the script')
     parser.add_argument('-q', '--quiet', action='store_true',
@@ -199,6 +202,10 @@ def main():
     # returns handles to the node and service objects
     (n,s) = register(rt, name, fqdn)
 
+    # Start the iface watcher for IBP config
+    if args.ibp:
+        IBPWatcher()
+    
     # run our main loop
     if args.local:
         run_local(sess, n, s, rt)

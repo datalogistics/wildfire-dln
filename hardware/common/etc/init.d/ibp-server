@@ -1,12 +1,14 @@
 #!/bin/bash
-#
-# Init file for the IBP Depot Server
-#
-# chkconfig: 2345 60 20
-# description: IBP Server
-#
-# processname: ibp_server
-#
+
+### BEGIN INIT INFO
+# Provides:             ibp-server
+# Required-Start:       $remote_fs $network $hostapd
+# Required-Stop:        $remote_fs
+# Should-Start:
+# Should-Stop:
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+### END INIT INFO
 
 
 PREFIX=/usr/local
@@ -31,25 +33,26 @@ if [ "x$ARGV" = "x" ] ; then
     ARGS="help"
 fi
 
-for ARG in $@ $ARGS
-do
+check_running() {
     # check for pidfile
     if [ -f $PIDFILE ] ; then
         PID=`cat $PIDFILE`
         if [ "x$PID" != "x" ] && kill -0 $PID 2>/dev/null ; then
-            STATUS="ibp_server (pid $PID) running"
-            RUNNING=1
+	    return 1
         else
-            STATUS="ibp_server (pid $PID?) not running"
-            RUNNING=0
+            return 0
         fi
     else
-        RUNNING=0
+        return 0
     fi
+}
 
+for ARG in $@ $ARGS
+do
     case $ARG in
     start)
-        if [ $RUNNING -eq 1 ]; then
+	check_running
+        if [ $? -eq 1 ]; then
             echo "$0 $ARG: ibp_server (pid $PID) already running"
             continue
         fi
@@ -76,7 +79,7 @@ do
         ;;
     stop)
         if [ "x$PID" != "x" ]; then
-	    kill $PID
+	    kill -SIGQUIT $PID
             echo "$0 $ARG: ibp_server stopped"
 	elif pkill -o ibp_server; then
 	    echo "$0 $ARG: ibp_server stopped"
@@ -86,7 +89,11 @@ do
         fi
         ;;
     restart)
-        $0 stop; echo "waiting..."; sleep 2; $0 start;
+        $0 stop;
+	until check_running; do
+	    sleep 1
+	done
+	$0 start;
         ;;
     *)
         echo "usage: $0 (start|stop|restart|help)"
@@ -107,4 +114,3 @@ EOF
 done
 
 exit $ERROR
-
