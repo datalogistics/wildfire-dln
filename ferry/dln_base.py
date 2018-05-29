@@ -13,6 +13,7 @@ from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from ferry.gps import GPS
+from ferry.base_sync import BaseFerrySync
 from ferry.log import log
 
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
@@ -67,6 +68,11 @@ def register(rt, name, fqdn, **kwargs):
     th.start()
     
     return (n,s)
+
+def node_cb(node, event):
+    #nstr = "http://"+node.name+":9000"
+    #log.info("Updating {}/nodes".format(nstr))
+    pass
     
 def init_runtime(local):
     while True:
@@ -75,6 +81,7 @@ def init_runtime(local):
             urls = [{"default": True, "url": local}]
             log.debug("Connecting to UNIS instance(s): {}".format(local))
             rt = Runtime(urls, **opts)
+            rt.nodes.addCallback(node_cb)
             return rt
         except Exception as e:
             import traceback
@@ -130,6 +137,9 @@ def main():
     # returns handles to the node and service objects
     (n,s) = register(rt, name, fqdn)
 
+    # start base-ferry sync
+    BaseFerrySync(rt)
+    
     run_base(n, s, rt)
     
 if __name__ == "__main__":
