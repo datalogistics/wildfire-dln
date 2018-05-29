@@ -53,6 +53,7 @@ def register(rt, name, fqdn, **kwargs):
                 if lat and lon:
                     n.location.latitude = lat
                     n.location.longitude = lon
+                    rt.flush()
                 else:
                     n.touch()
                 s.touch()
@@ -77,7 +78,7 @@ def node_cb(node, event):
 def init_runtime(local):
     while True:
         try:
-            opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": False }}
+            opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": True }}
             urls = [{"default": True, "url": local}]
             log.debug("Connecting to UNIS instance(s): {}".format(local))
             rt = Runtime(urls, **opts)

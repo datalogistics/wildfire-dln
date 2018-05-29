@@ -58,6 +58,7 @@ def register(rt, name, fqdn, **kwargs):
                 if lat and lon:
                     n.location.latitude = lat
                     n.location.longitude = lon
+                    rt.flush()
                 else:
                     n.touch()
                 s.touch()
@@ -79,7 +80,7 @@ def register(rt, name, fqdn, **kwargs):
 def init_runtime(remote, local, local_only):
     while True:
         try:
-            opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": False }}
+            opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": True }}
             if local_only:
                 urls = [{"default": True, "url": local}]
                 log.debug("Connecting to UNIS instance(s): {}".format(local))
@@ -139,7 +140,7 @@ def run_remote(sess, n, s, rt):
             local_download(sess, dl_list)
             time.sleep(1)
             s.status = "READY"
-            s.commit()
+            rt.flush()
         i+=1
         time.sleep(1)
         
