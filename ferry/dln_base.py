@@ -54,8 +54,6 @@ def register(rt, name, fqdn, **kwargs):
                     n.location.latitude = lat
                     n.location.longitude = lon
                     rt.flush()
-                else:
-                    n.touch()
                 s.touch()
             except Exception as e:
                 log.error("Could not update node/service resources: {}".format(e))
@@ -139,7 +137,7 @@ def main():
     (n,s) = register(rt, name, fqdn)
 
     # start base-ferry sync
-    BaseFerrySync(rt)
+    BaseFerrySync(rt, name)
     
     run_base(n, s, rt)
     

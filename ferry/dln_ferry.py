@@ -59,8 +59,6 @@ def register(rt, name, fqdn, **kwargs):
                     n.location.latitude = lat
                     n.location.longitude = lon
                     rt.flush()
-                else:
-                    n.touch()
                 s.touch()
             except Exception as e:
                 #import traceback
