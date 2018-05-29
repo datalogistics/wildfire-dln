@@ -38,7 +38,6 @@ class BaseFerrySync:
                 for n in nds:
                     repr = n.to_JSON()
                     del repr['selfRef']
-                    del repr['id']
                     #nn = Node(repr)
                     #rt.insert(nn)
                     #nn.commit(publish_to=ustr)
