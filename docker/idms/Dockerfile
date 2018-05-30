@@ -18,7 +18,6 @@ RUN export uid=1000 gid=1000 && \
 
 USER wdln
 ENV HOME /home/wdln
-ENV DEBUG INFO
 WORKDIR $HOME
 
 RUN git clone -b master https://github.com/datalogistics/wildfire-dln
@@ -29,5 +28,6 @@ RUN bash ./build.sh
 
 ADD .dlt .
 
+ENV DEBUG INFO
 ADD run.sh .
 CMD bash ./run.sh

@@ -17,7 +17,7 @@ git -C dlt-web stash pop
 
 sudo /etc/init.d/mongodb start
 sudo /etc/init.d/redis-server start
-sudo /etc/init.d/supervisor start
+sudo -E /etc/init.d/supervisor start
 
 cd dlt-web
 pm2 start --name dlt-web server.js

@@ -20,7 +20,6 @@ RUN export uid=1000 gid=1000 && \
 
 USER wdln
 ENV HOME /home/wdln
-ENV DEBUG INFO
 WORKDIR $HOME
 
 RUN git clone https://github.com/datalogistics/ibp_server
@@ -37,5 +36,6 @@ ADD ferry.conf /etc/supervisor/conf.d/
 ADD unis.conf /etc/supervisor/conf.d/
 ADD nginx-wdln /etc/nginx/sites-available/default
 
+ENV DEBUG INFO
 ADD run.sh .
 CMD bash ./run.sh

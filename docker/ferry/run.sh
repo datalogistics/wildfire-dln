@@ -2,8 +2,6 @@
 
 HOSTNAME=`hostname`
 
-sudo sed -i "s/__DEBUG__/${DEBUG}/" /etc/supervisor/conf.d/unis.conf
-
 sudo sed -i "s/__HOSTNAME__/${HOSTNAME}/" /usr/local/etc/ibp/ibp.cfg
 sudo sed -i "s/^minfree_size.*/minfree_size = 100/" /usr/local/etc/ibp/ibp.cfg
 sudo ibp_server -d /usr/local/etc/ibp/ibp.cfg
@@ -25,7 +23,7 @@ cd -
 sudo /etc/init.d/nginx start
 sudo /etc/init.d/mongodb start
 sudo /etc/init.d/redis-server start
-sudo /etc/init.d/supervisor start
+sudo -E /etc/init.d/supervisor start
 
 echo "Ferry $HOSTNAME IP : `hostname --ip-address`"
 sleep 1
