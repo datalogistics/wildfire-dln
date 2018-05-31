@@ -85,7 +85,7 @@ def init_runtime(remote, local, local_only):
                 urls = [{"default": True, "url": local}]
                 log.debug("Connecting to UNIS instance(s): {}".format(local))
             else:
-                urls = [{"default": True, "url": remote}, {"url": local}]
+                urls = [{"url": local}, {"default": True, "url": remote}]
                 log.debug("Connecting to UNIS instance(s): {}".format(remote+','+local))
             rt = Runtime(urls, **opts)
             if local_only:
