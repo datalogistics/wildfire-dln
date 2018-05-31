@@ -5,7 +5,10 @@
 
     <uses-sdk android:minSdkVersion="17" android:targetSdkVersion="19" />
 
-    <application 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <application
         android:allowBackup="false"
         android:icon="@drawable/wdln_48x48"
         android:label="WildfireDLN"
