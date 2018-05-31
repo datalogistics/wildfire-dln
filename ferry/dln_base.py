@@ -27,7 +27,8 @@ def register(rt, name, fqdn, **kwargs):
         n = Node()
         n.name = name
         rt.insert(n, commit=True)
-
+        rt.flush()
+        
     s = rt.services.where({"runningOn": n})
     try:
         s = next(s)
@@ -41,7 +42,8 @@ def register(rt, name, fqdn, **kwargs):
         s.status = "READY"
         s.ttl = 600 # 10m
         rt.insert(s, commit=True)
-    
+        rt.flush()
+        
     gps = GPS()
     
     # simply update the timestamps on our node and service resources
