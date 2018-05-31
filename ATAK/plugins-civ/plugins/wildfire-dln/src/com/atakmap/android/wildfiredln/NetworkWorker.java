@@ -55,8 +55,8 @@ public class NetworkWorker implements Runnable
             {
                 failed = false;
                 //exnodes
-                Log.d(TAG, "Trying HTTP connection to http://"+IPString + ":9000/exnodes");
-                URL url = new URL("http://"+IPString + ":9000/exnodes");
+                Log.d(TAG, "Trying HTTP connection to http://"+IPString + ":9000/exnodes?fields=name,size,id,created");
+                URL url = new URL("http://"+IPString + ":9000/exnodes?fields=name,size,id,created");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setConnectTimeout(3000);
                 urlConnection.setReadTimeout(3000);
@@ -88,9 +88,13 @@ public class NetworkWorker implements Runnable
 
                 if(!failed)
                 {
+                    long unixTime = System.currentTimeMillis() * 1000L;
+                    unixTime -= 300000000;//node history limited to 10 minutes
+                    //Log.d(TAG,"Current time is "+unixTime);
+
                     //nodes
-                    Log.d(TAG, "Trying HTTP connection to http://" + IPString + ":9000/nodes");
-                    url = new URL("http://" + IPString + ":9000/nodes");
+                    Log.d(TAG, "Trying HTTP connection to http://" + IPString + ":9000/nodes?ts=gte="+unixTime);
+                    url = new URL("http://" + IPString + ":9000/nodes?ts=gte="+unixTime);
                     urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setConnectTimeout(3000);
                     urlConnection.setReadTimeout(3000);
@@ -99,7 +103,7 @@ public class NetworkWorker implements Runnable
                     {
                         InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                         responseString = IOUtils.toString(in);
-                        Log.d(TAG, "http://" + IPString + "/nodes/ -- Response" + responseString);
+                        Log.d(TAG, "http://" + IPString + "/nodes?ts=gte="+unixTime+" -- Response" + responseString);
 
 
                         nreferences = NodeReference.NodeParser("http://" + IPString, responseString);
