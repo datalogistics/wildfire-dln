@@ -36,6 +36,6 @@ ADD ferry.conf /etc/supervisor/conf.d/
 ADD unis.conf /etc/supervisor/conf.d/
 ADD nginx-wdln /etc/nginx/sites-available/default
 
-ENV DEBUG INFO
+ENV DEBUG DEBUG
 ADD run.sh .
 CMD bash ./run.sh
