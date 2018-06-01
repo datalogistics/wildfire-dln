@@ -1,14 +1,17 @@
-The basic xDot wrapper class is xdot.py. The version that doesn't rely on gateway responses, and may allow explosions to occur, is xdot_no_guardrails.py. 
+There are two options here. First, you can use the Multitech MultiConnect Conduit with the xDot for precise communication. If at all possible *avoid resetting the gateway*. Unfortunately occasionally the device does become unresponsive without a reset.  
+
+The basic wrapper class for the xDot is xdot.py. The version that doesn't rely on gateway responses as confirmation of receipt, and may allow explosions to occur, is xdot_no_guardrails.py. 
 
 xdot.py 
-xdot_no_guardrails.py - handle with care
+xdot_no_guardrails.py (handle with care)
 
-These are two solutions to ENGR 210 Lab 8 (Spring 2018) that use the xDot LoRa device (via xdot wrapper class) and an MQTT server. The lab description is here: https://github.iu.edu/SOIC-Digital-Systems/Spring-2018/wiki/Lab8
+send_coords.py retrieves GPS coordinates off the Dragino LoRa/GPS Hat and submits them to the gateway via the xDot. If an MQTT server is available, it is possible to observe the transfer by monitoring an MQTT client.
 
-lab8_soln_mqtt_monitor.py - uses a threaded monitor to confirm transfer and send responses
-lab8_soln_typical.py - only uses the xDot wrapper and MQTT client to respond 
-
-The solutions above were used to create methods for the ferry. send_coords_with_observation.py will retrieve GPS coordinates from the LoRa/GPS Hat and send them over LoRa via the xDot wrapper class, with a subprocess to monitor messages and confirm that messages have been sent. send_coords.py has the barebones functions to do the same without any confirmation.
-
-send_coords_with_observation.py 
 send_coords.py 	
+send_coords_with_observation.py (requires an MQTT server)
+
+The second option is simply broadcasting coordinates using the Hat, or turning the RPi+Hat into a single-channel gateway, using the following code, compiled with Makefile and requiring the BCM2835 and RadioHead libraries. 
+
+rf95_client.cpp (broadcasts GPS coordinates input as command-line arguments, attempts a number of times to confirm receipt)
+rf95_server.cpp (receives messages and replies)
+
