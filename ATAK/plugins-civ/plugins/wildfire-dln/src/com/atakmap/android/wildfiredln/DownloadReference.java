@@ -315,7 +315,7 @@ public class DownloadReference
 
                         if (status == DownloadManager.STATUS_SUCCESSFUL)
                         {
-                            result = dmanager.getUriForDownloadedFile(downloadID).toString();
+                            result = dmanager.getUriForDownloadedFile(downloadID).getPath();
                             Log.d(TAG,result);
                             running = false;
                         }
@@ -406,7 +406,17 @@ public class DownloadReference
         {
             if (slave.contains(master.get(i)))
             {
-                newlist.add(master.get(i));
+                DownloadReference d = master.get(i);
+
+                if(!d.GetIsDownloadInProgress())
+                {
+                    DownloadReference ds = slave.get(slave.indexOf(d));
+
+                    d.SetIsLocal(ds.isLocal);
+                    d.url = ds.url;
+                }
+
+                newlist.add(d);
             }
         }
 
