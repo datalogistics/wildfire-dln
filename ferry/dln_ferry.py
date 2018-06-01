@@ -14,6 +14,7 @@ from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from ferry.gps import GPS
+from ferry.ibp_iface import IBPWatcher
 from ferry.log import log
 
 # globals
@@ -31,7 +32,8 @@ def register(rt, name, fqdn, **kwargs):
         n = Node()
         n.name = name
         rt.insert(n, commit=True)
-
+        rt.flush()
+        
     s = rt.services.where({"runningOn": n})
     try:
         s = next(s)
@@ -45,7 +47,8 @@ def register(rt, name, fqdn, **kwargs):
         s.status = "READY"
         s.ttl = 600 # 10m
         rt.insert(s, commit=True)
-    
+        rt.flush()
+        
     gps = GPS()
     
     # simply update the timestamps on our node and service resources
@@ -57,8 +60,7 @@ def register(rt, name, fqdn, **kwargs):
                 if lat and lon:
                     n.location.latitude = lat
                     n.location.longitude = lon
-                else:
-                    n.touch()
+                    rt.flush()
                 s.touch()
             except Exception as e:
                 #import traceback
@@ -72,18 +74,18 @@ def register(rt, name, fqdn, **kwargs):
         args=(n,s,gps),
     )
     th.start()
-    
+
     return (n,s)
     
 def init_runtime(remote, local, local_only):
     while True:
         try:
-            opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": False }}
+            opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": True }}
             if local_only:
                 urls = [{"default": True, "url": local}]
                 log.debug("Connecting to UNIS instance(s): {}".format(local))
             else:
-                urls = [{"default": True, "url": remote}, {"url": local}]
+                urls = [{"url": local}, {"default": True, "url": remote}]
                 log.debug("Connecting to UNIS instance(s): {}".format(remote+','+local))
             rt = Runtime(urls, **opts)
             if local_only:
@@ -138,7 +140,7 @@ def run_remote(sess, n, s, rt):
             local_download(sess, dl_list)
             time.sleep(1)
             s.status = "READY"
-            s.commit()
+            rt.flush()
         i+=1
         time.sleep(1)
         
@@ -155,6 +157,8 @@ def main():
                         help='Set local download directory')
     parser.add_argument('-l', '--local', action='store_true',
                         help='Run using only local UNIS instance (on-ferry)')
+    parser.add_argument('-i', '--ibp', action='store_true',
+                        help='Update IBP config to reflect interface changes on system')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Produce verbose output from the script')
     parser.add_argument('-q', '--quiet', action='store_true',
@@ -199,6 +203,10 @@ def main():
     # returns handles to the node and service objects
     (n,s) = register(rt, name, fqdn)
 
+    # Start the iface watcher for IBP config
+    if args.ibp:
+        IBPWatcher()
+    
     # run our main loop
     if args.local:
         run_local(sess, n, s, rt)

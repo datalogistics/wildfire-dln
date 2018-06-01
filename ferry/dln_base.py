@@ -13,6 +13,7 @@ from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from ferry.gps import GPS
+from ferry.base_sync import BaseFerrySync
 from ferry.log import log
 
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
@@ -26,7 +27,8 @@ def register(rt, name, fqdn, **kwargs):
         n = Node()
         n.name = name
         rt.insert(n, commit=True)
-
+        rt.flush()
+        
     s = rt.services.where({"runningOn": n})
     try:
         s = next(s)
@@ -40,7 +42,8 @@ def register(rt, name, fqdn, **kwargs):
         s.status = "READY"
         s.ttl = 600 # 10m
         rt.insert(s, commit=True)
-    
+        rt.flush()
+        
     gps = GPS()
     
     # simply update the timestamps on our node and service resources
@@ -52,8 +55,7 @@ def register(rt, name, fqdn, **kwargs):
                 if lat and lon:
                     n.location.latitude = lat
                     n.location.longitude = lon
-                else:
-                    n.touch()
+                    rt.flush()
                 s.touch()
             except Exception as e:
                 log.error("Could not update node/service resources: {}".format(e))
@@ -67,14 +69,20 @@ def register(rt, name, fqdn, **kwargs):
     th.start()
     
     return (n,s)
+
+def node_cb(node, event):
+    #nstr = "http://"+node.name+":9000"
+    #log.info("Updating {}/nodes".format(nstr))
+    pass
     
 def init_runtime(local):
     while True:
         try:
-            opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": False }}
+            opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": True }}
             urls = [{"default": True, "url": local}]
             log.debug("Connecting to UNIS instance(s): {}".format(local))
             rt = Runtime(urls, **opts)
+            rt.nodes.addCallback(node_cb)
             return rt
         except Exception as e:
             import traceback
@@ -130,6 +138,9 @@ def main():
     # returns handles to the node and service objects
     (n,s) = register(rt, name, fqdn)
 
+    # start base-ferry sync
+    BaseFerrySync(rt, name)
+    
     run_base(n, s, rt)
     
 if __name__ == "__main__":

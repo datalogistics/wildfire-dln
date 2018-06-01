@@ -45,6 +45,7 @@ class GPS:
             if self.gps_box:
                 min_x, min_y, max_x, max_y = self.gps_box.bounds
                 pt = Point([random.uniform(min_x, max_x), random.uniform(min_y, max_y)])
+                log.info('Location identified as %f,%f' % (pt.x, pt.y))
                 return (pt.x, pt.y)
             return (GPS_DEFAULT[0], GPS_DEFAULT[1])
         
@@ -78,7 +79,7 @@ class GPS:
                 lack_alt = False
                         
             if not lack_lat and not lack_long: # optional: and not lack_alt
-                log.info('Ferry location identified as %f,%f' % (latitude,longitude))
+                log.info('Location identified as %f,%f' % (latitude,longitude))
                 return (latitude,longitude)
             
             if self.read_count > GPS_DEV_READ_LEN:

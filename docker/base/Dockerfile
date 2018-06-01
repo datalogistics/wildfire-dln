@@ -21,7 +21,6 @@ RUN export uid=1000 gid=1000 && \
     
 USER wdln
 ENV HOME /home/wdln
-ENV DEBUG INFO
 WORKDIR $HOME
 
 RUN git config --global user.email "wdln@wdln-base"
@@ -40,6 +39,8 @@ RUN bash ./build.sh
 ADD base.conf /etc/supervisor/conf.d/
 ADD unis.conf /etc/supervisor/conf.d/
 ADD properties.js $HOME/dlt-web/
+ADD settings.py $HOME/wildfire-dln/ferry/ferry/
 
+ENV DEBUG DEBUG
 ADD run.sh .
 CMD bash ./run.sh
