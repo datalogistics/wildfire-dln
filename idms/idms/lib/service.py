@@ -1,13 +1,16 @@
 import itertools
 import requests
 
-from unis import Runtime
-from unis.models import Service, Exnode, Extent
-from unis.services import RuntimeService
 from collections import defaultdict
+from requests.exceptions import ConnectionError as ConnectionError
 from libdlt import Session
 from libdlt.schedule import BaseUploadSchedule, BaseDownloadSchedule
 from lace import logging
+from unis import Runtime
+from unis.exceptions import ConnectionError as UnisConnectionError
+from unis.models import Service, Exnode, Extent
+from unis.rest import UnisClient
+from unis.services import RuntimeService
 
 class IDMSService(RuntimeService):
     class ForceUpload(BaseUploadSchedule):
@@ -45,6 +48,14 @@ class IDMSService(RuntimeService):
         type(self).lock = True
         if resource.status == 'READY' and self._pending[resource.name]:
             self.runtime.addSources([{'url': resource.unis_url, 'default': False, 'ssl': None, 'verify': False, 'enabled': True}])
+            
+            try:
+                UnisClient.resolve(resource.unis_url)
+            except (ConnectionError, UnisConnectionError):
+                self._log.warn("Could not connect to remote unis - {}".format(resource.unis_url))
+                type(self).lock = False
+                return
+            
             self.runtime.settings['default_source'] = resource.unis_url
             with Session(self.runtime, self._db.get_depots(), bs="5m", threads=1, viz_url=self._viz) as sess:
                 for name, lifetime in self._pending[resource.name]:

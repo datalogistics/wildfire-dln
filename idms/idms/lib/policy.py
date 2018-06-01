@@ -42,9 +42,10 @@ class Policy(object):
                     result &= fn(ctx,v)
                 else:
                     if isinstance(v, dict):
-                        return _comp(v, n)
-                    test = getattr(exnode, n, None)
-                    result &= test is not None and test == v
+                        result &= _comp(v, n)
+                    else:
+                        test = getattr(exnode, n, None)
+                        result &= test is not None and test == v
             return result
         
         return _comp(self.desc, None)

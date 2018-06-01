@@ -25,9 +25,12 @@ def _get_app(unis, depots, viz):
         try:
             rt = Runtime(unis, defer_update=True, preload=["nodes", "services"])
         except (ConnectionError, TimeoutError) as exp:
+            from unis.rest import UnisClient
+            import traceback
+            #traceback.print_exc()
             msg = "Failed to start runtime, retrying... - {}".format(exp)
             logging.getLogger('idms').warn(msg)
-            time.sleep(1)
+            time.sleep(5)
             continue
         break
     
