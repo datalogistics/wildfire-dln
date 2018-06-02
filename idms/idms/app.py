@@ -16,7 +16,8 @@ from unis.exceptions import ConnectionError
 routes = {
     "p": {"handler": PolicyHandler},
     "a": {"handler": PolicyTracker},
-    "a/{exnode}": {"handler": PolicyTracker}
+    "a/{exnode}": {"handler": PolicyTracker},
+    "d/{ref}": {"handler": DepotHandler}
 }
 
 def _get_app(unis, depots, viz):
@@ -37,7 +38,6 @@ def _get_app(unis, depots, viz):
     db = DBLayer(rt, depots)
     service = IDMSService(db, viz)
     rt.addService(service)
-    routes['p']['service'] = service
     
     ensure_ssl = SSLCheck(conf)
     app = falcon.API(middleware=[FalconCORS()])

@@ -7,10 +7,6 @@ from idms.handlers.utils import get_body
 from idms.lib.policy import Policy
 
 class PolicyHandler(_BaseHandler):
-    def __init__(self, conf, dblayer, service):
-        self._service = service
-        super().__init__(conf, dblayer)
-    
     @falcon.after(_BaseHandler.encode_response)
     def on_get(self, req, resp):
         policies = {}
@@ -33,7 +29,6 @@ class PolicyHandler(_BaseHandler):
                 sendto = { "$exact": policy['ferry_name']}
                 policy = Policy(desc, sendto, {"data_lifetime": policy.get('data_lifetime', 10800)})
                 self._db.register_policy(policy)
-                self._service.prepare(policy)
             except KeyError as exp:
                 resp.body = json.dumps({"errorcode": 2, "msg": "Malformed policy request"})
                 resp.status = falcon.HTTP_401

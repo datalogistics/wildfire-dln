@@ -1,5 +1,6 @@
 #!/bin/bash
 
+git -C libdlt pull
 git -C wildfire-dln pull
 
 echo "idms IP : `hostname --ip-address`"

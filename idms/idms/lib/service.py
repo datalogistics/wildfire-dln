@@ -19,7 +19,7 @@ class IDMSService(RuntimeService):
         def setSource(self, source):
             pass
     
-    targets = [Service]
+    targets = [Service, Exnode]
     lock = False
     
     def __init__(self, dblayer, viz):
@@ -29,14 +29,8 @@ class IDMSService(RuntimeService):
         self._pending = defaultdict(list)
         self._viz = viz
         
-    def prepare(self, policy):
-        for exnode in self.runtime.exnodes.where(lambda x: policy.match(x)):
-            self.download(policy.sendto['$exact'], exnode, policy.meta['data_lifetime'])
-        
-    def download(self, ferry, exnode, lifetime):
-        with Session(self.runtime, self._db.get_depots(), threads=1, viz_url=self._viz) as sess:
-            sess.download(exnode.selfRef, exnode.name)
-        self._pending[ferry].append((exnode.name, lifetime))
+    def new(self, resource):
+        pass
     
     def update(self, resource):
         if resource.serviceType != 'datalogistics:wdln:ferry':
@@ -57,7 +51,7 @@ class IDMSService(RuntimeService):
                 return
             
             self.runtime.settings['default_source'] = resource.unis_url
-            with Session(self.runtime, self._db.get_depots(), bs="5m", threads=1, viz_url=self._viz) as sess:
+            with Session(self.runtime, self._db.get_depots(), bs="5m", threads=2, viz_url=self._viz) as sess:
                 for name, lifetime in self._pending[resource.name]:
                     upload = self.ForceUpload([resource.accessPoint])
                     try:
