@@ -15,10 +15,11 @@ from unis.services import RuntimeService
 class IDMSService(RuntimeService):
     class ForceUpload(BaseUploadSchedule):
         def __init__(self, sources):
-            self._ls = itertools.cycle(sources)
-        def setSource(self, source):
-            pass
-    
+            self._alt_ls = itertools.cycle(sources)
+        def get(self, context):
+            for depot in self._alt_ls:
+                return depot
+
     targets = [Service]
     lock = False
     
