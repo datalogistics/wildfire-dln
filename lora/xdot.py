@@ -103,6 +103,7 @@ class xDot:
         ni_command = "AT+NI=1,"+network_id
         nk_command = "AT+NK=1,"+network_key
         fsb_command = "AT+FSB="+str(network_freq_sub_band)
+        pn_command = "AT+PN=1"
 
         if (self.send_command(fsb_command) == False):
             print fsb_command
@@ -112,6 +113,9 @@ class xDot:
             return False
         if (self.send_command(nk_command) == False):
             print nk_command
+            return False
+        if (self.send_command(pn_command) == False):
+		    print pn_command
             return False
         if (self.send_command("AT+JOIN") == False):
             print "AT+JOIN failed"
