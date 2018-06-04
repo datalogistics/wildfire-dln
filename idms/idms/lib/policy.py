@@ -1,12 +1,22 @@
 from collections import namedtuple
+from unis.models import Exnode, Service
 
-Policy = namedtuple('Policy', ['desc', 'sendto', 'meta'])
+from idms.lib import assertion
+
 class Policy(object):
-    def __init__(self, desc, sendto, meta=None):
-        self.desc = desc
-        self.sendto = sendto
-        self.meta = meta or {}
-    
+    def __init__(self, subject, verb, meta=None):
+        self.desc = subject
+        self.verb = assertion.factory(verb)
+        self._watch = set()
+        self.dirty = True
+
+    def apply(self, resource, db):
+        for exnode in self._watch:
+            self.verb.apply(exnode, db)
+        self.dirty = False
+        
+    def watch(self, exnode):
+        self._watch.add(exnode)
     def match(self, exnode):
         # Logical ops
         def _and(n,v):
@@ -51,6 +61,4 @@ class Policy(object):
         return _comp(self.desc, None)
     def to_JSON(self):
         return {"description": self.desc,
-                "destination": self.sendto,
-                "metadata": self.meta}
-
+                "policy": self.verb.to_JSON()}

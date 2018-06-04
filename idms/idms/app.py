@@ -3,6 +3,7 @@ import falcon
 import json
 import time
 
+from idms import engine
 from idms.handlers import PolicyHandler, PolicyTracker, SSLCheck
 from idms.lib.db import DBLayer
 from idms.lib.middleware import FalconCORS
@@ -36,7 +37,8 @@ def _get_app(unis, depots, viz):
         break
     
     db = DBLayer(rt, depots)
-    service = IDMSService(db, viz)
+    engine.run(db)
+    service = IDMSService(db)
     rt.addService(service)
     
     ensure_ssl = SSLCheck(conf)
@@ -47,7 +49,7 @@ def _get_app(unis, depots, viz):
         app.add_route("/{}".format(k), handler(conf, dblayer=db, **v))
     
     return app
-    
+
 def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-u', '--unis', default='http://wdln-base-station:8888', type=str,

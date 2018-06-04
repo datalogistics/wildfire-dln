@@ -12,59 +12,15 @@ from unis.models import Service, Exnode, Extent
 from unis.rest import UnisClient
 from unis.services import RuntimeService
 
+from idms import engine
+
 class IDMSService(RuntimeService):
-    class ForceUpload(BaseUploadSchedule):
-        def __init__(self, sources):
-            self._ls = itertools.cycle(sources)
-        def setSource(self, source):
-            pass
-    
     targets = [Service, Exnode]
-    lock = False
     
-    def __init__(self, dblayer, viz):
+    def __init__(self, dblayer):
         super(IDMSService, self).__init__()
-        self._log = logging.getLogger()
         self._db = dblayer
-        self._pending = defaultdict(list)
-        self._viz = viz
-        
     def new(self, resource):
-        pass
-    
+        self._db.update_policies(resource)
     def update(self, resource):
-        if resource.serviceType != 'datalogistics:wdln:ferry':
-            return
-        print("Resource[{}] touched {} {}".format(resource.name, self._pending[resource.name], resource.status))
-        self._log.info("Service touched - {}".format(resource.name))
-        while self.lock: pass
-        
-        type(self).lock = True
-        if resource.status == 'READY' and self._pending[resource.name]:
-            self.runtime.addSources([{'url': resource.unis_url, 'default': False, 'ssl': None, 'verify': False, 'enabled': True}])
-            
-            try:
-                UnisClient.resolve(resource.unis_url)
-            except (ConnectionError, UnisConnectionError):
-                self._log.warn("Could not connect to remote unis - {}".format(resource.unis_url))
-                type(self).lock = False
-                return
-            
-            self.runtime.settings['default_source'] = resource.unis_url
-            with Session(self.runtime, self._db.get_depots(), bs="5m", threads=2, viz_url=self._viz) as sess:
-                for name, lifetime in self._pending[resource.name]:
-                    upload = self.ForceUpload([resource.accessPoint])
-                    try:
-                        result = sess.upload(name, schedule=upload, duration=lifetime)
-                        resource.new_exnodes.append(result.exnode)
-                    except Exception as exp:
-                        import traceback
-                        traceback.print_exc()
-                        type(self).lock = False
-                        self._log.warn("Failed to upload to target - {}".format(exp))
-                        return
-                resource.status = 'UPDATE'
-                self.runtime.update(resource)
-                self.runtime.flush()
-                self._pending[resource.name] = []
-        type(self).lock = False
+        self._db.update_policies(resource)
