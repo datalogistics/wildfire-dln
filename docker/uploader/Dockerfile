@@ -25,7 +25,10 @@ RUN git clone -b asyncio https://github.com/datalogistics/libdlt
 ADD build.sh .
 RUN bash ./build.sh
 
+RUN mkdir $HOME/.periscope
 ADD depots .depots
+ADD --chown=wdln:wdln .rtcache $HOME/.periscope/.rtcache/
+ADD --chown=wdln:wdln .cache $HOME/.periscope/.cache/
 
 ADD run.sh .
 CMD bash ./run.sh

@@ -36,10 +36,13 @@ RUN git clone https://github.com/datalogistics/wildfire-dln
 ADD build.sh .
 RUN bash ./build.sh
 
+RUN mkdir $HOME/.periscope
 ADD base.conf /etc/supervisor/conf.d/
 ADD unis.conf /etc/supervisor/conf.d/
 ADD properties.js $HOME/dlt-web/
 ADD settings.py $HOME/wildfire-dln/ferry/ferry/
+ADD --chown=wdln:wdln .rtcache $HOME/.periscope/.rtcache
+ADD --chown=wdln:wdln .cache $HOME/.periscope/.cache/
 
 ENV DEBUG DEBUG
 ADD run.sh .

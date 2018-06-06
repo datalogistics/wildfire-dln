@@ -1,0 +1,1 @@
+{"name": "Datum", "required": ["ts"], "properties": {"ts": {"type": "number", "description": "64bit int timestamp"}}, "additionalProperties": true, "$schema": "http://json-schema.org/draft-04/hyper-schema#", "type": "object", "id": "http://unis.crest.iu.edu/schema/20160630/datum#", "description": "Single piece of measurement data"}

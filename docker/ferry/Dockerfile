@@ -32,9 +32,12 @@ RUN git clone -b master https://github.com/datalogistics/wildfire-dln
 ADD build.sh .
 RUN bash ./build.sh
 
+RUN mkdir $HOME/.periscope
 ADD ferry.conf /etc/supervisor/conf.d/
 ADD unis.conf /etc/supervisor/conf.d/
 ADD nginx-wdln /etc/nginx/sites-available/default
+ADD --chown=wdln:wdln .rtcache $HOME/.periscope/.rtcache
+ADD --chown=wdln:wdln .cache $HOME/.periscope/.cache/
 
 ENV DEBUG DEBUG
 ADD run.sh .
