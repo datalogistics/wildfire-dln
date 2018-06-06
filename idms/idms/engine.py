@@ -13,10 +13,12 @@ def run(db):
             log.info("Detected topology change, validating")
 
             try:
-                for p in db.get_active_policies() if p.dirty:
-                    try:
-                        p.apply()
-                    except AssertionError:
+                for i,p in enumerate(db.get_active_policies()):
+                    if p.dirty:
+                        try:
+                            p.apply()
+                        except AssertionError:
+                            log.warn("Satisfaction error in policy {}".format(i))
             except Exception as exp:
                 log.error("Failure during policy application - {}".format(exp))
 

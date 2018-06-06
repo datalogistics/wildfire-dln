@@ -23,6 +23,8 @@ WORKDIR $HOME
 RUN git clone -b master https://github.com/datalogistics/wildfire-dln
 RUN git clone -b asyncio https://github.com/datalogistics/libdlt
 
+ADD .rtcache $HOME/.periscope/
+
 ADD build.sh .
 RUN bash ./build.sh
 

@@ -1,12 +1,12 @@
 from collections import namedtuple
 from unis.models import Exnode, Service
 
-from idms.lib import assertion
+from idms.lib import assertions
 
 class Policy(object):
     def __init__(self, subject, verb, meta=None):
         self.desc = subject
-        self.verb = assertion.factory(verb)
+        self.verb = assertions.factory(verb)
         self._watch = set()
         self.dirty = True
 

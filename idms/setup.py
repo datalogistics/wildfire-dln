@@ -18,7 +18,7 @@ if sys.version_info[0] < 3:
 setup(
     name="idms",
     version=version,
-    packages=["idms", "idms.handlers", "idms.lib"],
+    packages=["idms", "idms.handlers", "idms.lib", "idms.lib.assertions"],
     author="Jeremy Musser, Ezra Kissel",
     license="http://www.apache.org/licenses/LICENSE-2.0",
     dependency_links=[

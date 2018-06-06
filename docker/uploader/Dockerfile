@@ -22,6 +22,8 @@ RUN git clone -b develop https://github.com/periscope-ps/unisrt
 RUN git clone -b master https://github.com/periscope-ps/lace
 RUN git clone -b asyncio https://github.com/datalogistics/libdlt
 
+ADD .rtcache $HOME/.periscope/
+
 ADD build.sh .
 RUN bash ./build.sh
 

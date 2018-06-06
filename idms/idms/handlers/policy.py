@@ -13,7 +13,7 @@ class PolicyHandler(_BaseHandler):
         policies["geo_north"] = {"description": "Send to Northwest Ferries",
                                  "ferry_name": "geo_north", "data_lifetime": 108000}
         policies["geo_south"] = {"description": "Send to Southeast Ferries",
-                                 "ferry_name": "geo_south", "data_lifetime": 108000})
+                                 "ferry_name": "geo_south", "data_lifetime": 108000}
         for dest in self._db.get_policies():
             name = "to_{}".format(dest['ferry_name'])
             dest['description'] = "Send to {}".format(dest['ferry_name'])
@@ -46,7 +46,7 @@ class PolicyHandler(_BaseHandler):
                     verb = ("$or", {'policies': [("$geo", args), ("$replicate", {'copies': 2, 'ttl': ttl})]})
                 else:
                     exact = ("$exact", {'dest': policy['ferry_name'], 'ttl': ttl})
-                    replicate = ("$replicate", {'copies': 2, 'ttl': })
+                    replicate = ("$replicate", {'copies': 2, 'ttl': ttl})
                     verb = ("$or", {'policies': [exact, replicate]})
                 policy = Policy(subject, verb)
                 policy_id = self._db.register_policy(policy)

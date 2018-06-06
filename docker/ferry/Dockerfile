@@ -35,6 +35,7 @@ RUN bash ./build.sh
 ADD ferry.conf /etc/supervisor/conf.d/
 ADD unis.conf /etc/supervisor/conf.d/
 ADD nginx-wdln /etc/nginx/sites-available/default
+ADD .rtcache $HOME/.periscope/
 
 ENV DEBUG DEBUG
 ADD run.sh .

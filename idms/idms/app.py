@@ -4,7 +4,7 @@ import json
 import time
 
 from idms import engine
-from idms.handlers import PolicyHandler, PolicyTracker, SSLCheck
+from idms.handlers import PolicyHandler, PolicyTracker, SSLCheck, DepotHandler
 from idms.lib.db import DBLayer
 from idms.lib.middleware import FalconCORS
 from idms.lib.service import IDMSService

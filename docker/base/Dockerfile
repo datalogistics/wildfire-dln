@@ -40,6 +40,7 @@ ADD base.conf /etc/supervisor/conf.d/
 ADD unis.conf /etc/supervisor/conf.d/
 ADD properties.js $HOME/dlt-web/
 ADD settings.py $HOME/wildfire-dln/ferry/ferry/
+ADD .rtcache $HOME/.periscope/
 
 ENV DEBUG DEBUG
 ADD run.sh .

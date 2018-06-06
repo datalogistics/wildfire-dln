@@ -1,6 +1,7 @@
 import copy
 
 from asyncio import TimeoutError
+from libdlt.schedule import BaseUploadSchedule
 from threading import RLock
 from unis import Runtime
 from unis.models import Exnode, Extent
