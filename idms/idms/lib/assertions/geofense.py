@@ -3,8 +3,8 @@ import time
 from collections import defaultdict
 from shapely.geometry import Polygon, Point
 
-from idms.assertions.abstract import AbstractAssertion
-from idms.assertions.exceptions import SatisfactionError
+from idms.lib.assertions.abstract import AbstractAssertion
+from idms.lib.assertions.exceptions import SatisfactionError
 
 class GeoFense(AbstractAssertion):
     tag = "$geo"
@@ -18,7 +18,7 @@ class GeoFense(AbstractAssertion):
             loc = depot.runningOn.location
             if self._fense.contains(Point(loc.latitude, loc.longitude)) and \
                depot.status == 'READY' and \
-               depot.ts + (depot.ttl * 1000) > time.time() * 1000000:
+               depot.ts + (depot.ttl * 1000000) > time.time() * 1000000:
                 valid_depots.add(depot.accessPoint)
 
         chunks = defualtdict(lambda: 0)

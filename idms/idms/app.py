@@ -11,6 +11,7 @@ from idms.lib.service import IDMSService
 
 from asyncio import TimeoutError
 from lace import logging
+from lace.logging import trace
 from unis import Runtime
 from unis.exceptions import ConnectionError
 
@@ -36,7 +37,7 @@ def _get_app(unis, depots, viz):
             continue
         break
     
-    db = DBLayer(rt, depots)
+    db = DBLayer(rt, depots, viz)
     engine.run(db)
     service = IDMSService(db)
     rt.addService(service)
@@ -62,9 +63,11 @@ def main():
     parser.add_argument('-q', '--viz_port', default='42424', type=str, help='Set the port fo the visualization effects')
     args = parser.parse_args()
     
-    level = {"NONE": logging.NOTSET, "INFO": logging.INFO, "DEBUG": logging.DEBUG}[args.debug]
+    level = {"NONE": logging.NOTSET, "INFO": logging.INFO, "DEBUG": logging.DEBUG, "TRACE": logging.DEBUG}[args.debug]
     log = logging.getLogger("idms")
     log.setLevel(level)
+    if args.debug == "TRACE":
+        trace.setLevel(logging.DEBUG, True)
     port = args.port
     unis = [str(u) for u in args.unis.split(',')]
     depots = None

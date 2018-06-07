@@ -15,7 +15,8 @@ class Replicate(AbstractAssertion):
     def apply(self, exnode, db):
         active_list = set()
         for depot in db.get_depots():
-            if depot.status == 'READY' and depot.ts + (depot.ttl * 1000) > time.time() * 1000000:
+            if depot.status == 'READY' and \
+               depot.ts + (depot.ttl * 1000000) > time.time() * 1000000:
                 active_list.add(depot.accessPoint)
 
         e_list = defaultdict(dict)
@@ -27,21 +28,22 @@ class Replicate(AbstractAssertion):
 
         offsets = [-1] * self._copies
         deltas = [0] * self._copies
-        while any([offets[i] != deltas[i] for i in range(self._copies)]):
-            offsets = deltas
-            for i in self._copies:
-                if not e_list[i]:
+        while any([offsets[i] != deltas[i] for i in range(self._copies)]):
+            offsets = deltas.copy()
+            for i in range(self._copies):
+                offset = offsets[i]
+                if not e_list[offset]:
                     continue
-                loc = list(e_list[i].keys())[0]
-                delta[i] += e_list[i][loc]
-                del e_list[i][loc]
+                loc = list(e_list[offset].keys())[0]
+                deltas[i] += e_list[offset][loc]
+                del e_list[offset][loc]
 
         new_copies = sum([1 for x in offsets if x < exnode.size])
         avail = active_list - used_list
         if len(avail) < new_copies:
             raise SatisfactionError("Too few depots available to satisfy replication")
 
-        for _ in new_copies:
-            db.move_files([exnode], avail.pop(). self._ttl)
+        for _ in range(new_copies):
+            db.move_files([exnode], avail.pop(), self._ttl)
 
         return not any([offset < exnode.size for offset in offsets])

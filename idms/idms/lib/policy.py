@@ -4,13 +4,13 @@ from unis.models import Exnode, Service
 from idms.lib import assertions
 
 class Policy(object):
-    def __init__(self, subject, verb, meta=None):
+    def __init__(self, subject, verb):
         self.desc = subject
         self.verb = assertions.factory(verb)
         self._watch = set()
         self.dirty = True
 
-    def apply(self, resource, db):
+    def apply(self, db):
         for exnode in self._watch:
             self.verb.apply(exnode, db)
         self.dirty = False

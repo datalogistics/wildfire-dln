@@ -5,25 +5,29 @@ from idms.lib.assertions.exceptions import AssertionError
 
 dirty = Event()
 def run(db):
-    log = logging.get_logger()
+    log = logging.getLogger("idms")
     def _loop():
         while True:
             dirty.wait()
             dirty.clear()
-            log.info("Detected topology change, validating")
+            log.info("Detected topology change")
 
             try:
                 for i,p in enumerate(db.get_active_policies()):
                     if p.dirty:
+                        log.warn("Policy marked as dirty - validating")
                         try:
-                            p.apply()
+                            p.apply(db)
                         except AssertionError:
                             log.warn("Satisfaction error in policy {}".format(i))
             except Exception as exp:
+                import traceback
+                traceback.print_exc()
                 log.error("Failure during policy application - {}".format(exp))
 
-            status = [p.dirty for p in db.get_active_policies()]
-            _print_status(status)
+            status = [not p.dirty for p in db.get_active_policies()]
+            if status:
+                _print_status(status)
 
     runner = Thread(target=_loop, name="idms_engine", daemon=True)
     runner.start()

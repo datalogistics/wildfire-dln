@@ -1,6 +1,8 @@
 import copy
+import itertools
 
 from asyncio import TimeoutError
+from libdlt.sessions import Session
 from libdlt.schedule import BaseUploadSchedule
 from threading import RLock
 from unis import Runtime
@@ -41,31 +43,34 @@ class DBLayer(object):
             if isinstance(dst, str):
                 dst = next(self._rt.services.where({'accessPoint': dst}))
             remote = Runtime(dst.unis_url, name=dst.unis_url)
-            with Session(remote, depots=depots, threads=settings.THREADS, viz_url=self._viz) as sess:
+            dst.new_exnodes = []
+            with Session(remote, depots=depots, threads=settings.THREADS, bs=settings.BS, viz_url=self._viz) as sess:
                 for exnode in exnodes:
                     result = sess.upload(exnode.id, copies=1, schedule=ForceUpload([dst.accessPoint]), duration=ttl)
                     result.exnode.name = exnode.name
+                    dst.new_exnodes.append(result.exnode)
                     for alloc in result.exnode.extents:
-                        rep = alloc.to_JSON()
-                        del rep['selfRef']
-                        del rep['id']
-                        ext = Extent(rep)
-                        ext.parent = exnode
-                        self._rt.insert(ext, commit=True)
-                        exnode.extents.append(ext)
-            dst.status = "UPDATE" 
+                        new_alloc = alloc.clone()
+                        new_alloc.parent = exnode
+                        del new_alloc.getObject().__dict__['function']
+                        self._rt.insert(new_alloc, commit=True)
+                        exnode.extents.append(new_alloc)
+            dst.status = "UPDATE"
             self._rt.update(exnode)
             self._rt.update(dst)
             remote.flush()
             self._rt.flush()
 
     def register_policy(self, policy):
+        for p in self._active:
+            if policy.to_JSON() == p.to_JSON():
+                return
         for ex in self._rt.exnodes.where(lambda x: policy.match(x)):
-            self.move_files(ex)
+            self.move_files([ex])
             policy.watch(ex)
         with self._lock:
             self._active.append(policy)
-        return len(self._active - 1)
+        return len(self._active) - 1
 
     def get_active_policies(self, exnode=None):
         with self._lock:

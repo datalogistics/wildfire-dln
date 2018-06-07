@@ -1,12 +1,8 @@
-from idms.lib import assertion
+from lace import logging
 
-class _AssertionType(type):
-    def __init__(cls, name, bases, ns):
-        super().__init__(name, bases, ns)
-        assertion.register(cls)
-
-class AbstractAssertion(metaclass=_AssertionType):
+class AbstractAssertion(object):
     def __init__(self, desc):
+        self.log = logging.getLogger("idms")
         self._idms_desc = desc
         self.initialize(**desc)
     def initialize(self):
@@ -16,7 +12,7 @@ class AbstractAssertion(metaclass=_AssertionType):
     def tag(self):
         raise NotImplementedError()
     
-    def apply(self, exnode, runtime):
+    def apply(self, exnode, db):
         """
         Tests a resource change against the validation condition.
         :param exnode: Reference to a resource to validate
