@@ -21,6 +21,7 @@ class ForceUpload(BaseUploadSchedule):
 class DBLayer(object):
     def __init__(self, runtime, depots, viz):
         self._lock = RLock()
+        self._flock = RLock()
         self._rt = runtime
         self._custom_depots = depots or {}
         self._active = []
@@ -33,32 +34,33 @@ class DBLayer(object):
         return self._rt.services.where({"serviceType": "datalogistics:wdln:base"})
 
     def move_files(self, exnodes, dst=None, ttl=None):
-        depots=self.get_depot_list()
-        with Session(self._rt, depots=depots, threads=settings.THREADS, viz_url=self._viz) as sess:
-            for exnode in exnodes:
-                if exnode.selfRef not in self._local_files:
-                    sess.download(exnode.selfRef, exnode.id)
-                    self._local_files.append(exnode.selfRef)
-        if dst:
-            if isinstance(dst, str):
-                dst = next(self._rt.services.where({'accessPoint': dst}))
-            remote = Runtime(dst.unis_url, name=dst.unis_url)
-            dst.new_exnodes = []
-            with Session(remote, depots=depots, threads=settings.THREADS, bs=settings.BS, viz_url=self._viz) as sess:
+        with self._flock:
+            depots=self.get_depot_list()
+            with Session(self._rt, depots=depots, threads=settings.THREADS, viz_url=self._viz) as sess:
                 for exnode in exnodes:
-                    result = sess.upload(exnode.id, exnode.name, copies=1, schedule=ForceUpload([dst.accessPoint]), duration=ttl)
-                    dst.new_exnodes.append(result.exnode)
-                    for alloc in result.exnode.extents:
-                        new_alloc = alloc.clone()
-                        new_alloc.parent = exnode
-                        del new_alloc.getObject().__dict__['function']
-                        self._rt.insert(new_alloc, commit=True)
-                        exnode.extents.append(new_alloc)
-            dst.status = "UPDATE"
-            self._rt.update(exnode)
-            self._rt.update(dst)
-            remote.flush()
-            self._rt.flush()
+                    if exnode.selfRef not in self._local_files:
+                        sess.download(exnode.selfRef, exnode.id)
+                        self._local_files.append(exnode.selfRef)
+            if dst:
+                if isinstance(dst, str):
+                    dst = next(self._rt.services.where({'accessPoint': dst}))
+                remote = Runtime(dst.unis_url, name=dst.unis_url)
+                dst.new_exnodes = []
+                with Session(remote, depots=depots, threads=settings.THREADS, bs=settings.BS, viz_url=self._viz) as sess:
+                    for exnode in exnodes:
+                        result = sess.upload(exnode.id, exnode.name, copies=1, schedule=ForceUpload([dst.accessPoint]), duration=ttl)
+                        dst.new_exnodes.append(result.exnode)
+                        for alloc in result.exnode.extents:
+                            new_alloc = alloc.clone()
+                            new_alloc.parent = exnode
+                            del new_alloc.getObject().__dict__['function']
+                            self._rt.insert(new_alloc, commit=True)
+                            exnode.extents.append(new_alloc)
+                dst.status = "UPDATE"
+                self._rt.update(exnode)
+                self._rt.update(dst)
+                remote.flush()
+                self._rt.flush()
 
     def register_policy(self, policy):
         for p in self._active:
