@@ -197,7 +197,7 @@ def main():
     
     # get our initial UNIS-RT and libdlt sessions
     rt = init_runtime(args.host, LOCAL_UNIS, args.local)
-    sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)
+    sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=2)
 
     # Start the registration loop
     # returns handles to the node and service objects
