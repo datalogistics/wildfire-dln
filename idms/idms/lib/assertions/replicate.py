@@ -15,7 +15,7 @@ class Replicate(AbstractAssertion):
     def apply(self, exnode, db):
         active_list = set()
         for depot in db.get_depots():
-            if depot.status == 'READY' and \
+            if depot.status in ['READY', 'UPDATE'] and \
                depot.ts + (depot.ttl * 1000000) > time.time() * 1000000:
                 active_list.add(depot.accessPoint)
 
