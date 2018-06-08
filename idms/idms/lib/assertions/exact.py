@@ -36,7 +36,7 @@ class Exact(AbstractAssertion):
             done += size
         
         complete &= done == exnode.size
-        if self._dest.status != 'READY':
+        if self._dest.status != 'READY' and self._dest.status != 'UPDATE':
             raise SatisfactionError("Destination is not ready [{}]".format(self._dest.status))
         elif self._dest.ts + (self._dest.ttl * 1000000) < time.time() * 1000000:
             raise SatisfactionError("Destination has not checked in in", self._dest.ttl)
