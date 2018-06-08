@@ -29,7 +29,8 @@ setup(
         "falcon>=1.3.0",
         #"bson",
         "unisrt",
-        "lace"
+        "lace",
+        "shapely"
     ],
     entry_points = {
         'console_scripts': [

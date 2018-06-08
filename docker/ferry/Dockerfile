@@ -36,6 +36,7 @@ RUN mkdir $HOME/.periscope
 ADD ferry.conf /etc/supervisor/conf.d/
 ADD unis.conf /etc/supervisor/conf.d/
 ADD nginx-wdln /etc/nginx/sites-available/default
+ADD settings.py $HOME/wildfire-dln/ferry/ferry/
 ADD --chown=wdln:wdln .rtcache $HOME/.periscope/.rtcache
 ADD --chown=wdln:wdln .cache $HOME/.periscope/.cache/
 
