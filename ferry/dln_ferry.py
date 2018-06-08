@@ -63,8 +63,8 @@ def register(rt, name, fqdn, **kwargs):
                     rt.flush()
                 s.touch()
             except Exception as e:
-                #import traceback
-                #traceback.print_exc()
+                import traceback
+                traceback.print_exc()
                 log.error("Could not update node/service resources: {}".format(e))
         
     th = threading.Thread(
