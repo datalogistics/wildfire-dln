@@ -88,3 +88,4 @@ class GPS:
             # only return default if socket is dead
             # otherwise location will jump if GPS signal is lost
             return (None,None)
+        return (None,None)
