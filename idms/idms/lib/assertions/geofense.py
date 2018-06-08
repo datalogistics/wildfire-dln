@@ -16,10 +16,11 @@ class GeoFense(AbstractAssertion):
         valid_depots = set()
         for depot in db.get_depots():
             loc = depot.runningOn.location
-            if self._fense.contains(Point(loc.latitude, loc.longitude)) and \
-               depot.status == 'READY' and \
-               depot.ts + (depot.ttl * 1000000) > time.time() * 1000000:
-                valid_depots.add(depot.accessPoint)
+            if hasattr(loc, 'latitude') and hasattr(loc, 'longitude'):
+                if self._fense.contains(Point(loc.latitude, loc.longitude)) and \
+                   depot.status == 'READY' and \
+                   depot.ts + (depot.ttl * 1000000) > time.time() * 1000000:
+                    valid_depots.add(depot.accessPoint)
 
         chunks = defualtdict(lambda: 0)
         for e in exnode.extents:
