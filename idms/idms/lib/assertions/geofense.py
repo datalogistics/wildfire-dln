@@ -22,7 +22,7 @@ class GeoFense(AbstractAssertion):
                    depot.ts + (depot.ttl * 1000000) > time.time() * 1000000:
                     valid_depots.add(depot.accessPoint)
 
-        chunks = defualtdict(lambda: 0)
+        chunks = defaultdict(lambda: 0)
         for e in exnode.extents:
             if e.location in valid_depots:
                 chunks[e.offset] = max(chunks[e.offset], e.size)
