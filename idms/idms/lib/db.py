@@ -46,8 +46,7 @@ class DBLayer(object):
             dst.new_exnodes = []
             with Session(remote, depots=depots, threads=settings.THREADS, bs=settings.BS, viz_url=self._viz) as sess:
                 for exnode in exnodes:
-                    result = sess.upload(exnode.id, copies=1, schedule=ForceUpload([dst.accessPoint]), duration=ttl)
-                    result.exnode.name = exnode.name
+                    result = sess.upload(exnode.id, exnode.name, copies=1, schedule=ForceUpload([dst.accessPoint]), duration=ttl)
                     dst.new_exnodes.append(result.exnode)
                     for alloc in result.exnode.extents:
                         new_alloc = alloc.clone()
