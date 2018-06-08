@@ -1,7 +1,7 @@
 
 TOKEN_TTL = 3600
-THREADS = 2
-BS = '5m'
+THREADS = 1
+BS = '4m'
 MIME = {
     'HTML': 'text/html',
     'JSON': 'application/json',
