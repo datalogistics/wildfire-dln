@@ -65,6 +65,7 @@ def main():
     
     level = {"NONE": logging.NOTSET, "INFO": logging.INFO, "DEBUG": logging.DEBUG, "TRACE": logging.DEBUG}[args.debug]
     log = logging.getLogger("idms")
+    logging.getLogger('libdlt').setLevel(level)
     log.setLevel(level)
     if args.debug == "TRACE":
         trace.setLevel(logging.DEBUG, True)

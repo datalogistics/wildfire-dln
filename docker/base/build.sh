@@ -2,6 +2,8 @@
 
 export PREFIX=/opt
 
+sudo python2 -m pip install jsonschema
+
 echo "Setting up IBP Server..."
 cd ibp_server
 cmake .

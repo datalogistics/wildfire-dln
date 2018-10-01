@@ -17,6 +17,7 @@ class GeoFense(AbstractAssertion):
         for depot in db.get_depots():
             loc = depot.runningOn.location
             if hasattr(loc, 'latitude') and hasattr(loc, 'longitude'):
+                print(loc.to_JSON(top=False), self._fense)
                 if self._fense.contains(Point(loc.latitude, loc.longitude)) and \
                    depot.status == 'READY' and \
                    depot.ts + (depot.ttl * 1000000) > time.time() * 1000000:
@@ -28,19 +29,16 @@ class GeoFense(AbstractAssertion):
                 chunks[e.offset] = max(chunks[e.offset], e.size)
 
         offset = 0
-        complete = True
-        while offset < exnode.size:
-            try:
-                offset += chunks[offset]
-            except KeyError:
+        new_offset = -1
+        while offset != new_offset:
+            new_offset = offset + chunks[offset]
+            if new_offset == offset:
                 for k,v in chunks.items():
                     if k < offset and k + v > offset:
-                        offset += (k + v - offset)
+                        new_offset = offset + (k + v - offset)
                         continue
-                complete = False
-                break
 
-        if not complete:
+        if offset < exnode.size:
             if not valid_depots:
                 raise SatisfactionError("No depots found within the fense")
             db.move_files([exnode], valid_depots.pop(), self._ttl)
