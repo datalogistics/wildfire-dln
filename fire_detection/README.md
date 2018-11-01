@@ -17,12 +17,9 @@ Invocation of the image classification pipeline.
 Sample output of the program
 
 ```
-Evaluation time (1-image): 0.908s
+Evaluation time (1-image): 0.951s
 
-nofire (score=0.99850)
-fire (score=0.00150)
-smoke (score=0.00000)
-
+{"fire": 0.002, "smoke": 0.0, "nofire": 0.998}
 ```
 
 

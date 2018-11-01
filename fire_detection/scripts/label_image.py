@@ -20,6 +20,7 @@ from __future__ import print_function
 import argparse
 import sys
 import time
+import json
 
 import numpy as np
 import tensorflow as tf
@@ -134,5 +135,9 @@ if __name__ == "__main__":
 
   print('\nEvaluation time (1-image): {:.3f}s\n'.format(end-start))
   template = "{} (score={:0.5f})"
+  result = dict()
   for i in top_k:
-    print(template.format(labels[i], results[i]))
+    result[labels[i]] = round(results[i], 3)
+    #print(template.format(labels[i], results[i]))
+  js = json.dumps(result)
+  print(js)
