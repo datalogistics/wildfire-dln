@@ -11,7 +11,6 @@ import com.atakmap.map.layer.raster.PersistentRasterDataStore;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 import static com.atakmap.android.maps.MapView.getMapView;
 

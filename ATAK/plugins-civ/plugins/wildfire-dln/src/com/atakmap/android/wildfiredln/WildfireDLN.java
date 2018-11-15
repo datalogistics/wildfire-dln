@@ -15,17 +15,11 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.atakmap.android.maps.MapGroup;
-import com.atakmap.android.maps.MapView;
 import com.atakmap.android.maps.Marker;
 import com.atakmap.android.wildfiredln.plugin.R;
-import com.atakmap.map.layer.Layers;
 import com.atakmap.map.layer.raster.DatasetRasterLayer2;
-import com.atakmap.map.layer.raster.LocalRasterDataStore;
-import com.atakmap.map.layer.raster.PersistentRasterDataStore;
-import com.atakmap.map.layer.raster.RuntimeLocalRasterDataStore;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Vector;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
@@ -145,6 +139,8 @@ public class WildfireDLN
                 .findMapGroup("Cursor on Target")
                 .findMapGroup("Friendly");
 
+        Vector<Marker> toRemove = new Vector<Marker>();
+
         //remove markers that didn't get updated
         for(int i=0; i<nodeMarkers.size();i++)
         {
@@ -159,11 +155,18 @@ public class WildfireDLN
                     found = true;
                 }
             }
-
             if(!found)
             {
                 _mapGroup.removeItem(m);
+                toRemove.add(m);
             }
+
+        }
+
+        while(!toRemove.isEmpty())
+        {
+            nodeMarkers.remove(toRemove.firstElement());
+            toRemove.remove(0);
         }
 
         for(int i=0; i<nodes.size();i++)
@@ -192,6 +195,7 @@ public class WildfireDLN
 
             if(!exists && n.getLocation() != null)
             {
+                Log.d(TAG, "Creating Marker: " + n.getName());
                 //make a marker
                 Marker m = new Marker(n.getLocation(), n.getName());
                 //m.setVisible(true);
