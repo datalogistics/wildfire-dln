@@ -15,10 +15,17 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.atakmap.android.maps.MapGroup;
+import com.atakmap.android.maps.MapView;
 import com.atakmap.android.maps.Marker;
 import com.atakmap.android.wildfiredln.plugin.R;
+import com.atakmap.map.layer.Layers;
+import com.atakmap.map.layer.raster.DatasetRasterLayer2;
+import com.atakmap.map.layer.raster.LocalRasterDataStore;
+import com.atakmap.map.layer.raster.PersistentRasterDataStore;
+import com.atakmap.map.layer.raster.RuntimeLocalRasterDataStore;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Vector;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
@@ -44,6 +51,8 @@ public class WildfireDLN
     private static NetworkManager nManager = null;
     private static Thread nManagerThread = null;
     private static Vector<Marker> nodeMarkers = null;
+    private static LayerManager lManager;
+    DatasetRasterLayer2 drl = null;
 
     /**************************** CONSTRUCTOR *****************************/
     public WildfireDLN(Context context, View templateView)
@@ -85,7 +94,12 @@ public class WildfireDLN
             nManagerThread.start();
         }
 
-       // updateContent();
+        // updateContent();
+
+        if(lManager == null)
+        {
+            lManager = new LayerManager(filepath);
+        }
     }
 
     public void updateContent()
@@ -113,7 +127,13 @@ public class WildfireDLN
 
         for(int i=0;i<downloadReferences.size();i++)
         {
-            newTableRow(downloadReferences.get(i).GetName(), i,downloadReferences.get(i));
+            DownloadReference dr = downloadReferences.get(i);
+            newTableRow(dr.GetName(), i,downloadReferences.get(i));
+
+            if(dr.IsLayer())
+            {
+                lManager.AddLayer(dr);
+            }
         }
 
         tableLayout.invalidate();
@@ -225,7 +245,21 @@ public class WildfireDLN
 
         if(dr.GetIsLocal())
         {
-            dlButton.setImageResource(R.drawable.open_48_48);
+            if(dr.IsLayer())
+            {
+                if(lManager.GetLayerVisibility(dr.GetName()))
+                {
+                    dlButton.setImageResource(R.drawable.eye_open_48x48);
+                }
+                else
+                {
+                    dlButton.setImageResource(R.drawable.eye_closed_48x48);
+                }
+            }
+            else
+            {
+                dlButton.setImageResource(R.drawable.open_48_48);
+            }
         }
         else
         {
@@ -282,10 +316,27 @@ public class WildfireDLN
 
     public void DownloadByID(int id, ImageButton dlButton)
     {
-        Log.d(TAG, "Downloading: "+downloadReferences.get(id).GetName());
+        Log.d(TAG, "Downloading: "+downloadReferences.get(id).GetName()+" From: "+downloadReferences.get(id).GetURL());
         DownloadReference dr = downloadReferences.get(id);
         dr.SetParent(this);
-        dr.StartDownload(dmanager, dlButton);
+
+        if(dr.IsLayer())
+        {
+            if(lManager.GetLayerVisibility(dr.GetName()))
+            {
+                lManager.SetLayerVisibility(dr.GetName(),false);
+                dlButton.setImageResource(R.drawable.eye_closed_48x48);
+            }
+            else
+            {
+                lManager.SetLayerVisibility(dr.GetName(),true);
+                dlButton.setImageResource(R.drawable.eye_open_48x48);
+            }
+        }
+        else
+        {
+            dr.StartDownload(dmanager, dlButton);
+        }
     }
 
 

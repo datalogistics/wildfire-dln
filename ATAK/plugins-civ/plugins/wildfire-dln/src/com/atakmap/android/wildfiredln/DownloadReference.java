@@ -90,6 +90,11 @@ public class DownloadReference
         return name;
     }
 
+    public String GetURL()
+    {
+        return url;
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -200,6 +205,21 @@ public class DownloadReference
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
             parent.GetContext().startActivity(intent);
         }
+    }
+
+    public boolean IsLayer()
+    {
+        if(!GetIsLocal())
+        {
+            return false;
+        }
+
+        boolean islayer = false;
+
+        islayer |= GetURL().endsWith("tif");
+
+
+        return islayer;
     }
 
     public void DownloadComplete(String result)
