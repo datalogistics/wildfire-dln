@@ -1,5 +1,6 @@
 package com.atakmap.android.wildfiredln;
 
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.atakmap.android.maps.MapView;
@@ -17,15 +18,17 @@ import static com.atakmap.android.maps.MapView.getMapView;
 public class LayerManager
 {
     public static final String TAG = PluginTemplateDropDownReceiver.class.getSimpleName();
-    private LocalRasterDataStore Datastore;
+    //private LocalRasterDataStore Datastore;
+    private File layerDirectory;
     private HashMap<String, DatasetRasterLayer2> RasterLookup;
+    private HashMap<String,LocalRasterDataStore> DatastoreLookup;
 
     public LayerManager(String filepath)
     {
         RasterLookup = new HashMap<String, DatasetRasterLayer2>();
 
         //layer test
-        File layerDirectory = new File(filepath+"/ATAK_WDLN_Layers");
+        layerDirectory = new File(filepath+"/ATAK_WDLN_Layers");
         if(!layerDirectory.exists())
         {
             layerDirectory.mkdir();
@@ -34,13 +37,7 @@ public class LayerManager
         //remove old data
         DeleteTree(layerDirectory);
 
-        final File dataStoreDb = new File(layerDirectory, "datastore.sqlite");
-
-        if(Datastore==null)
-        {
-            Datastore = new PersistentRasterDataStore(dataStoreDb,layerDirectory);
-            Datastore.refresh();
-        }
+        DatastoreLookup = new HashMap<String, LocalRasterDataStore>();
     }
 
     public boolean AddLayer(DownloadReference dr)
@@ -49,12 +46,18 @@ public class LayerManager
         Log.d(TAG, "Attempting to add raster to datastore: "+dr.GetURL());
         try
         {
+            LocalRasterDataStore Datastore;
+            final File dataStoreDb = new File(layerDirectory, dr.GetName()+".sqlite");
+            Datastore = new PersistentRasterDataStore(dataStoreDb,layerDirectory);
+            Datastore.refresh();
+
             File inf = new File(dr.GetURL());
             if(!Datastore.contains(inf))
             {
                 Datastore.add(inf);
                 DatasetRasterLayer2 layer = new DatasetRasterLayer2(dr.GetName(),Datastore,0);
 
+                DatastoreLookup.put(dr.GetName(), Datastore);
                 RasterLookup.put(dr.GetName(),layer);
                 //getMapView().addLayer(MapView.RenderStack.MAP_SURFACE_OVERLAYS,layer);
                 layer.setVisible(false);
@@ -104,6 +107,7 @@ public class LayerManager
 
     public void SetLayerVisibility(String name,boolean visibility)
     {
+        Log.d(TAG, "Displaying Layer: "+name);
         DatasetRasterLayer2 layer = RasterLookup.get(name);
         layer.setVisible(visibility);
 
