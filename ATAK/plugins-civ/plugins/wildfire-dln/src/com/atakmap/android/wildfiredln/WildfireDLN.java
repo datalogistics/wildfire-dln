@@ -246,6 +246,8 @@ public class WildfireDLN
         tv.setMovementMethod(new ScrollingMovementMethod());
 
         final ImageButton dlButton = new ImageButton(pluginContext);
+        final ImageButton centerButton = new ImageButton(pluginContext);
+        centerButton.setImageResource(R.drawable.center_48x48);
 
         if(dr.GetIsLocal())
         {
@@ -259,6 +261,7 @@ public class WildfireDLN
                 {
                     dlButton.setImageResource(R.drawable.eye_closed_48x48);
                 }
+
             }
             else
             {
@@ -286,6 +289,21 @@ public class WildfireDLN
             }
         });
 
+        if(dr.GetIsLocal())
+        {
+            if (dr.IsLayer())
+            {
+                final String mapstring = dr.GetName();
+                centerButton.setOnClickListener(new View.OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        lManager.ZoomToLayer(mapstring);
+                    }
+                });
+            }
+        }
+
         ProgressBar pb = new ProgressBar(pluginContext,null,android.R.attr.progressBarStyleHorizontal);
         pb.setMax(100);
         pb.setProgress(0);
@@ -308,6 +326,14 @@ public class WildfireDLN
 
         row.addView(ll);
         row.addView(dlButton);
+
+        if(dr.GetIsLocal())
+        {
+            if (dr.IsLayer())
+            {
+                row.addView(centerButton);
+            }
+        }
         //row.addView(viewButton);
         tableLayout.addView(row,count);
     }

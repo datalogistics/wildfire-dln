@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.atakmap.android.maps.MapView;
 import com.atakmap.map.layer.Layers;
+import com.atakmap.map.layer.feature.geometry.Geometry;
 import com.atakmap.map.layer.raster.DatasetRasterLayer2;
 import com.atakmap.map.layer.raster.LocalRasterDataStore;
 import com.atakmap.map.layer.raster.PersistentRasterDataStore;
@@ -119,5 +120,19 @@ public class LayerManager
         {
             getMapView().removeLayer(MapView.RenderStack.MAP_SURFACE_OVERLAYS,layer);
         }
+    }
+
+    public void ZoomToLayer(String name)
+    {
+        DatasetRasterLayer2 layer = RasterLookup.get(name);
+        String lookup = layer.getSelectionOptions().iterator().next();
+        Geometry g = layer.getGeometry(lookup);
+        double lon = (g.getEnvelope().maxX+g.getEnvelope().minX)/2.;
+        double lat = (g.getEnvelope().maxY+g.getEnvelope().minY)/2.;
+        double scale = getMapView().mapResolutionAsMapScale(layer.getMinimumResolution(lookup));
+
+        getMapView().updateView(lat,lon,scale,0,0,true);
+
+        getMapView().getLayers()
     }
 }
