@@ -1,9 +1,30 @@
+'''**************************************************************************
+
+File: whisper_settings.py
+Language: Python 3.7
+Author: Juliette Zerick (jzerick@iu.edu)
+        for the WildfireDLN Project
+        OPEN Networks Lab at Indiana University-Bloomington
+
+In this file the class lora_message encapsulates the protocol used in the
+whisper tool. For the moment it is defined and processed as ASCII strings.
+The class has methods to verify the validity of strings as legitimate
+packets handled by the protocol. The fields are defined in a long
+comment a few lines farther down.
+
+Last modified: December 6, 2018
+
+****************************************************************************'''
+
+import copy # for copy.deepcopy()
+
 from whisper_settings import *
+import whisper_globals as wg
 
 '''
-The class lora_message, defined in the file whisper_protocol.py (which imports this file), 
-encapsulates the protocol and switch behavior of whisper-py. Relevant messages
-(~packets) are received from whisper-c, fed to the inbox_q, then consumed.
+The class lora_message encapsulates the protocol and switch behavior of whisper-py.
+Relevant messages (~packets) are received from whisper-c, fed to the inbox_q, then 
+consumed.
 
 The protocol uses ASCII messages (for now):
 
@@ -33,6 +54,8 @@ Note: the data a packet contains can be uniquely identified with a device addres
 and timestamp so long as devices have a single transceiver, or multiple transceivers
 that transmit sequentially. 
 '''
+        
+TABLE_NONCASE = ''
 
 # the data store is transient memory; adjust further
 class message_store:
@@ -40,50 +63,74 @@ class message_store:
         self.inventory = {} # set doesn't work well for iteration
         self.thresholds = {}
         self.stock = {}
-
-    def add(self,lmsg):
-        if lmsg.key not in self.thresholds.keys():
-            self.stock[lmsg.key] = 0
         
-        # update or add
-        self.stock[lmsg.key] = self.stock[lmsg.key] + 1
-        self.inventory[lmsg.key] = lmsg
+        log.info('msg_store is active')
+
+    def update_inventory(self,lmsg):
+        self.inventory[lmsg.key] = self.inventory[lmsg.key] + 1
         lmsg.time_to_die = lmsg.time_to_die + LIFETIME_EXTENSION
                 
         # shuffling along the PDF of the distribution
-        self.thresholds[lmsg.key] = -np.exp(self.stock[lmsg.key])        
+        self.thresholds[lmsg.key] = -np.exp(self.inventory[lmsg.key])  
+        
+        log.info('thresholds adjusted for %s with %d observations' \
+            % (self.stock[lmsg.key].skey,self.inventory[lmsg.key]))
 
-# queues for storing messages for consumption by various processes
-inbox_q = queue.Queue()
-outbox_q = queue.Queue()
+    def incorporate(self,lmsg):
+        if lmsg.key not in self.inventory:
+            self.inventory[lmsg.key] = 0
+            log.debug('incorporated %s' % (lmsg.skey))
+            # always store the most recent copy of the message in the stock
 
-# a message_store instance for managing transient memory 
-msg_store = message_store()
- 
+        # update or add
+        self.stock[lmsg.key] = lmsg 
+        self.update_inventory(lmsg)
+
+        lmsg.hit_msg_store = True
+          
+    def reset(self):
+        del self.inventory, self.thresholds, self.stock
+        
+        self.inventory = {} 
+        self.thresholds = {}
+        self.stock = {}
+        
+        log.debug('message store reset')
+
 # an observation or data point (payload) plus metadata
 class lora_message:
     def __init__(self,pkt):
         self.pkt_valid = False
+        self.initial_pkt = pkt
         M = pkt.strip(MESSAGE_TERMINATOR).split(MESSAGE_DELIMITER)
 
         if len(M) != NUM_PROTOCOL_FIELDS:
             return
+        
+        # for debugging
+        self.hit_sorter = False
+        self.hit_carto = False
+        self.hit_altar = False
+        self.hit_outbox = False
+        self.hit_msg_store = False
+
+        self.table_case = TABLE_NONCASE
 
         # got tired of manually changing the indices when changing the protocol
         i = 0 
 
         if not is_plausible_MAC_addr(M[i]) and M[i] != MULTICAST: return
         self.recipient_addr = normalize_addr(M[i])
-        self.multicast = (recipient_addr == MULTICAST)
+        self.multicast = (self.recipient_addr == MULTICAST)
         i = i + 1
 
         if not is_plausible_bloom(M[i]): return
-        self.bloom_count = int(M[i].split(',')[0])
+        self.bloom_count = int(M[i].split(',')[0]) # conversion and split tested
         self.saturation_req = (self.bloom_count != NO_SATURATION)
 
         if self.saturation_req:
-            self.init_sender_addr = M[i].split(',')[1]
-            self.init_msg_time = M[i].split(',')[2]
+            self.init_sender_addr = normalize_addr(M[i].split(',')[1])
+            self.init_send_time = float(M[i].split(',')[2])
         i = i + 1
 
         if not is_plausible_MAC_addr(M[i]): return
@@ -91,12 +138,12 @@ class lora_message:
         i = i + 1
 
         if not is_plausible_timestamp(M[i]): return
-        self.msg_time = float(M[i])
+        self.send_time = float(M[i])
         self.receipt_time = now()
         i = i + 1
-
-        if not msg_type_is_defined(M[i]): return 
-        c = int(M[i])
+        
+        if not is_plausible_msg_type(M[i]): return
+        self.msg_type = int(M[i]) # conversion and validity tested  
         self.response_requested = msg_type_is_request(self.msg_type)
         i = i + 1
 
@@ -112,9 +159,13 @@ class lora_message:
 
         if self.saturation_req:
             # to avoid noisy chaos, only track the original message
-            self.key = (self.init_sender_addr,self.init_msg_time)
+            self.key = (self.init_sender_addr,self.init_send_time)
         else:
-            self.key = (self.sender_addr,self.msg_time)
+            self.key = (self.sender_addr,self.send_time)
+
+        # for ease of logging
+        #self.skey = str(self.key) # inelegant
+        self.skey = '(%s,%f)' % (self.key[0],self.key[1])
 
         self.time_to_die = self.receipt_time + DEFAULT_LIFESPAN
         self.retransmit_prob = 0. 
@@ -122,150 +173,117 @@ class lora_message:
 
         self.pkt_valid = True       
 
+    # TODO this could use a trip to the thesaurus
+    def form_pkt(self):
+        packet_no_bloom =           '%s/0/%s/%f/%d/%s//:'
+        packet_with_bloom = '%s/%d,%s,%f/%s/%f/%d/%s//:'
+
+        if self.saturation_req:
+            S = packet_with_bloom % (self.recipient_addr,
+                self.bloom_count,self.init_sender_addr,self.init_send_time,
+                self.sender_addr,
+                self.send_time,
+                self.msg_type,
+                self.payload)
+        else:
+            S = packet_no_bloom % (self.recipient_addr,
+                self.sender_addr,
+                self.send_time,
+                self.msg_type,
+                self.payload)
+
+        return S
+
     def __str__(self):
-        packet_no_bloom =          '%s/0/%s/%f/%d/%s//%f|'
+        packet_no_bloom =           '%s/0/%s/%f/%d/%s//%f|'
         packet_with_bloom = '%s/%d,%s,%f/%s/%f/%d/%s//%f|'
 
         if self.saturation_req:
             S = packet_with_bloom % (self.recipient_addr,
-                self.bloom_count,self.init_sender_addr,self.init_msg_time,
+                self.bloom_count,self.init_sender_addr,self.init_send_time,
                 self.sender_addr,
-                self.msg_time,
-                self.msg_time,
+                self.send_time,
+                self.msg_type,
                 self.payload,
                 self.RSSI_val)
-                
         else:
             S = packet_no_bloom % (self.recipient_addr,
-                self.bloom_count,
                 self.sender_addr,
-                self.msg_time,
-                self.msg_time,
+                self.send_time,
+                self.msg_type,
                 self.payload,
                 self.RSSI_val)
-                
-    def create_response(self,F):
+
+        return S
+
+    def gen_response_pkt(self,F):
         # also functions as a flag as to whether the message is ready to send
-        self.response = functools.reduce(lambda x,y: str(x)+MESSAGE_DELIMITER+str(y),F) + TRANSIENT_TERMINATOR
+        self.response = reduce(lambda x,y: str(x)+MESSAGE_DELIMITER+str(y),F) \
+            + MESSAGE_DELIMITER + TRANSIENT_TERMINATOR
 
-    # could do this from inidividual threads to avoid redundant checks but for the sake
-    # of debugging will include the behaviors here, in one place
-    def send_response(self):
-        # filling in of the appropriate payload is done by the postal_sorter
-        try:
-            self.response_payload
-        except:
-            return False
+        # best available estimate of an RSSI value
+        self.response_pkt = self.response[:-1] + str(self.RSSI_val) + MESSAGE_TERMINATOR
+        self.response_lmsg = lora_message(self.response_pkt)
+        
+        if not self.response_lmsg.pkt_valid:
+            log.debug('generated response packet is invalid')
+            exit()
 
-        # implementation of a truth table
+    # only handles replies to requests
+    def send_response(self,my_mac_addr,outbox_q,my_msg_store):
+        if not msg_type_is_request(self.msg_type):
+            return
+    
+        # filling in of the appropriate payload is done elsewhere
+        for i in range(3):
+            try:
+                self.response_payload
+            except:
+                log.debug('message waiting to send')
+                time.sleep(3)
+                continue
 
-        def bloom():
-            return '%d,%s,%f' % (self.bloom_count + 1, self.init_sender_addr,self.init_msg_time)
+        if i == 3:
+            return 
 
-        # defaults, changed as necessary
+        if self.multicast:
+            RECIP_FIELD = self.sender_addr
+
         TIME_FIELD = now()
-        PAYLOAD = self.response_payload 
-        SENDER_FIELD = MY_MAC_ADDR
-        RECIP_FIELD = self.sender_addr
 
         if self.saturation_req:
-            SAT_FIELD = bloom()
+            RECIP_FIELD = self.init_sender_addr
+            SAT_FIELD = '1,%s,%f' % (my_mac_addr,TIME_FIELD)
         else:
+            RECIP_FIELD = self.sender_addr
             SAT_FIELD = NO_SATURATION
+        
+        # defaults, changed as necessary
+        SENDER_FIELD = my_mac_addr
 
-        REQ_TYPE_FIELD = self.msg_type
+        # this function only handles requests
+        MSG_TYPE_FIELD = get_response_msg_type(self.msg_type)
+        
+        PAYLOAD = self.response_payload 
         RESERVED_FIELD = RESERVED_DEFAULT
 
         # note: RSSI value and terminator will be added upon receipt
 
-        # reduce the redundancy when this is settled code
-        if self.multicast: # (T,*,*)
-            if self.saturation_req: # (T,T,*)
-                # first, prepare the broadcasted duplicate
-                PAYLOAD = self.payload
+        F = [RECIP_FIELD,SAT_FIELD,SENDER_FIELD,TIME_FIELD,MSG_TYPE_FIELD,PAYLOAD,RESERVED_FIELD]
+        self.gen_response_pkt(F)
 
-                # avoid redundant saturation
-                SENDER_FIELD = self.init_sender_addr
-                TIME_FIELD = self.init_msg_time
-
-                F = [RECIP_FIELD,SAT_FIELD,SENDER_FIELD,TIME_FIELD,REQ_TYPE_FIELD,PAYLOAD,RESERVED_FIELD]
-                self.create_response(F)
-
-                flyer = copy.deepcopy(self) 
-                msg_store.add(flyer)
-
-                # remove the indicator of completion, just in case
-                del self.response
-
-                if self.response_requested: # (T,T,T)
-                    REQ_TYPE_FIELD = noack(self.msg_type)
-
-                TIME_FIELD = now()
-                SENDER_FIELD = MY_MAC_ADDR
-                PAYLOAD = self.response_payload
-
-            else: # (T,F,*)
-                if self.response_requested: # (T,F,T)
-                    REQ_TYPE_FIELD = noack(self.msg_type)
-                    outbox_q.put(self)
-
-                else: # (T,F,F)
-                    return True # just a notification; no response required
+        # set these flags before copying
+        self.hit_outbox = True
         
-        else: # (F,*,*)
-            if self.saturation_req: # (F,T,*)
-                if self.response_requested: # (F,T,T)
-                    # first case: non-recipient is to relay the message onward
-                    if self.recipient_addr != MY_MAC_ADDR:
-                        RECIP_FIELD = self.recipient_addr
-                        PAYLOAD = self.payload
+        if self.saturation_req:
+            self.hit_msg_store = True
+            my_msg_store.incorporate(self.response_lmsg)
 
-                        # avoid redundant saturation
-                        SENDER_FIELD = self.init_sender_addr
-                        TIME_FIELD = self.init_msg_time
-
-                        msg_store.add(self)
-
-                    # second case: recipient responds
-                    else:
-                        RECIP_FIELD = self.init_sender_addr
-                        REQ_TYPE_FIELD = noack(self.msg_type)
-                        outbox_q.put(self)
-
-                else: # (F,T,F)
-                    # first case: non-recipient is to relay the message onward
-                    if self.recipient_addr != MY_MAC_ADDR:
-                        RECIP_FIELD = self.recipient_addr
-                        PAYLOAD = self.payload
-
-                        # avoid redundant saturation
-                        SENDER_FIELD = self.init_sender_addr
-                        TIME_FIELD = self.init_msg_time
-
-                        msg_store.add(self)
-
-                    # second case: recipient responds
-                    else:
-                        RECIP_FIELD = self.init_sender_addr
-                        outbox_q.put(self)
-
-            # only if this device was the intended recipient will these cases occur
-            else: # (F,F,*)
-                if self.response_requested: # (F,F,T)
-                    REQ_TYPE_FIELD = noack(self.msg_type)
-                    outbox_q.put(self)
-
-                else: # (F,F,F)
-                    return True # just a notification; no response required
-
-        F = [RECIP_FIELD,SAT_FIELD,SENDER_FIELD,TIME_FIELD,REQ_TYPE_FIELD,PAYLOAD,RESERVED_FIELD]
-        self.create_response(F)
-
-        return True        
+        outbox_q.put(self.response_lmsg)
 
     # faster
     def __ne__(self,other):
-        if self.msg_time != other.msg_time:
+        if self.send_time != other.send_time:
             return True
         
         if self.key != other.key:
