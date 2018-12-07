@@ -1,19 +1,25 @@
-/*******************************************************************************
+/******************************************************************************
+
 File: whisper_lora.h
-Language: C
+Author: Juliette Zerick (jzerick@iu.edu)
+        for the WildfireDLN Project
+        OPEN Networks Lab at Indiana University-Bloomington
+	+
+	Dragino, manufacturer of the LoRa Hat
 
-This header file contains methods to interact with the LoRa Hat v1.4
-
-The bulk of the code is from the hardware manufacturer Dragino's LoRa 
-transceiver example code, available via Github:
+This C header file contains low-level methods to interact with the LoRa Hat v1.4.
+The bulk of the code is Copyright (c) 2018 Dragino, the hardware manufacturer's
+transceiver example code available via Github:
 https://github.com/dragino/rpi-lora-tranceiver/blob/master/dragino_lora_app/main.c
 
-The code was modified to interface with the Periscope system and its 
-components. Repos here: https://github.com/periscope-ps
+The code was modified to interface with the Periscope system and its components. 
 
-Modifier: Juliette Zerick (jzerick@iu.edu)
-OPEN Lab, Indiana University
-*******************************************************************************/
+Periscope and other tools are available in GitHub at:
+https://github.com/periscope-ps
+
+Last modified: November 27, 2018
+
+ *******************************************************************************/
 
 #include <string>
 #include <stdio.h>
@@ -144,6 +150,27 @@ OPEN Lab, Indiana University
 #define MAP_DIO1_LORA_NOP      0x30  // --11----
 #define MAP_DIO2_LORA_NOP      0xC0  // ----11--
 
+// a monitor was added, launched as an external thread
+#include <pthread.h>
+
+pthread_t monitor_t;
+volatile sig_atomic_t listening = false;
+
+void* monitor(void* arg){
+    printf("monitor started\n");
+
+    while(1){
+    	printf("listening? %d\n",listening);
+        delay(2000);
+    }
+}
+
+// a timer was also added
+
+#include <time.h>
+
+struct timeval tv; // globbal variable that is reused
+
 //*******************************************************************************
 
 typedef bool boolean;
@@ -166,11 +193,10 @@ int RST   = 0;
 enum sf_t sf = SF7;
 
 // Set center frequency
-uint32_t  freq = 915000000; // EU=868.1, US=915.0 Mhz
+uint32_t  freq = 915000000; // in Mhz! (EU=868.1, US=915.0)
 
 //*******************************************************************************
 
-// these methods were largely untouched
 void die(const char *s){
     perror(s);
     exit(1);
@@ -216,6 +242,13 @@ static void opmodeLora() {
     if (sx1272 == false)
         u |= 0x8;   // TBD: sx1276 high freq
     writeReg(REG_OPMODE, u);
+}
+
+long int now(){
+    gettimeofday(&tv, NULL);
+    long int ms = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+
+    return ms;
 }
 
 void SetupLoRa(){
@@ -287,10 +320,53 @@ void SetupLoRa(){
 
     writeReg(REG_LNA, LNA_MAX_GAIN);
 
-    printf("setup complete\n");
+    //printf("setup complete\n");
 }
 
-// modifications made to ease interactions with whisper-c
+void put_in_neutral(){
+    opmodeLora();
+    // enter Yequired for FIFO loading))
+    opmode(OPMODE_STANDBY);
+    listening = false;
+}
+
+long int switch_to_receive(){
+    long int switch_time = -1;
+
+    if (!listening){
+        SetupLoRa();
+
+        // note: this block of code must remain in the conditional, otherwise we won't receive
+        put_in_neutral();
+        opmode(OPMODE_RX);
+        listening = true;
+        printf("-- now in RECEIVE mode --\n");
+    }
+
+    return switch_time;
+}
+
+long int switch_to_transmit(){
+    long int switch_time = -1;
+
+    if (listening){
+        SetupLoRa();
+
+        // keep this in the conditional, like above
+        put_in_neutral();
+	
+	// left as a reminder to not activate now. the activation function will be called just prior to
+	// transmission in the sending function. it must be invoked in that order or no transmission
+	// will occur. 
+        //opmode(OPMODE_TX); 
+        
+	listening = false;
+        printf("** now in TRANSMIT mode **\n");
+    }
+
+    return switch_time;
+}
+
 bool lora_recv(char* msg_buf, int* msg_len) {
     // clear rxDone
     writeReg(REG_IRQ_FLAGS, 0x40);
@@ -317,13 +393,22 @@ bool lora_recv(char* msg_buf, int* msg_len) {
     }
     return true;
 }
-// similarly modified
-bool listen_for_lora(char* msg_buf, int* msg_len) {
+
+bool listen_for_lora(char* msg_buf, int* msg_len, int* rssi_val) {
     long int SNR;
     int rssicorr;
 
+    // cannot listen while in transmit mode
+    if(!listening){
+	return false;
+    }
+
     if(digitalRead(dio0) == 1){
         if(lora_recv(msg_buf,msg_len)) {
+	    if ((*msg_len) == 0){
+	        return false;
+	    }
+		
             byte value = readReg(REG_PKT_SNR_VALUE);
             if( value & 0x80 ){ // The SNR sign bit is 1 
                 // Invert and divide by 4
@@ -340,21 +425,23 @@ bool listen_for_lora(char* msg_buf, int* msg_len) {
                 rssicorr = 157;
             }
 
-            printf("Packet RSSI: %d, ", readReg(0x1A)-rssicorr);
-            printf("RSSI: %d, ", readReg(0x1B)-rssicorr);
-            printf("SNR: %li, ", SNR);
-            printf("Length: %i", *msg_len);
-            printf("\n");
-            printf("Payload: %s\n", msg_buf);
+            printf("\tPacket RSSI: %d, ", readReg(0x1A)-rssicorr);
+            printf("\tRSSI: %d, ", readReg(0x1B)-rssicorr);
+            printf("\tSNR: %li, ", SNR);
+            printf("\tLength: %i", *msg_len);
+            printf("\tPayload: %s\n", msg_buf);
 
+            *rssi_val = readReg(0x1A)-rssicorr;
+
+	   
             return true;
         } // received a message
 
     } // dio0=1
+    
     return false;
 }
 
-// unmodified
 static void configPower (int8_t pw) {
     if (sx1272 == false) {
         // no boost used for now
@@ -378,7 +465,6 @@ static void configPower (int8_t pw) {
     }
 }
 
-// unmodified 
 static void write_buf_to_lora_reg(byte addr, byte *value, byte len) { 
     unsigned char spibuf[MESSAGE_LEN];  
 
@@ -391,18 +477,14 @@ static void write_buf_to_lora_reg(byte addr, byte *value, byte len) {
     unselectreceiver();                                                        
 }
 
-// added to avoid unneeded power consumption
-void put_in_neutral(){
-    opmodeLora();
-    opmode(OPMODE_STANDBY);
-}
+bool transmit_via_lora(char* msg, int msg_len) {
+    // cannot transmit while in receive mode
+    if(listening){
+	 return false;
+    }
 
-// added call to put_in_neutral
-void transmit_via_lora(char* msg, int msg_len) {
     byte* frame = (byte*) msg;
     byte datalen = (byte)msg_len;
-
-    put_in_neutral();
 
     writeReg(RegPaRamp, (readReg(RegPaRamp) & 0xF0) | 0x08); // set PA ramp-up time 50 uSec
 
@@ -423,13 +505,15 @@ void transmit_via_lora(char* msg, int msg_len) {
     // download buffer to the radio FIFO
     write_buf_to_lora_reg(REG_FIFO, frame, datalen);
     // now we actually start the transmission
-    opmode(OPMODE_TX);
+
+    opmode(OPMODE_TX); // now activate
 
     printf("send: %s\n", frame);
 
     writeReg(RegPaRamp, 0x00);
+    delay(100); // need this to ensure payload delivery and decent RSSI  
     
-    put_in_neutral();
+    return true; 
 }
 
 
