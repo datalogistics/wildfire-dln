@@ -15,9 +15,6 @@ Last modified: December 6, 2018
 
 *******************************************************************************/
 
-
-
-
 #include "whisper_lora.h"
 
 #include <netdb.h>
@@ -430,14 +427,11 @@ int main (int argc, char *argv[]) {
     pthread_create(&py_listener_t, NULL, &py_listener, (void*) &py_inc_port);
     pthread_create(&py_speaker_t, NULL, &py_speaker, (void*) &py_out_port);
 
-    //while(!closing_time){
-    //    delay(SNOOZE_TIME);
-    //}
-
-    delay(SNOOZE_TIME*3);
+    while(!closing_time){
+        delay(SNOOZE_TIME);
+    }
 
     printf("shutting down\n");
     mopup();
     return 0;
 }
-
