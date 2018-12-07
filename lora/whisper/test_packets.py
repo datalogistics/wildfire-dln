@@ -1,4 +1,27 @@
-from whisper_protocol import *
+'''**************************************************************************
+
+File: test_packets.py
+Language: Python 3.7
+Author: Juliette Zerick (jzerick@iu.edu)
+        for the WildfireDLN Project
+        OPEN Networks Lab at Indiana University-Bloomington
+
+Contained are methods for a test harness for the whisper tool. It is meant
+to be imported and then invoked in a Python interpreter (e.g. Jupyter
+Notebook) on a Raspberry Pi. 
+
+Test messages (stimulus) are manually inserted into message queues and the 
+response observed by capturing output from outgoing message queues and
+the message_store. 
+
+Last modified: November 27, 2018
+
+****************************************************************************'''
+
+from inspect import getframeinfo, stack
+
+from whisper import *
+import whisper_globals as wg
 
 '''
 The test harness involves running code in an interpreter in each RPi, manually 
@@ -6,289 +29,66 @@ inserting into the message queues. Take the stimulus_response pairs,
 run stimulus in order, check against the expected response.
 '''
 
-PACKET_NO_BLOOM = '%s/0/%s/%f/%d/%s//%f|'
-PACKET_WITH_BLOOM = '%s/%d,%s,%f/%s/%f/%d/%s//%f|'
-
-my_addr = MY_MAC_ADDR
-neighbor_addr = 'aa:bb:cc:dd:ee:ff'
-far_neighbor_addr = 'ff:ee:dd:cc:bb:aa'
-multicast = '*'
-init_sender_addr = '00:11:22:33:44:55'
-
-init_sender_time = now() - 20
-neighbor_send_time = now() - 10
-far_neighbor_send_time = now() - 5
-
-payload = 'POS'
-response_payload = '42,42'
-RSSI_val = -42
-
-bloom_count = 1
-
-notification = MSG_TYPE_POS_UPDATE
-request = MSG_TYPE_POS_REQUEST
-response = MSG_TYPE_POS_RESPONSE
-
-stimulus_response = []
-
-no_response_pkt = 'no response'
-dropped_pkt = 'dropped'
-adjust_thresholds = 'adjust thresholds'
-
-# ---------------------------------------------------
-# MULTICAST, SATURATION REQUESTED, RESPONSE REQUESTED
-# ---------------------------------------------------
-
-# request from the initial sender, seen by the recipients
-p01 = PACKET_WITH_BLOOM % (multicast,
-    bloom_count, init_sender_addr, init_sender_time,
-    initial_sender_addr,init_sender_time,
-    request, payload, RSSI_val)
+def cleanup_and_report(test_result):
+    caller = getframeinfo(stack()[1][0])
+    caller_filename = caller.filename
+    caller_line_num = caller.lineno
     
-# request propagated by recipients
-p02 = PACKET_WITH_BLOOM % (multicast,
-    bloom_count+1, init_sender_addr, init_sender_time,
-    my_addr, now(),
-    request, payload, RSSI_val)
-
-stimulus_response.append((p01,p02))
-
-# further observations of propagated requests
-# - ADJUST THRESHOLDS -
-
-stimulus_response.append((p02,adjust_thresholds))
-
-# response from the recipients to the initial sender
-p03 = PACKET_WITH_BLOOM % (init_sender_addr,
-    bloom_count, my_addr, now(),
-    my_addr, now(),
-    response, response_payload, RSSI_val)
+    if test_result:
+        log.debug('\n\ntest ok!\n')
+    else:
+        log.debug('mopup requested from %s at line %d' % (caller_filename,caller_line_num))
+        mopup()
+        exit()    
     
-stimulus_response.append((p01,p03))
-
-# responses propagated by the recipients
-p04 = PACKET_WITH_BLOOM % (init_sender_addr,
-    bloom_count+1, neighbor_addr, neighbor_send_time,
-    my_addr, now(),
-    response, response_payload, RSSI_val)
-
-stimulus_response.append((p03,p04))
-
-# further observations of propagated responses
-# - ADJUST THRESHOLDS -
-
-stimulus_response.append((p04,adjust_thresholds))
-
-# ------------------------------------------------------                                                   
-# MULTICAST, SATURATION REQUESTED, NO RESPONSE REQUESTED 
-# ------------------------------------------------------
-
-# notification from the initial sender, seen by the recipients
-p05 = PACKET_WITH_BLOOM % (multicast,
-    bloom_count, init_sender_addr, init_sender_time,
-    initial_sender_addr,init_sender_time,
-    notification, payload, RSSI_val)
+def print_msg(M):
+    print('\t to:                   %s' % (M.recipient_addr))
+    print('\t saturation requested: %d' % (M.bloom_count))
     
-# recipients' reaction to the first observation of the notification
-p06 = PACKET_WITH_BLOOM % (multicast,
-    bloom_count+1, init_sender_addr, init_sender_time,
-    my_addr, now(),
-    notification, payload, RSSI_val)
-
-stimulus_response.append((p05,p06))
-
-# recipients' reaction to further observations of the notification
-# - ADJUST THRESHOLDS - 
-
-stimulus_response.append((p06,adjust_thresholds))
-
-# -------------------------------------------------------
-# MULTICAST, SATURATION NOT REQUESTED, RESPONSE REQUESTED 
-# -------------------------------------------------------
-
-# request from the initial sender, seen by the recipients
-p07 = PACKET_NO_BLOOM % (multicast,
-    init_sender_addr, init_sender_time,
-    request, payload, RSSI_val)
+    if M.saturation_req:
+        print('\t\t initial sender:    %s' % (M.init_sender_addr)) 
+        print('\t\t initial send time: %f' % (M.init_send_time))
     
-# response from the recipients to the initial sender
-p08 = PACKET_NO_BLOOM % (init_sender_addr,
-    my_addr, now(),
-    response, response_payload, RSSI_val)
+    print('\t from:                 %s' % (M.sender_addr))
+    print('\t time sent:            %f' % (M.send_time))
+    print('\t request type:         %d' % (M.msg_type))
+    print('\t payload:              %s' % (M.payload))
 
-stimulus_response.append((p07,p08))
+def single_test(stimulus,transit_qs):
+    global inbox_q,outbox_q,carto_q
 
-# response seen by a neighbor
-p09 = PACKET_NO_BLOOM % (init_sender_addr,
-    neighbor_addr, neighbor_send_time,
-    response, response_payload, RSSI_val)
-
-# reaction to the response seen by the neighbor
-# - DROP PACKET - 
-
-stimulus_response.append((p09,dropped_pkt))
-
-# ----------------------------------------------------------
-# MULTICAST, SATURATION NOT REQUESTED, NO RESPONSE REQUESTED 
-# ----------------------------------------------------------
-
-# notification from the initial sender, seen by the recipient
-p10 = PACKET_NO_BLOOM % (multicast,
-    init_sender_addr, init_sender_time,
-    notification, payload, RSSI_val)
+    stim_lmsg = lora_message(stimulus)
     
-# message from the recipients to the initial sender
-# - NONE -
+    if not stim_lmsg.pkt_valid:
+        log.debug('stimulus packet was invalid')
+        exit()
+ 
+    log.debug('injecting packet into the inbox')
+    inbox_q.put(stim_lmsg)
 
-stimulus_response.append((p10,no_response_pkt))
+    time.sleep(3)
 
-# ------------------------------------------------------
-# NO MULTICAST, SATURATION REQUESTED, RESPONSE REQUESTED 
-# ------------------------------------------------------
+    # did we hit the transition queues? 
+    for t in transit_qs:
+        if t == carto_q and not stim_lmsg.hit_carto: return cleanup_and_report(False)
+        if t == altar_q and not stim_lmsg.hit_altar: return cleanup_and_report(False)
+        if t == outbox_q and not stim_lmsg.hit_outbox: return cleanup_and_report(False)
+        if t == wg.msg_store and not stim_lmsg.hit_msg_store: return cleanup_and_report(False)
 
-# request from the initial sender, seen by the recipient
-p11 = PACKET_WITH_BLOOM % (my_addr,
-    bloom_count, init_sender_addr, init_sender_time,
-    initial_sender_addr,init_sender_time,
-    request, payload, RSSI_val)
-    
-# request as seen by a neighbor
-p12 = PACKET_WITH_BLOOM % (neighbor_addr,
-    bloom_count, init_sender_addr, init_sender_time,
-    initial_sender_addr, init_sender_time,
-    request, payload, RSSI_val)
-    
-# neighbor's reaction to the request
-p13 = PACKET_WITH_BLOOM % (neighbor_addr,
-    bloom_count+1, init_sender_addr, init_sender_time,
-    my_addr, now(),
-    request, payload, RSSI_val)
-
-stimulus_response((p12,p13))
-
-# response from the recipient to the request
-p14 = PACKET_WITH_BLOOM % (init_sender_addr,
-    bloom_count, my_addr, now(),
-    my_addr, now(),
-    response, response_payload, RSSI_val)
-
-stimulus_response((p11,p14))
-stimulus_response((p13,p14))
-
-# recipient's reaction to further neighbor-propagated requests
-# - ADJUST THRESHOLDS - 
-
-stimulus_response((p13,adjust_thresholds))
-
-# response as seen by a neighbor
-p15 = PACKET_WITH_BLOOM % (init_sender_addr,
-    bloom_count, neighbor_addr, neighbor_send_time,
-    neighbor_addr, neighbor_send_time,
-    response, response_payload, RSSI_val)
-
-# neighbor's reaction to the response
-p16 = PACKET_WITH_BLOOM % (init_sender_addr,
-    bloom_count+1, neighbor_addr, neighbor_send_time,
-    my_addr, now(),
-    response, response_payload, RSSI_val)
-
-stimulus_response((p15,p16))
-
-# recipient's reaction to further neighbor-propagated responses
-# - ADJUST THRESHOLDS - 
-
-stimulus_response((p16,adjust_thresholds))
-
-# ---------------------------------------------------------
-# NO MULTICAST, SATURATION REQUESTED, NO RESPONSE REQUESTED 
-# ---------------------------------------------------------
-
-# notification from the initial sender, seen by the recipient
-p17 = PACKET_WITH_BLOOM % (my_addr,
-    bloom_count, init_sender_addr, init_sender_time,
-    initial_sender_addr,init_sender_time,
-    notification, payload, RSSI_val)
-
-# response from the recipient
-# - NONE -
-
-stimulus_response.append((p17,no_response_pkt))
-
-# notification as seen by a neighbor
-p18 = PACKET_WITH_BLOOM % (neighbor_addr,
-    bloom_count, init_sender_addr, init_sender_time,
-    initial_sender_addr,init_sender_time,
-    notification, payload, RSSI_val)
-    
-# neighbor's reaction to the first observation of the notification 
-p19 = PACKET_WITH_BLOOM % (neighbor_addr,
-    bloom_count+1, init_sender_addr, init_sender_time,
-    my_addr, now(),
-    notification, payload, RSSI_val)
-
-stimulus_response.append((p18,p19))
-
-# recipients' reaction to further observations of the notification
-# - ADJUST THRESHOLDS - 
-
-stimulus_response.append((p19,adjust_thresholds))
-
-# ----------------------------------------------------------
-# NO MULTICAST, SATURATION NOT REQUESTED, RESPONSE REQUESTED 
-# ----------------------------------------------------------
-
-# request from the initial sender, seen by the recipient
-p20 = PACKET_NO_BLOOM % (my_addr,
-    init_sender_addr, init_sender_time,
-    request, payload, RSSI_val)
-
-# message from the recipient to the initial sender
-p21 = PACKET_NO_BLOOM % (init_sender_addr,
-    my_addr, now(),
-    response, response_payload, RSSI_val)
-    
-stimulus_response.append((p20,p21))
-
-# request as seen by a neighbor
-p22 = PACKET_NO_BLOOM % (neighbor_addr,
-    init_sender_addr, init_sender_time,
-    request, payload, RSSI_val)
-    
-# neighbor's reaction to the request
-# - DROP PACKET -
-
-stimulus_response.append((p22,dropped_pkt))
-
-# response as seen by a neighbor
-p23 = PACKET_NO_BLOOM % (init_sender_addr,
-    neighbor_addr, neighbor_send_time,
-    response, response_payload, RSSI_val)
-
-# neighbor's reaction to the response
-# - DROP PACKET -
-
-stimulus_response.append((p23,dropped_pkt))
-
-# -------------------------------------------------------------
-# NO MULTICAST, SATURATION NOT REQUESTED, NO RESPONSE REQUESTED 
-# -------------------------------------------------------------
-
-# notification from the initial sender, seen by the recipient
-p24 = PACKET_NO_BLOOM % (my_addr,
-    init_sender_addr, init_sender_time,
-    notification, payload, RSSI_val)
-
-# message from the recipient to the initial sender
-# - NONE -
-
-stimulus_response.append((p24,no_response_pkt))
-
-# notification as seen by a neighbor
-p25 = PACKET_NO_BLOOM % (neighbor_addr,
-    init_sender_addr, init_sender_time,
-    notification, payload, RSSI_val)
-
-# neighbor's reaction to the notification
-# - DROP PACKET -
-
-stimulus_response.append((p25,dropped_pkt))
+    if stim_lmsg.hit_msg_store:
+        print('\n   retrieved from message store:\n')
+        
+        for K in wg.msg_store.inventory.keys():
+            print('     <',K,wg.msg_store.inventory[K],'>')
+            retrieved_from_msg_store = wg.msg_store.stock[K]
+            print_msg(retrieved_from_msg_store)
+            print()
+            
+    if stim_lmsg.hit_outbox:
+        print('\n   response retrieved from outbox:\n')
+        
+        retrieved_from_outbox = outbox_q.get_nowait()
+        print_msg(retrieved_from_outbox)
+        return retrieved_from_outbox        
+        
+        
