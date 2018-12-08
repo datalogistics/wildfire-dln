@@ -10,7 +10,8 @@ class IBPWatcher:
     def __init__(self, cfg=IBP_CONFIG):
         self.cfg = cfg
         self.addrs = self._get_addrs()
-        
+        self.first = True
+                
         th = threading.Thread(
             name='ibp_iface',
             target=self._watcher,
@@ -30,13 +31,14 @@ class IBPWatcher:
     def _watcher(self, cfg):
         while True:
             naddrs = self._get_addrs()
-            if set(naddrs) != set(self.addrs):
+            if set(naddrs) != set(self.addrs) or self.first:
                 log.debug("iface diff: {}".format(set(naddrs) - set(self.addrs)))
                 istr = ""
                 for i in naddrs:
                     istr+="{}:6714;".format(i)
                 self.addrs = naddrs
                 self.update_ibp_server(istr)
+                self.first = False
 
             time.sleep(5)
 
