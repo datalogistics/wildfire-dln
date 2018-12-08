@@ -106,9 +106,13 @@ def local_download(sess, exnodes):
     for f in exnodes:
         if not len(f.extents):
             continue
+        fpath = os.path.join(DOWNLOAD_DIR, f.name)
+        if os.path.exists(fpath) and os.path.getsize(fpath) == f.size:
+            log.debug("File exists: {}, skipping!".format(f.name))
+            continue
         log.info("Downloading: {} ({} bytes)".format(f.name, f.size))
         try:
-            result = sess.download(f.selfRef, "{}/{}".format(DOWNLOAD_DIR,f.name))
+            result = sess.download(f.selfRef, fpath)
             res, diff, dsize = result.exnode, result.time, result.t_size
         except Exception as e:
             log.error("Could not download file: {}".format(e))
