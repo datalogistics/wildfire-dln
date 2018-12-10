@@ -10,6 +10,9 @@ GPS_BOX = [32.702719, -117.170799,
 # seconds between service/node updates
 UPDATE_INTERVAL = 5
 
+# number of retries before re-registering to UNIS
+RETRY_COUNT = 2
+
 # WDLN schema
 GEOLOC="http://unis.crest.iu.edu/schema/ext/dln/1/geoloc#"
 FERRY_SERVICE="http://unis.crest.iu.edu/schema/ext/dln/1/ferry#"
