@@ -133,6 +133,6 @@ public class LayerManager
 
         getMapView().updateView(lat,lon,scale,0,0,true);
 
-        getMapView().getLayers()
+        //getMapView().getLayers();
     }
 }

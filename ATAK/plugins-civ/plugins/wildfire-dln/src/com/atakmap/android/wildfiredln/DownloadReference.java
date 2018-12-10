@@ -139,7 +139,10 @@ public class DownloadReference
         {
             if (!downloadInProgress)
             {
-                ib.setImageResource(R.drawable.cancel_48x48);
+                if(ib != null)
+                {
+                    ib.setImageResource(R.drawable.cancel_48x48);
+                }
                 downloadInProgress = true;
                 dtask = new DownloadItemTask(url, name, dmanager, mHandler);
                 dthread = new Thread(dtask);

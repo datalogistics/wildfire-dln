@@ -7,6 +7,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -336,6 +337,13 @@ public class WildfireDLN
         }
         //row.addView(viewButton);
         tableLayout.addView(row,count);
+
+        final CheckBox checkBox = (CheckBox)templateView.findViewById(R.id.autoBox);
+
+        if(checkBox.isChecked() && !dr.GetIsLocal() && !dr.GetIsDownloadInProgress())
+        {
+            DownloadByID(id, dlButton);
+        }
     }
 
     public void toggleProgress(int v)
@@ -355,12 +363,20 @@ public class WildfireDLN
             if(lManager.GetLayerVisibility(dr.GetName()))
             {
                 lManager.SetLayerVisibility(dr.GetName(),false);
-                dlButton.setImageResource(R.drawable.eye_closed_48x48);
+
+                if(dlButton != null)
+                {
+                    dlButton.setImageResource(R.drawable.eye_closed_48x48);
+                }
             }
             else
             {
                 lManager.SetLayerVisibility(dr.GetName(),true);
-                dlButton.setImageResource(R.drawable.eye_open_48x48);
+
+                if(dlButton != null)
+                {
+                    dlButton.setImageResource(R.drawable.eye_open_48x48);
+                }
             }
         }
         else
