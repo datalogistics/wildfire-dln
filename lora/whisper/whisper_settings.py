@@ -1,7 +1,7 @@
 '''**************************************************************************
 
 File: whisper_settings.py
-Language: Python 3.7
+Language: Python 3.6/7
 Author: Juliette Zerick (jzerick@iu.edu)
         for the WildfireDLN Project
         OPEN Networks Lab at Indiana University-Bloomington
@@ -11,7 +11,7 @@ the code, such as the logger and the *BUCKETs used to provide a smooth
 shutdown. Additionally there are utilities for checking the validity of
 input data, and tests to show the utilities are working properly. 
 
-Last modified: December 6, 2018
+Last modified: March 18, 2019
 
 ****************************************************************************'''
 
@@ -37,7 +37,104 @@ import whisper_globals as wg
 log = logging.getLogger('root')
 FORMAT = '[%(filename)s:%(lineno)s - %(funcName)12s() ] %(message)s'
 logging.basicConfig(format=FORMAT)
-log.setLevel(logging.DEBUG)
+
+# Solutions from pfa (2012) and edited by Shiplu Mokaddim (2012), et al. at StackOverflow
+# in response to the following posted question:
+# "How to add a custom loglevel to Python's logging facility" available at
+# <https://stackoverflow.com/questions/2183233/how-to-add-a-custom-loglevel-to-pythons-logging-facility>
+# last accessed: February 3, 2019
+THREAD_STATUS_UPDATES_LEVEL_NUM = 1
+PACKET_ERRORS_LEVEL_NUM = 2
+PLUMBING_ISSUES_LEVEL_NUM = 3 
+RTG_TABLE_UPDATES_LEVEL_NUM = 4
+MSG_STORE_UPDATES_LEVEL_NUM = 5
+UNIS_UPDATES_LEVEL_NUM = 6
+DATA_FLOW_LEVEL_NUM = 7
+RECEPTION_UPDATES_LEVEL_NUM = 8
+DATA_FOR_TESSA_LEVEL_NUM = 9
+
+# place the level number constants of the loggers you are interested in, as listed above
+SELECTED_LOGGERS = [UNIS_UPDATES_LEVEL_NUM,DATA_FLOW_LEVEL_NUM]
+
+counter = 11
+for level in SELECTED_LOGGERS:
+    if level == THREAD_STATUS_UPDATES_LEVEL_NUM: THREAD_STATUS_UPDATES_LEVEL_NUM = counter
+    elif level == PACKET_ERRORS_LEVEL_NUM: PACKET_ERRORS_LEVEL_NUM = counter
+    elif level == PLUMBING_ISSUES_LEVEL_NUM: PLUMBING_ISSUES_LEVEL_NUM = counter
+    elif level == RTG_TABLE_UPDATES_LEVEL_NUM: RTG_TABLE_UPDATES_LEVEL_NUM = counter
+    elif level == MSG_STORE_UPDATES_LEVEL_NUM: MSG_STORE_UPDATES_LEVEL_NUM = counter
+    elif level == UNIS_UPDATES_LEVEL_NUM: UNIS_UPDATES_LEVEL_NUM = counter
+    elif level == DATA_FLOW_LEVEL_NUM: DATA_FLOW_LEVEL_NUM = counter
+    elif level == RECEPTION_UPDATES_LEVEL_NUM: RECEPTION_UPDATES_LEVEL_NUM = counter
+    elif level == DATA_FOR_TESSA_LEVEL_NUM: DATA_FOR_TESSA_LEVEL_NUM = counter
+    counter += 1
+    
+LOGGER_LEVEL = 10
+
+logging.addLevelName(THREAD_STATUS_UPDATES_LEVEL_NUM, "THREAD_STATUS_UPDATES")
+def logger_thread_status_upates(self, message, *args, **kws):
+    if self.isEnabledFor(THREAD_STATUS_UPDATES_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(THREAD_STATUS_UPDATES_LEVEL_NUM, message, args, **kws) 
+logging.Logger.thread_status_updates = logger_thread_status_upates
+
+logging.addLevelName(PACKET_ERRORS_LEVEL_NUM, "PACKET_ERRORS")
+def logger_packet_errors(self, message, *args, **kws):
+    if self.isEnabledFor(PACKET_ERRORS_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(PACKET_ERRORS_LEVEL_NUM, message, args, **kws) 
+logging.Logger.packet_errors = logger_packet_errors
+
+logging.addLevelName(PLUMBING_ISSUES_LEVEL_NUM, "PLUMBING_ISSUES")
+def logger_plumbing_issues(self, message, *args, **kws):
+    if self.isEnabledFor(UNIS_UPDATES_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(PLUMBING_ISSUES_LEVEL_NUM, message, args, **kws) 
+logging.Logger.plumbing_issues = logger_plumbing_issues
+
+logging.addLevelName(RTG_TABLE_UPDATES_LEVEL_NUM, "RTG_TABLE_UPDATES")
+def logger_rtg_table_updates(self, message, *args, **kws):
+    if self.isEnabledFor(RTG_TABLE_UPDATES_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(MSG_STORE_UPDATES_LEVEL_NUM, message, args, **kws) 
+logging.Logger.rtg_table_updates = logger_rtg_table_updates
+
+logging.addLevelName(MSG_STORE_UPDATES_LEVEL_NUM, "MSG_STORE_UPDATES")
+def logger_msg_store_updates(self, message, *args, **kws):
+    if self.isEnabledFor(MSG_STORE_UPDATES_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(MSG_STORE_UPDATES_LEVEL_NUM, message, args, **kws) 
+logging.Logger.msg_store_updates = logger_msg_store_updates
+
+logging.addLevelName(UNIS_UPDATES_LEVEL_NUM, "UNIS_UPDATES")
+def logger_unis_updates(self, message, *args, **kws):
+    if self.isEnabledFor(UNIS_UPDATES_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(UNIS_UPDATES_LEVEL_NUM, message, args, **kws) 
+logging.Logger.unis_updates = logger_unis_updates
+
+logging.addLevelName(DATA_FLOW_LEVEL_NUM, "DATA_FLOW")
+def logger_data_flow(self, message, *args, **kws):
+    if self.isEnabledFor(DATA_FLOW_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(DATA_FLOW_LEVEL_NUM, message, args, **kws) 
+logging.Logger.data_flow = logger_data_flow
+
+logging.addLevelName(RECEPTION_UPDATES_LEVEL_NUM, "RECEPTION_UPDATES")
+def logger_reception_updates(self, message, *args, **kws):
+    if self.isEnabledFor(RECEPTION_UPDATES_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(RECEPTION_UPDATES_LEVEL_NUM, message, args, **kws) 
+logging.Logger.reception_updates = logger_reception_updates
+
+logging.addLevelName(DATA_FOR_TESSA_LEVEL_NUM, "DATA_FOR_TESSA")
+def data_for_tessa(self, message, *args, **kws):
+    if self.isEnabledFor(DATA_FOR_TESSA_LEVEL_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(DATA_FOR_TESSA_LEVEL_NUM, message, args, **kws) 
+logging.Logger.data_for_tessa = data_for_tessa
+
+log.setLevel(LOGGER_LEVEL)
 
 SNOOZE_TIME = 1. # in seconds
 
@@ -50,6 +147,8 @@ THREAD_BUCKET = [] # one day I'll come up with better names
 PROCESS_BUCKET = [] # but buckets are so versatile!
 SOCKET_BUCKET = [] # they can be watering cans, trash cans, filing cabinets...
 QUEUE_BUCKET = [] # vases, cat carriers, laundry hampers...
+
+SIM_MODE = True
 
 DEFAULT_LIFESPAN = 60*60*1 # in seconds
 LIFETIME_EXTENSION = 5*60 # in seconds
@@ -259,6 +358,7 @@ def msg_type_is_request(R):
 def msg_type_is_response(R):
     return R in RESPONSES
 
+# these functions save a few conditional statementss
 def get_notif_msg_type(R):
     if R in [MSG_TYPE_UNIS_POST_NOTIF, MSG_TYPE_UNIS_POST_ACK_REQ, MSG_TYPE_UNIS_POST_ACK]:
         return MSG_TYPE_UNIS_POST_NOTIF
@@ -364,7 +464,7 @@ def msg_code2msg_desc(code):
 # placeholder
 RESERVED_DEFAULT = ''
 
-MAX_POSSIBLE_RSSI_VAL = 0
+RSSI_VAL_SUPREMUM = 0
 BAD_RECEPTION = -90 # the threshold at which a message will be barely detected
 MIN_SANE_RSSI_VAL = -200 # minimum observed thus far: -122
 
@@ -374,7 +474,7 @@ def is_plausible_RSSI_value(S):
     except:
         return False
 
-    if S0 > MAX_POSSIBLE_RSSI_VAL:
+    if S0 > RSSI_VAL_SUPREMUM:
         return False
 
     if S0 < MIN_SANE_RSSI_VAL:
