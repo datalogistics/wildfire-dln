@@ -1,8 +1,15 @@
 package com.atakmap.android.wildfiredln;
+import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +28,7 @@ import com.atakmap.android.wildfiredln.plugin.R;
 import com.atakmap.map.layer.raster.DatasetRasterLayer2;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
@@ -40,6 +48,7 @@ public class WildfireDLN
     public static final String SHOW_PLUGIN_TEMPLATE = "com.atakmap.android.wildfiredln.SHOW_PLUGIN_TEMPLATE";
     private View templateView;
     private Context pluginContext;
+    private Activity pluginActivity;
     private static Vector<DownloadReference> downloadReferences;
     private static DownloadManager dmanager = null;
     private String[] menu;
@@ -47,13 +56,15 @@ public class WildfireDLN
     private static Thread nManagerThread = null;
     private static Vector<Marker> nodeMarkers = null;
     private static LayerManager lManager;
+    private static Vector<String> validIPs = null;
     DatasetRasterLayer2 drl = null;
 
     /**************************** CONSTRUCTOR *****************************/
-    public WildfireDLN(Context context, View templateView)
+    public WildfireDLN(Context context, View templateView, Activity aa)
     {
         this.pluginContext = context;
         this.templateView = templateView;
+        this.pluginActivity = aa;
 
         String filepath = Environment.getExternalStorageDirectory().toString();
         File fileDirectory = new File(filepath+"/ATAK_Downloads");
@@ -81,6 +92,15 @@ public class WildfireDLN
             }
         });
 
+        Button uploadButton = (Button) templateView.findViewById(R.id.uploadButton);
+        uploadButton.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                uploadContent();
+            }
+        });
+
         //start network manager
         if(nManager == null)
         {
@@ -103,6 +123,47 @@ public class WildfireDLN
         {
             nManager.requestRefresh();
         }
+    }
+
+    public void uploadContent()
+    {
+        Intent customdialog = new Intent(pluginContext, UploadChooserActivity.class);
+
+        Bundle b = new Bundle();
+
+        if(validIPs==null)
+        {
+            b.putStringArrayList("ips", new ArrayList<String>());
+        }
+        else
+        {
+            b.putStringArrayList("ips", new ArrayList<String>(validIPs));
+        }
+
+        customdialog.putExtras(b);
+
+        pluginActivity.startActivity(customdialog);
+        /*final CharSequence[] options = {"Images", "Videos", "Cancel"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(pluginActivity);
+        builder.setTitle("Select From...");
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                if (options[item].equals("Images")) {
+                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    (pluginActivity).startActivityForResult(intent, 1);
+                } else if (options[item].equals("Videos")) {
+                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    (pluginActivity).startActivityForResult(intent, 1);
+                } else if (options[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+                dialog.dismiss();
+            }
+        });
+        builder.show();*/
     }
 
     public void UpdateReferences(Vector<DownloadReference> references) {
@@ -231,6 +292,11 @@ public class WildfireDLN
                         new_cot_intent);*/
             }
         }
+    }
+
+    public void UpdateIPs(Vector<String> ips)
+    {
+        validIPs = ips;
     }
 
     private void newTableRow(String label, int count,DownloadReference dr)

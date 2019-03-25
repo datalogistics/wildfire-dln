@@ -73,6 +73,11 @@ public class NetworkManager implements Runnable
                 parent.toggleProgress(View.VISIBLE);
             }
         }
+        else if(inputMessage.what == 3)//update ips
+        {
+            Log.d(TAG, "Updating IP List");
+            parent.UpdateIPs((Vector<String>)inputMessage.obj);
+        }
     }
 
     private void toggleProgress(boolean state)
@@ -106,6 +111,19 @@ public class NetworkManager implements Runnable
         }
 
         Message m = mHandler.obtainMessage(1,0,0,copies);
+        m.sendToTarget();
+    }
+
+    private void updateIPs(Vector<String> ips)
+    {
+        Vector<String> copies = new Vector<String>();
+
+        for(int i=0;i<ips.size();i++)
+        {
+            copies.add(ips.get(i));
+        }
+
+        Message m = mHandler.obtainMessage(3,0,0,copies);
         m.sendToTarget();
     }
 
@@ -253,6 +271,7 @@ public class NetworkManager implements Runnable
                     updateReferences(masterReferences);
                     Log.d(TAG, "Updating Nodes: " + nodes.size() + " found");
                     updateNodes(nodes);
+                    updateIPs(validIPs);
                     toggleProgress(false);
                     refreshRequested = false;
                     state = "wait";
@@ -355,6 +374,7 @@ public class NetworkManager implements Runnable
                     updateReferences(masterReferences);
                     Log.d(TAG, "u:Updating Nodes: " + nodes.size() + " found");
                     updateNodes(nodes);
+                    updateIPs(validIPs);
                     toggleProgress(false);
                     state = "wait";
                     waitcounter = 5;

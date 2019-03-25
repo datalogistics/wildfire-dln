@@ -1,12 +1,15 @@
 package com.atakmap.android.wildfiredln;
 
+import android.Manifest;
 import android.app.DownloadManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ImageButton;
 import com.atakmap.android.wildfiredln.plugin.R;
@@ -144,7 +147,13 @@ public class DownloadReference
                     ib.setImageResource(R.drawable.cancel_48x48);
                 }
                 downloadInProgress = true;
+                Log.d(TAG,url);
+                Log.d(TAG,name);
+                Log.d(TAG,dmanager.toString());
+                Log.d(TAG,mHandler.toString());
+                Log.d(TAG,"State: "+Environment.getExternalStorageState());
                 dtask = new DownloadItemTask(url, name, dmanager, mHandler);
+                Log.d(TAG,"Here");
                 dthread = new Thread(dtask);
                 dthread.start();
             }
@@ -297,13 +306,23 @@ public class DownloadReference
                 fileDirectory.mkdir();
             }
 
+            Log.d(TAG,url);
+            Log.d(TAG,name);
+            Log.d(TAG,dmanager.toString());
+            Log.d(TAG,mHandler.toString());
+            Log.d(TAG,"State: "+Environment.getExternalStorageState());
 
+            /*if (ContextCompat.checkSelfPermission(parent, Manifest.permission.WRITE_CALENDAR)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Permission is not granted
+            }*/
 
             downloadID = dmanager.enqueue(new DownloadManager.Request(uri)
                     .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI)
                     .setTitle(name)
                     .setDescription("Wildfire-DLN File Transfer")
-                    .setDestinationInExternalPublicDir("ATAK_Downloads",
+                    //.setDestinationInExternalFilesDir(parent.GetContext(),Environment.DIRECTORY_DOWNLOADS,name));
+                    .setDestinationInExternalPublicDir("/ATAK_Downloads",
                             name));
 
             Log.d(TAG,fileDirectory.getAbsolutePath());

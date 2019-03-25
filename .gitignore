@@ -1,2 +1,4 @@
-ATAK/plugins-civ
-plugins-civ
+ATAK/plugins-civ/*
+!ATAK/plugins-civ/plugins
+ATAK/plugins-civ/plugins/*
+!ATAK/plugins-civ/plugins/wildfire-dln

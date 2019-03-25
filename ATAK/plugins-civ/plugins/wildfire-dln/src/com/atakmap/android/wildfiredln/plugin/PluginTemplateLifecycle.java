@@ -41,7 +41,11 @@ public class PluginTemplateLifecycle implements Lifecycle {
             return;
         }
         this.mapView = (MapView)arg1.getView();
-        PluginTemplateLifecycle.this.overlays.add(new PluginTemplateMapComponent());
+
+        PluginTemplateMapComponent p = new PluginTemplateMapComponent();
+        p.setActivity(arg0);
+
+        PluginTemplateLifecycle.this.overlays.add(p);
 
         // create components
         Iterator<MapComponent> iter = PluginTemplateLifecycle.this.overlays.iterator();

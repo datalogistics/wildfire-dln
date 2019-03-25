@@ -1,6 +1,7 @@
 
 package com.atakmap.android.wildfiredln;
 
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,7 @@ public class PluginTemplateDropDownReceiver extends DropDownReceiver implements
     public static final String SHOW_PLUGIN_TEMPLATE = "com.atakmap.android.wildfiredln.SHOW_PLUGIN_TEMPLATE";
     private final View templateView;
     private final Context pluginContext;
+    private Activity pluginActivity;
 
 
     /**************************** CONSTRUCTOR *****************************/
@@ -47,6 +49,11 @@ public class PluginTemplateDropDownReceiver extends DropDownReceiver implements
     public void disposeImpl() {
     }
 
+    public void setActivity(Activity aa)
+    {
+        pluginActivity = aa;
+    }
+
     /**************************** INHERITED METHODS *****************************/
 
     @Override
@@ -57,7 +64,7 @@ public class PluginTemplateDropDownReceiver extends DropDownReceiver implements
             
             showDropDown(templateView, HALF_WIDTH, FULL_HEIGHT, FULL_WIDTH, HALF_HEIGHT, false);
 
-            WildfireDLN dlnInstance = new WildfireDLN(this.pluginContext, this.templateView);
+            WildfireDLN dlnInstance = new WildfireDLN(this.pluginContext, this.templateView, this.pluginActivity);
 
             //updateContent();
 

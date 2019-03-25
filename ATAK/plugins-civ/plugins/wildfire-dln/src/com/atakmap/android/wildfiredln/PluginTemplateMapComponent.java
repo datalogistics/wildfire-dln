@@ -1,6 +1,7 @@
 
 package com.atakmap.android.wildfiredln;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import com.atakmap.android.ipc.AtakBroadcast.DocumentedIntentFilter;
@@ -16,6 +17,13 @@ public class PluginTemplateMapComponent extends DropDownMapComponent {
     public static final String TAG = PluginTemplateMapComponent.class.getSimpleName();
 
     public Context pluginContext;
+    private Activity pluginActivity;
+
+    public void setActivity(Activity aa)
+    {
+        Log.d(TAG, "Setting Plugin Activity");
+        pluginActivity = aa;
+    }
 
     public void onCreate(final Context context, Intent intent, final MapView view) {
 
@@ -24,6 +32,7 @@ public class PluginTemplateMapComponent extends DropDownMapComponent {
         pluginContext = context;
 
         com.atakmap.android.wildfiredln.PluginTemplateDropDownReceiver ddr = new com.atakmap.android.wildfiredln.PluginTemplateDropDownReceiver(view,context);
+        ddr.setActivity(pluginActivity);
 
         Log.d(TAG, "registering the show plugin template filter");
         DocumentedIntentFilter ddFilter = new DocumentedIntentFilter();
