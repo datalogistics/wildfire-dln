@@ -1,7 +1,7 @@
 '''**************************************************************************
 
 File: whisper_settings.py
-Language: Python 3.7
+Language: Python 3.6/7
 Author: Juliette Zerick (jzerick@iu.edu)
         for the WildfireDLN Project
         OPEN Networks Lab at Indiana University-Bloomington
@@ -12,7 +12,7 @@ The class has methods to verify the validity of strings as legitimate
 packets handled by the protocol. The fields are defined in a long
 comment a few lines farther down.
 
-Last modified: December 6, 2018
+Last modified: March 18, 2019
 
 ****************************************************************************'''
 
@@ -46,7 +46,7 @@ and if N>0 follows are: MAC address of the initial sender, epoch timestamp of th
 8) When the packet is received by the handler, the : is removed and replaced with /
 followed by: RSSI value|
 
-completing the packet.
+thus completing the packet.
 
 => complete packet contains eight /-separated fields followed by a |
 
@@ -56,6 +56,33 @@ that transmit sequentially.
 '''
         
 TABLE_NONCASE = ''
+
+class table_entry:
+    def __init__(self,original_sender,bloom_count,relaying_node,last_observed):
+        self.original_sender = original_sender
+        self.bloom_count = bloom_count
+        self.relaying_node = relaying_node # TODO remove?
+        self.last_observed = last_observed
+
+class routing_table:
+    def __init__(self):
+        self.table = {}
+        
+    def update_table(self,lmsg):
+        original_sender = lmsg.sender_addr
+        last_observed = lmsg.send_time
+        relaying_node = lmsg.sender_addr
+        bloom_count = 1
+        self.table[original_sender] = \
+            table_entry(original_sender,bloom_count,relaying_node,last_observed)
+
+        if lmsg.bloom_count > 1: 
+            original_sender = lmsg.init_sender_addr
+            relaying_node = lmsg.sender_addr
+            last_observed = lmsg.init_send_time
+            bloom_count = lmsg.bloom_count
+            self.table[original_sender] = \
+                table_entry(original_sender,bloom_count,relaying_node,last_observed)        
 
 # the data store is transient memory; adjust further
 class message_store:
@@ -71,15 +98,28 @@ class message_store:
         lmsg.time_to_die = lmsg.time_to_die + LIFETIME_EXTENSION
                 
         # shuffling along the PDF of the distribution
-        self.thresholds[lmsg.key] = -np.exp(self.inventory[lmsg.key])  
+        self.thresholds[lmsg.key] = np.exp(-self.inventory[lmsg.key]) * 5
         
-        log.info('thresholds adjusted for %s with %d observations' \
+        if self.inventory[lmsg.key] > 5:
+            self.thresholds[lmsg.key] = 0
+        else:
+            self.thresholds[lmsg.key] = 0.5
+        
+        self.thresholds[lmsg.key] = 0
+        
+        log.msg_store_updates('thresholds adjusted for %s with %d observations' \
             % (self.stock[lmsg.key].skey,self.inventory[lmsg.key]))
+
+    def get_snapshot(self):
+        inv = copy.deepcopy(self.inventory)
+        thr = copy.deepcopy(self.thresholds)
+        
+        return inv,thr
 
     def incorporate(self,lmsg):
         if lmsg.key not in self.inventory:
             self.inventory[lmsg.key] = 0
-            log.debug('incorporated %s' % (lmsg.skey))
+            log.msg_store_updates('incorporated %s' % (lmsg.skey))
             # always store the most recent copy of the message in the stock
 
         # update or add
@@ -95,7 +135,7 @@ class message_store:
         self.thresholds = {}
         self.stock = {}
         
-        log.debug('message store reset')
+        log.msg_store_updates('message store reset')
 
 # an observation or data point (payload) plus metadata
 class lora_message:
@@ -105,6 +145,7 @@ class lora_message:
         M = pkt.strip(MESSAGE_TERMINATOR).split(MESSAGE_DELIMITER)
 
         if len(M) != NUM_PROTOCOL_FIELDS:
+            log.packet_errors('packet has incorrect number of fields')
             return
         
         # for debugging
@@ -119,12 +160,16 @@ class lora_message:
         # got tired of manually changing the indices when changing the protocol
         i = 0 
 
-        if not is_plausible_MAC_addr(M[i]) and M[i] != MULTICAST: return
+        if not is_plausible_MAC_addr(M[i]) and M[i] != MULTICAST: 
+            log.packet_errors('packet has nonsensical recipient address')
+            return
         self.recipient_addr = normalize_addr(M[i])
         self.multicast = (self.recipient_addr == MULTICAST)
         i = i + 1
 
-        if not is_plausible_bloom(M[i]): return
+        if not is_plausible_bloom(M[i]): 
+            log.packet_errors('packet has implausible bloom values')
+            return
         self.bloom_count = int(M[i].split(',')[0]) # conversion and split tested
         self.saturation_req = (self.bloom_count != NO_SATURATION)
 
@@ -133,16 +178,22 @@ class lora_message:
             self.init_send_time = float(M[i].split(',')[2])
         i = i + 1
 
-        if not is_plausible_MAC_addr(M[i]): return
+        if not is_plausible_MAC_addr(M[i]): 
+            log.packet_errors('packet has implausible sender address')
+            return
         self.sender_addr = normalize_addr(M[i])
         i = i + 1
 
-        if not is_plausible_timestamp(M[i]): return
+        if not is_plausible_timestamp(M[i]): 
+            log.packet_errors('packet has implausible send timestamp')
+            return
         self.send_time = float(M[i])
         self.receipt_time = now()
         i = i + 1
         
-        if not is_plausible_msg_type(M[i]): return
+        if not is_plausible_msg_type(M[i]): 
+            log.packet_errors('packet\'s request type is not translatable')
+            return
         self.msg_type = int(M[i]) # conversion and validity tested  
         self.response_requested = msg_type_is_request(self.msg_type)
         i = i + 1
@@ -153,15 +204,23 @@ class lora_message:
         # reserved for future use
         i = i + 1
 
-        if not is_plausible_RSSI_value(M[i]): return
+        if not is_plausible_RSSI_value(M[i]): 
+            log.packet_errors('packet RSSI value is implausible')
+            return
         self.RSSI_val = float(M[i])
         i = i + 1
 
         if self.saturation_req:
             # to avoid noisy chaos, only track the original message
             self.key = (self.init_sender_addr,self.init_send_time)
+            
+            if SIM_MODE: 
+                self.sim_key = (self.sender_addr,self.init_sender_addr,self.init_send_time)
         else:
             self.key = (self.sender_addr,self.send_time)
+            
+            if SIM_MODE:
+                self.sim_key = (self.sender_addr,self.send_time)
 
         # for ease of logging
         #self.skey = str(self.key) # inelegant
@@ -173,7 +232,15 @@ class lora_message:
 
         self.pkt_valid = True       
 
-    # TODO this could use a trip to the thesaurus
+    def show_incoming(self):
+        S = ''
+        if self.saturation_req:
+            S += self.init_sender_addr + ('[f]' % (self.init_send_time)) + '->'
+            #S += self.init_sender_addr + ' -> ' 
+        S += self.sender_addr + ('[f]' % (self.send_time)) + '->' + recipient_addr + ': ' + self.payload
+        #S += self.sender_addr + ' -> ' + recipient_addr + ': ' + self.payload        
+        return S
+
     def form_pkt(self):
         packet_no_bloom =           '%s/0/%s/%f/%d/%s//:'
         packet_with_bloom = '%s/%d,%s,%f/%s/%f/%d/%s//:'
@@ -226,7 +293,7 @@ class lora_message:
         self.response_lmsg = lora_message(self.response_pkt)
         
         if not self.response_lmsg.pkt_valid:
-            log.debug('generated response packet is invalid')
+            log.packet_errors('generated response packet is invalid')
             exit()
 
     # only handles replies to requests
@@ -238,12 +305,12 @@ class lora_message:
         for i in range(3):
             try:
                 self.response_payload
-            except:
+            except: #TODO
                 log.debug('message waiting to send')
-                time.sleep(3)
+                time.sleep(SNOOZE_TIME)
                 continue
 
-        if i == 3:
+        if i == 3: # TODO add error?
             return 
 
         if self.multicast:
@@ -280,6 +347,26 @@ class lora_message:
             my_msg_store.incorporate(self.response_lmsg)
 
         outbox_q.put(self.response_lmsg)
+
+    def show_request(self):
+        S = ':%s,\'%s\'' % (msg_code2msg_text_d[self.msg_type],self.payload)
+        if self.saturation_req:
+            S = (' <- %s[%f]' % (self.init_sender_addr,self.init_send_time)) + S
+
+        S = (' <- %s[%f]' % (self.sender_addr,self.send_time)) + S
+        S = (' = {%s}' % (self.recipient_addr)) + S
+        return S
+
+    def show_response(self):
+        try:
+            lmsg = self.response_lmsg
+        except:
+            return ''
+            
+        S = (' = {%s}' % (lmsg.sender_addr))
+        S = S + (':%s,\'%s\'' % (msg_code2msg_text_d[lmsg.msg_type],lmsg.payload))
+        S = S + (' -> %s[%f]' % (self.recipient_addr,self.send_time))
+        return S       
 
     # faster
     def __ne__(self,other):

@@ -1,7 +1,7 @@
 '''**************************************************************************
 
 File: whisper_globals.py
-Language: Python 3.7
+Language: Python 3.6/7
 Author: Juliette Zerick (jzerick@iu.edu)
         for the WildfireDLN Project
         OPEN Networks Lab at Indiana University-Bloomington
@@ -11,7 +11,7 @@ for which the global reserved word proved insufficient. Global locks and flags,
 including closing_time, hwich is used to synchronize across many files to
 perform a smooth shutdown. 
 
-Last modified: December 6, 2018
+Last modified: March 17, 2019
 
 ****************************************************************************'''
 
@@ -28,3 +28,19 @@ whisper_c_p = 0
 
 # a lock to ensure atomic (uninterrupted) operations while threads are running around
 CONCH = threading.Lock() 
+
+USING_UNIS = True
+UNIS_FAIL = -1
+rt = UNIS_FAIL
+
+if USING_UNIS:
+    try:
+        #from unis import Runtime # is there a difference?
+        from unis.runtime import Runtime   
+        from unis.models import Node, schemaLoader
+        rt = Runtime('http://localhost:9000')
+    except:
+        pass
+        
+def have_UNIS():
+    return rt != UNIS_FAIL        

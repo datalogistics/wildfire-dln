@@ -3,7 +3,7 @@
 '''**************************************************************************
 
 File: whisper.py
-Language: Python 3.7
+Language: Python 3.6/7
 Author: Juliette Zerick (jzerick@iu.edu)
         for the WildfireDLN Project
         OPEN Networks Lab at Indiana University-Bloomington
@@ -16,49 +16,103 @@ A number of threads were used to logically separate production and consumption
 of messages for ease of troubleshooting. The use of queues adds a cushion to
 avoid lost messages, providing some resiliency.
 
-Last modified: December 6, 2018
+Last modified: March 17, 2019
 
 ****************************************************************************'''
 
-import signal
-import sys
-import socket
-import argparse
-import subprocess
-import queue
-import random
-import threading
+import pathlib
+import os
+import copy
 
-from whisper_protocol import *
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.patches import Circle, Rectangle
+import mpl_toolkits.mplot3d.art3d as art3d
+
+from minion import *
 import whisper_globals as wg
+
+#TODO put this in settings file when the code stabilizes
 
 # for CoAP
 #import asyncio 
 #from aiocoap import *
 #import aiocoap.resource as resource
 
-# for UNISrt
-from unis.runtime import Runtime
-
 # for uploading files
 #import libdlt
 
-BROADCASTING = True
-RUNNING_BODILESS = False
-USING_C_HANDLER = True
-USING_UNIS = False
+# this is getting damned annoying
+import sys # if the following path does not exist, no error will be thrown
+sys.path.append('/usr/local/lib/python3.6/dist-packages') 
 
-def snooze_and_wait(Q):
-    while not wg.closing_time:
-        if Q.qsize() > 0:
-            try:
-                item = Q.get_nowait()
-                return item
-            except: # no message? snooze.
-                pass
-                
-        time.sleep(SNOOZE_TIME)
+USING_NAMES = False
+try:
+    import names
+    log.info('names package was imported successfully')
+    USING_NAMES = True
+except:
+    log.info('names package could not be imported')
 
+POP_SIZE = 2
+OUT_OF_RANGE = 10
+GRID_SIZE = 5 # square extending from (0,0) to (GRID_SIZE,GRID_SIZE)
+
+USING_PLOT = False
+
+SIM_TIMESTEP = 0.5 # in seconds
+SIM_RUNTIME = 6 # in seconds
+
+if SIM_TIMESTEP == 0:
+    NUM_ITERATIONS = 10 # default
+else:
+    NUM_ITERATIONS = int(SIM_RUNTIME / SIM_TIMESTEP)
+
+INBOX_IMP_COLOR = 'g'
+INBOX_IMP_MARKER = 'o'
+OUTBOX_IMP_COLOR = 'b'
+OUTBOX_IMP_MARKER = 'o'
+RESP_IMP_COLOR = 'r'
+RESP_IMP_MARKER = 'o'
+
+# pulled from the makefile and invoked in preflight_checks()
+# note that compilation will only succeed on the RPi; if wiringPi does not
+# recognize the hardware it's being run on, the library will avert its
+# inclusion.
+WHISPER_C_FN = 'whisper'
+MAKE_WHISPER = 'g++ -Wall -o %s -lwiringPi -pthread whisper.cpp' % (WHISPER_C_FN)
+MAKE_CLEAN = 'rm -rf __pycache__ edit %s *.o a.out *.pyc' % (WHISPER_C_FN)
+
+# pulled from the ferry code
+UNIS_URL="http://localhost:8888"
+LOCAL_UNIS_HOST="localhost"
+LOCAL_UNIS_PORT=9000
+
+PERISCOPE_PN = 'periscoped'
+PERISCOPE_LAUNCH = '%s -p %d' % (PERISCOPE_PN,LOCAL_UNIS_PORT)
+
+POSSIBLE_MINION_NAMES = ['Bob','Kevin','Stuart','Dave','Carl']
+
+def get_minion_name():
+    if USING_NAMES:
+        return names.get_first_name(gender='male')+str(random.randint(1,1000))
+        #return names.get_first_name(gender='male') # TODO put back
+
+    return random.choice(POSSIBLE_MINION_NAMES) + str(random.randint(1,POP_SIZE*100))
+
+def minion_dist(M,N):
+    d = np.sqrt((M.curr_lat - N.curr_lat)**2 + (M.curr_long - N.curr_long)**2)
+    return d
+
+# roughly interpolating an exponential distribution including these points:
+# (0,-20), (OUT_OF_RANGE,-120), (OUT_OF_RANGE/2,-50)
+def sim_RSSI(M,N):
+    d = minion_dist(M,N)
+    a = -np.log(4.533333)/OUT_OF_RANGE
+    b = -22.5
+    c = 2.5
+    return b*np.exp(a*d) + c
+    
 # Solution from Matt J (2009), then edited by Grimthorr (2018) at StackOverflow 
 # in response to the following posted question:
 # "How do I capture SIGINT in Python?" available at
@@ -68,507 +122,320 @@ def signal_handler(sig, frame):
     wg.closing_time = True
     time.sleep(SNOOZE_TIME)
     mopup()
-
-class minion:
-    def __init__(self,name,rt):
-        self.name = name
-        self.mac_addr = get_my_mac_addr()
-        self.rt = rt
     
-        # queues for managing incoming and outgoing messages
-        self.inbox_q = queue.Queue()
-        QUEUE_BUCKET.append(self.inbox_q)
-        self.outbox_q = queue.Queue()
-        QUEUE_BUCKET.append(self.outbox_q)
+# Solution from Jeremy Grifski of The Renegade Coder.
+# "How to Check if a File Exists in Python," posted February 17, 2018, available at:
+# <https://therenegadecoder.com/code/how-to-check-if-a-file-exists-in-python/>.
+# last accessed: December 21, 2018.
+def file_exists(fn):
+    p = pathlib.Path('./whisper') 
+    return p.is_file()
 
-        # additional queues for storing observed messages
-        self.carto_q = queue.Queue()
-        QUEUE_BUCKET.append(self.carto_q)
-        self.altar_q = queue.Queue()
-        QUEUE_BUCKET.append(self.altar_q)
+# Solution from 
+# Solution from mluebke (2011), then edited by monk-time (2017) at StackOverflow 
+# in response to the following posted question:
+# "Python check if a process is running or not?" available at
+# <https://stackoverflow.com/questions/7787120/python-check-if-a-process-is-running-or-not>.
+# last accessed: December 21, 2018.
+def process_running(pn):
+    return pn in (p.name() for p in psutil.process_iter())
 
-        # a message_store instance for managing transient memory 
-        self.msg_store = message_store()
+# check if whisper exists; if not, compile; check for daemons, etc. 
+def preflight_checks():
+    # was this script run with the Python 3 interpreter? 
+    major_version_num = sys.version_info[0]
+    minor_version_num = sys.version_info[1]
+
+    if major_version_num < 3:
+        log.error('must run with Python 3.x')
+        return False
+
+    # do we have UNIS?
+    if wg.USING_UNIS and not wg.have_UNIS():
+        log.critical('unable to connect to UNIS instance')
+        return False
+
+    # we're running on hardware
+    if not SIM_MODE:
+        # does whisper-c exist in compiled form?
+        if not file_exists(WHISPER_C_FN): # try compiling
+            log.error('whisper-c executable not found, attempting compilation')
+            os.system(MAKE_CLEAN)
+            os.system(MAKE_WHISPER)
         
-        # will be updated by main once threads establish sockets
-        self.incoming_port = 0
-        self.outgoing_port = 0
-
-        # socket IDs for incoming and outgoing ports
-        self.inc_s = 0
-        self.out_s = 0
-
-    # will be a freestanding thread; handles broadcasting
-    def promoter(self):
-        log.info('thread active')
-
-        while not wg.closing_time:
-            current_time = now()
-
-            for i in xrange(len(self.msg_store)-1,-1,-1): # avoid indexing issues
-                if self.msg_store.keys()[i].time_to_die > now:
-                    del self.msg_store[self.msg_store.keys()[i]]
-
-            for k in self.msg_store.keys():
-                p = self.msg_store.thresholds[k]
-
-                if random.random() < p:
-                    self.outbox_q.put(self.msg_store.inventory[k])
-
-            time.sleep(SNOOZE_TIME)
-
-    # handles requests for GPS location, tracks the location of other devices
-    def cartographer(self):
-        log.info('thread active')
-
-        while not wg.closing_time:
-            lmsg = snooze_and_wait(self.carto_q)
-            
-            if wg.closing_time:
-                break
-            
-            lmsg.hit_carto = True
-
-            # we've got mail!
-            log.debug('received mail %s' % lmsg.skey)
-            
-            # is this a request? if not, send it to UNIS to harvest information
-            if lmsg.msg_type in [MSG_TYPE_POS_UPDATE,MSG_TYPE_POS_RESPONSE]:
-                self.altar_q.put(lmsg)
-            
-            # we have a request. is it one this device needs to respond to?
-            if lmsg.recipient_addr != self.mac_addr and not lmsg.multicast:
-                del lmsg
-                continue
-            
-            curr_lat, curr_long = retrieve_gps()
-            lmsg.response_payload = '%f,%f' % (curr_lat,curr_long)
-            lmsg.send_response(self.mac_addr,self.outbox_q,self.msg_store)
-            
-        log.info('closing time, shutting down')
-        
-    # only receives messages with saturation requests
-    def continue_bloom(self,lmsg):
-        if not lmsg.saturation_req:
-            return
-        
-        def bloom():
-            return '%d,%s,%f' % (lmsg.bloom_count + 1, lmsg.init_sender_addr,lmsg.init_send_time)
-
-        # defaults, changed as necessary
-        RECIP_FIELD = lmsg.recipient_addr
-        SAT_FIELD = bloom()
-
-        SENDER_FIELD = self.mac_addr
-        TIME_FIELD = now()
-        MSG_TYPE_FIELD = lmsg.msg_type
-        PAYLOAD = lmsg.payload 
-        RESERVED_FIELD = RESERVED_DEFAULT
-
-        F = [RECIP_FIELD,SAT_FIELD,SENDER_FIELD,TIME_FIELD,MSG_TYPE_FIELD,PAYLOAD,RESERVED_FIELD]
-        lmsg.gen_response_pkt(F)
-        
-        log.debug('amplified %s' % (lmsg.skey))
-        self.msg_store.incorporate(lmsg.response_lmsg)  
-
-    # dedicated to the unnamed Postal Sorting Alien from "Men in Black II"
-    def postal_sorter(self):
-        log.info('many-armed thread active')
-
-        while not wg.closing_time:
-            lmsg = snooze_and_wait(self.inbox_q)
-
-            if wg.closing_time:
-                break        
-            
-            if not lmsg.pkt_valid:
-                log.debug('received mail was invalid %s' % (lmsg.initial_pkt))
-                continue
-            
-            lmsg.hit_sorter = True
-
-            # we've got mail!
-            log.debug('got mail %s' % lmsg.skey)
-
-            # have we seen this before? update the inventory. in the case of non-saturation
-            # requests, the conditional prevents this device from replying repeatedly.
-            if lmsg.key in self.msg_store.inventory:
-                self.msg_store.update_inventory(lmsg)
-                continue
-
-            # push along packets with saturation requests, unless this device is
-            # the intended recipient, or if it's a multicast
-            if lmsg.saturation_req and (lmsg.recipient_addr != self.mac_addr or lmsg.multicast):
-                flyer = copy.deepcopy(lmsg)
-                self.continue_bloom(flyer)
-
-            # accept any responses to harvest for data
-            
-            # don't accept requests unless this device needs to respond to them
-            if msg_type_is_request(lmsg.msg_type) \
-                and not (lmsg.recipient_addr == self.mac_addr or lmsg.multicast):
-                # don't delete the message in the event it requested saturation
-                continue
-
-            if lmsg.msg_type in ALTAR_KEEPER_DOMAIN:
-                self.altar_q.put(lmsg)        
-
-            elif lmsg.msg_type in CARTOGRAPHER_DOMAIN:
-                self.carto_q.put(lmsg)
-
-    # takes in requests from special altar_q
-    def altar_keeper(self):
-        log.info('thread active')
-
-        if USING_UNIS:
-            my_hostname = socket.gethostname()
-            my_ferry_exnode = rt.nodes.where({"name": my_hostname})
-
-        # get the names of exnodes already present in UNIS
-        MAC2index = {}
-        MAC2GPS = {}
-
-        while not wg.closing_time:
-            # note: the following is draft code
-
-            # don't use snooze_and_wait for this. see the sleep call under except:
-            try:
-                lmsg = self.altar_q.get_nowait()
-            except: 
-                time.sleep(SNOOZE_TIME)
-
-                # searching and creating: near-polynomial time
-                # recreating the mapping: linear time
-                '''
-                del MAC2index
-                MAC2index = {}
-                
-                for i in range(len(self.rt.exnodes)):
-                    MAC2index[exn.MAC] = i
-                '''
-                continue
-
-            if wg.closing_time:
-                break
-
-            if lmsg.msg_type in [MSG_TYPE_POS_UPDATE,MSG_TYPE_POS_RESPONSE]:
-                s = lmsg.payload.split(',')
-                c = (float(s[0]),float(s[1]))
-
-                if lmsg.saturation_req:
-                    MAC2GPS[lmsg.init_sender_addr] = c
-                    obs_obj = lmsg.init_sender_addr
-                    obs_time = lmsg.init_send_time 
-                else:
-                    MAC2GPS[lmsg.sender_addr] = c
-                    obs_obj = lmsg.sender_addr
-                    obs_time = lmsg.send_time
-
-                log.info('observed %s@(%f,%f) at t=%f' % (obs_obj, c[0],c[1],obs_time))
-
-            continue
-
-            # TODO TODO TODO TODO 
-
-            lmsg.hit_altar = True
-
-            # is this a message from which to harvest information?
-
-
-            # format: command,MAC address of relevant device,variable to update,updated value
-
-            M = lmsg.split(',')
-            if len(M) < 3 or len(M) > 4:
-                del lmsg
-                continue    
-
-            action_type = M[0].upper()
-            if action_type not in ['POST','GET']:
-                del lmsg
-                continue
-
-            dev_id = M[1]
-            if not is_plausible_MAC_addr(dev_id):
-                del lmsg
-                continue
-
-            var_name = M[2]
-
-            # default response
-            S = 'ERROR'
-
-            if action_type == 'POST': # absorb the new information
-                updated_val = M[3]
-                S = 'self.rt.exnodes[%d].%s = %s' % (MAC2index(dev_id),var_name,str(updated_val))
-                
-                try:
-                    exec(S)
-                except NameError:
-                    pass
-            elif action_type == 'GET': # return requested information
-                S = 'self.rt.exnodes[%d].%s' % (MAC2index(dev_id),var_name)
-
-                try:
-                    val = eval(S)
-                except NameError:
-                    pass
-
-            lmsg.response_payload = S
-            lmsg.send_response(self.mac_addr,self.outbox_q,self.msg_store)
-
-    # listens for messages from whisper-c via socket, pushes received messages to the
-    # inbox_Q
-    def c_listener(self):
-        log.info('thread active')
-
-        self.incoming_port = find_free_port()
-
-        self.inc_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.inc_s.bind(('localhost', self.incoming_port))
-        SOCKET_BUCKET.append(self.inc_s)
-
-        log.info('listening on port %d...' % (self.incoming_port))
-        self.inc_s.listen(1)
-        inc_conn, inc_addr = self.inc_s.accept()
-
-        log.info('connector address is %s' % (str(inc_addr)))
-
-        while not wg.closing_time:
-            if wg.whisper_c_is_dead:
-                log.info('listening on port %d...' % (self.incoming_port))
-                self.inc_s.listen(1)
-                inc_conn, inc_addr = self.inc_s.accept()
-
-                log.info('connector address is %s' % (str(inc_addr)))
-
-            try:
-                stream = inc_conn.recv(BUFFER_SIZE)
-            except:
-                log.debug('whisper-c is dead?')
-                wg.whisper_c_is_dead = True
-                continue
-
-            if not stream:
-                #print ('waiting for a message')
-                time.sleep(SNOOZE_TIME)
-                continue
-
-            # hack off a piece of the stream, then put it in pkt
-            try: # this can blow up
-                pkt = stream.decode()
-            except:
-                continue
-
-            log.debug("received packet: %s" % (pkt))
-
-            msg = lora_message(pkt)
-
-            if msg.pkt_valid:
-                self.inbox_q.put(msg)
-            else:
-                log.warning('PACKET INVALID')
-
-            time.sleep(SNOOZE_TIME)
-
-        log.info('closing time! shutting down')        
-
-    # sends messages to whisper-c via socket, pulling from the outbox_q
-    def c_speaker(self):
-        log.info('thread active')
-
-        self.outgoing_port = find_free_port()
-
-        self.out_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.out_s.bind(('localhost', self.outgoing_port))
-        SOCKET_BUCKET.append(self.out_s)
-
-        log.info('listening on port %d...' % (self.outgoing_port))
-        self.out_s.listen(1)
-        out_conn, out_addr = self.out_s.accept()
-
-        log.info('connector address is %s' % (str(out_addr)))
-
-        # if response not ready, put it back in the queue
-        while not wg.closing_time:
-            if wg.whisper_c_is_dead:
-                log.info('listening on port %d...' % (self.outgoing_port))
-                self.out_s.listen(1)
-                out_conn, out_addr = self.out_s.accept()
-
-                log.info('connector address is %s' % (str(out_addr)))
-
-            # pull something from the queue here
-            lmsg = snooze_and_wait(self.outbox_q)
-            
-            if wg.closing_time:
-                break        
-
-            # keep this code in the event it's needed in the future:
-            # check for the response payload as an indicator of readiness
-            #try:
-            #    lmsg.response # not lmsg.response_payload
-            #except: # if not, put it back in queue
-            #    outbox_q.put(lmsg)
-            #    continue
-
-            # got something! send it.
-            pkt = lmsg.form_pkt()
-
-            try:
-                ret_val = out_conn.send(pkt.encode())
-            except: # if we can't send, we have problems
-                retval = False
-          
-            if not ret_val: 
-                self.outbox_q.put(pkt)
-                log.debug('whisper-c is dead?')
-                wg.whisper_c_is_dead = True
-                continue
-
-            time.sleep(1)
-            log.info("sent packet: %s" % (pkt))
-            #time.sleep(SNOOZE_TIME)
-
-    def broadcaster(self):
-        while not wg.closing_time:
-            pkt = '%s/0/%s/%f/%d/wdln//-42|' % (MULTICAST,self.mac_addr,now(),
-                MSG_TYPE_POS_REQUEST)
-
-            lmsg = lora_message(pkt)
-            log.info('put dummy request in queue')
-            self.outbox_q.put(lmsg)
-            time.sleep(5)
-
-    def summon_broadcaster(self):
-        self.broadcaster_t = threading.Thread(target=self.broadcaster, args = [])
-        self.broadcaster_t.daemon = True # so it does with the host process
-        THREAD_BUCKET.append(self.broadcaster_t) # for easier cleanup
-        self.broadcaster_t.start()
-
-    # summon threads to communicate with wihsper-c
-    def summon_comms_threads(self):
-        self.c_listener_t = threading.Thread(target=self.c_listener, args = [])
-        self.c_listener_t.daemon = True # so it does with the host process
-        THREAD_BUCKET.append(self.c_listener_t) # for easier cleanup
-        self.c_listener_t.start()
-
-        self.c_speaker_t = threading.Thread(target=self.c_speaker, args = [])
-        self.c_speaker_t.daemon = True # so it does with the host process
-        THREAD_BUCKET.append(self.c_speaker_t) # for easier cleanup
-        self.c_speaker_t.start()
-
-    # a handler for whisper-c when stable enough to run unsupervised
-    def c_handler(self):
-        start_whisper_c(self.outgoing_port,self.incoming_port)
+        # if compilation failed, bail
+        if not file_exists(WHISPER_C_FN):
+            log.critical('whisper-c compilation failed')
+            return False
     
-        while not wg.closing_time: 
-            if wg.whisper_c_is_dead:
-                dispose_of_whisper_c() # whisper-c is dead
-                start_whisper_c(self.outgoing_port,self.incoming_port) # long live whisper-c
-                wg.whisper_c_is_dead = False
+    # is periscoped running?
+    '''
+    if not process_running(PERISCOPE_PN):
+        # try launching it
+        os.system(PERISCOPE_LAUNCH)
+    
+    # if launching failed, bail
+    if not process_running(PERISCOPE_PN): 
+        log.error('periscoped not found')
+        return False
+    '''
+    
+    return True
 
-            # check if the proess is still running  
-            poll = wg.whisper_c_p.poll()
-            if poll != None:
-                wg.whisper_c_is_dead = True
-                continue
+def gen_horde_coord():
+    return random.random()*GRID_SIZE
 
-            try:
-                msg = p.stdout.readline().strip('\n')
-            except: # no message? snooze.
-                time.sleep(SNOOZE_TIME)
-                continue
+# vertical zero vector of length POP_SIZE, transposed for readability
+def get_zero_vec(): # note that numpy.matrix is deprecated
+    v = np.zeros((1,POP_SIZE),dtype='int32') # arrays are recommended
+    return v
 
-            if len(msg) > 0:
-                log.info('\t',msg)
+# square zero matrix of dimension POP_SIZE x POP_SIZE
+def get_zero_mat(): # note that numpy.matrix is deprecated
+    m = np.zeros((POP_SIZE,POP_SIZE),dtype='int32') # arrays are recommended
+    return m
 
-    # summon a thread to handle the whisper-c instance, when sufficiently
-    # stable to run unsupervised
-    def summon_handler(self):
-        while self.incoming_port == 0 or self.outgoing_port == 0:
-            log.info('waiting for ports to be acquired')
-            time.sleep(SNOOZE_TIME)   # reversed for whisper mirror in C
+class minionfest:
+    def __init__(self):
+        self.rt = wg.rt
+        self.horde = []
+    
+        for i in range(POP_SIZE):
+            # are there female minions? thus far only males have been observed. 
+            minion_name = get_minion_name()
+            minion_lat = gen_horde_coord()
+            minion_long = gen_horde_coord()
+            self.horde.append(minion(minion_name,self.rt))
+            
+            self.horde[i].begin()
+            self.horde[i].curr_lat = minion_lat
+            self.horde[i].curr_long = minion_long
+            
+            log.info('minion %s is located at (%f,%f)' % (minion_name,minion_long,minion_lat))
 
-        self.c_handler_t = threading.Thread(target=self.c_handler, args=[])
-        self.c_handler_t.daemon = True # so it does with the host process
-        THREAD_BUCKET.append(self.c_handler_t) # for easier cleanup
-        self.c_handler_t.start()
+        self.fig = plt.figure()
+        self.ax = self.fig.add_subplot(111, projection='3d')
+        self.ax.set_xlabel('longitude')
+        self.ax.set_ylabel('latitude')
+        self.ax.set_zlabel('time')
+        
+        self.ax.set_xlim3d(0,GRID_SIZE)
+        self.ax.set_ylim3d(0,GRID_SIZE)
+        self.ax.set_zlim3d(now(),now()+3)
+    
+        self.summon_field_master()
+            
+    def within_range(self,M,N):
+        return minion_dist(M,N) < OUT_OF_RANGE
+            
+    def field_master(self):
+        log.info('thread active')
+    
+        if USING_PLOT:
+            for M in self.horde:
+                r = Rectangle((M.curr_long,M.curr_lat),0.5,0.5,alpha=1,\
+                    ec = "green", fc = "lime")
+                self.ax.add_patch(r)
+                art3d.pathpatch_2d_to_3d(r, z=now(), zdir="z")               
 
-    def summon_keepers(self):#rt):
-        self.altar_t = threading.Thread(target=self.altar_keeper,args=[])#rt])
-        self.altar_t.daemon = True # so it does with the host process
-        THREAD_BUCKET.append(self.altar_t) # for easier cleanup
-        self.altar_t.start()
+            #plt.legend([r], ['WDLN device'])
+                
+        added_blast_to_legend = False   
+    
+        while not wg.closing_time:
+            for M in self.horde:
+                for msg in M.dump_outbox():
+                    if USING_PLOT:
+                        # alpha = 1 => opaque
+                        # alpha = 0 => transparent
+                        c = Circle((M.curr_long,M.curr_lat),OUT_OF_RANGE,alpha=0.2,\
+                            ec = "black", fc = "CornflowerBlue")
+                        self.ax.add_patch(c)
+                        art3d.pathpatch_2d_to_3d(c, z=now(), zdir="z")
+                        
+                        if not added_blast_to_legend:
+                            plt.legend([r,c], ['WDLN device', 'message broadcast radius'])                         
+                            added_blast_to_legend = True
+                                    
+                    for N in self.horde:
+                        # some redundant computation here
+                        if N != M and self.within_range(M,N) and N.is_listening:
+                            reissued = copy.deepcopy(msg)
+                            reissued.RSSI_val = sim_RSSI(M,N)
+                            N.inbox_q.put(reissued)
+                            log.debug('transferred %s -> %s' % (M.name,N.name))
+        
+    def summon_field_master(self):
+        fm_t = threading.Thread(target=self.field_master, args = [])
+        fm_t.daemon = True # so it does with the host process
+        THREAD_BUCKET.append(fm_t) # for easier cleanup
+        fm_t.start()
+        self.fm_t = fm_t
 
-        self.post_t = threading.Thread(target=self.postal_sorter)
-        self.post_t.daemon = True # so it does with the host process
-        THREAD_BUCKET.append(self.post_t) # for easier cleanup
-        self.post_t.start()
+    def get_inbox_imprint(self,lmsg,t):
+        if not SIM_MODE:
+            return get_zero_vec()
+    
+        v = get_zero_vec()
+        K = lmsg.sim_key
+        for i in range(len(self.horde)):
+            M = self.horde[i]
+            if K in M.inbox_record.keys():
+                M.inbox_record[K]
+                v[0,i] = M.inbox_record[K]
+                
+                if USING_PLOT:
+                    x = M.curr_long
+                    y = M.curr_lat
+                    
+                    if (x,y) not in self.inbox_imprint_bin:
+                        #self.ax.scatter(x,y,t,c=INBOX_IMP_COLOR,marker=INBOX_IMP_MARKER)
+                        self.inbox_imprint_bin.add((x,y))
 
-        self.carto_t = threading.Thread(target=self.cartographer)
-        self.carto_t.daemon = True # so it does with the host process
-        THREAD_BUCKET.append(self.carto_t) # for easier cleanup
-        self.carto_t.start()
+        return v
 
-    def begin(self):
-        self.summon_comms_threads()
-  
-        # wait for the threads to start up
-        time.sleep(3)
+    def get_outbox_imprint(self,lmsg,t):
+        if not SIM_MODE:
+            return get_zero_vec()
+    
+        v = get_zero_vec()
+        K = lmsg.sim_key
+        for i in range(len(self.horde)):
+            M = self.horde[i]
+            if K in M.outbox_record.keys():
+                v[0,i] = M.outbox_record[K]
+                
+                if USING_PLOT:
+                    x = M.curr_long
+                    y = M.curr_lat
+                    
+                    if (x,y) not in self.outbox_imprint_bin:
+                        #self.ax.scatter(x,y,t,c=OUTBOX_IMP_COLOR,marker=OUTBOX_IMP_MARKER)
+                        self.outbox_imprint_bin.add((x,y))
+                    
+        return v 
 
-        self.summon_keepers()#rt)
+    def get_response_imprint(self,lmsg,t):
+        if not SIM_MODE:
+            return get_zero_vec()
 
-        # summon the c-handler or print out the ports to start the process manually
-        if USING_C_HANDLER:
-            self.summon_handler()
-        else: # notify the user they need to run whisper-c manually
-            log.warning(\
+        v = get_zero_vec()
+        K = lmsg.sim_key
+        for i in range(len(self.horde)):
+            M = self.horde[i]
+            if K in M.response_record.keys():
+                R = M.response_record[K] # get the response
+                v[0,i] = M.outbox_record[R] # match the observation in the outbox
+
+                if USING_PLOT:
+                    x = M.curr_long
+                    y = M.curr_lat
+
+                    if (x,y) not in self.response_imprint_bin:
+                        #self.ax.scatter(x,y,t,c=RESP_IMP_COLOR,marker=RESP_IMP_MARKER)
+                        self.response_imprint_bin.add((x,y))
+
+        return v         
+
+    def run(self):
+        # insert item
+        if len(self.horde) > 0:
+            first_minion = self.horde[0]
+        
+            # test: requests position with saturation - passed
+            #plmsg = self.horde[0].prod_flood(MULTICAST,MSG_TYPE_POS_REQUEST,'tagh')
+            
+            # TODO move this to a Jupyter notebook
+            
+            # for your UNIS integration testing pleasure, the options are:
+            '''
+            MSG_TYPE_UNIS_POST_NOTIF
+            MSG_TYPE_UNIS_POST_ACK_REQ
+            MSG_TYPE_UNIS_POST_ACK
+            MSG_TYPE_UNIS_GET_REQUEST 
+            MSG_TYPE_UNIS_GET_RESPONSE 
+            '''
+            
+            # test: posts data - passed
+            '''
+            msg_type = MSG_TYPE_UNIS_POST_NOTIF            
+            dev_id = first_minion.node.dev_id
+            var_name = 'name'
+            val = first_minion.name
+            message = '%s,%s,%s' % (dev_id,var_name,str(val))
+            plmsg = first_minion.prod_flood(MULTICAST,msg_type,message)
             '''
 
-            The c-handler has not been selected for use. Please manually execute
-            the whisper module with ports being used, i.e. run the following:
+            # test: MSG_TYPE_UNIS_GET_REQUEST, var exists - passed
+            '''         
+            msg_type = MSG_TYPE_UNIS_GET_REQUEST            
+            dev_id = first_minion.node.dev_id
+            var_name = 'name'
+            val = first_minion.name
+            message = '%s,%s' % (ANY_DEVICE,var_name)
+            plmsg = first_minion.prod_flood(MULTICAST,msg_type,message)             
+            '''
 
-            ./whisper %d %d
-
-            ''' % (self.outgoing_port,self.incoming_port))
-
-        if BROADCASTING:
-            self.summon_broadcaster()    
-
-#TODO check if whisper exists; if not, compile; check for daemons, etc.
-def pre_flight_checks():
-    return
+            # test: MSG_TYPE_UNIS_GET_REQUEST, when var does not exist - passed
+            '''
+            msg_type = MSG_TYPE_UNIS_GET_REQUEST            
+            dev_id = first_minion.node.dev_id
+            var_name = 'nonexistent'
+            val = first_minion.name
+            message = '%s,%s' % (ANY_DEVICE,var_name)
+            plmsg = first_minion.prod_flood(MULTICAST,msg_type,message)   
+            '''
+                      
+            # test: MSG_TYPE_UNIS_POST_ACK_REQ
+            '''
+            msg_type = MSG_TYPE_UNIS_POST_ACK_REQ            
+            dev_id = first_minion.node.dev_id
+            var_name = 'name'
+            val = first_minion.name
+            message = '%s,%s,%s' % (dev_id,var_name,str(val))
+            plmsg = first_minion.prod_flood(MULTICAST,msg_type,message)  
+            '''
             
+        self.outbox_imprint_bin = set()
+        self.inbox_imprint_bin = set()
+        self.response_imprint_bin = set()        
+        
+        start_time = now()
+        L = []
+        for t in range(NUM_ITERATIONS):
+            v = self.get_inbox_imprint(plmsg,now())
+            
+            if np.sum(v) == POP_SIZE - 1:
+                 end_time = now()
+                 break
+            
+            time.sleep(SIM_TIMESTEP)
+            L.append(np.sum(v) / (POP_SIZE - 1))
+        
+        if USING_PLOT:
+            plt.show()
+        
+        time.sleep(10)
+        wg.closing_time = True
+       
 def main():
     signal.signal(signal.SIGINT, signal_handler)
 
-    rt = -1
-
-    if USING_UNIS:
-        # use fqdn to determine local endpoints
-        name = socket.gethostname()
-        fqdn = socket.getfqdn()
-
-        UNIS_URL="http://localhost:8888"
-
-        LOCAL_UNIS_HOST="localhost"
-        LOCAL_UNIS_PORT=9000
-
-        LOCAL_DEPOT={"ibp://{}:6714".format(fqdn): { "enabled": True}}
-        LOCAL_UNIS = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
-
-        urls = [{"default": True, "url": LOCAL_UNIS}]
-        opts = {"cache": { "preload": ["nodes", "services", "exnodes"]}}
-
-        rt = Runtime(urls, **opts)
-        #sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)
-
-    bob = minion('bob',rt)
-    bob.begin()
+    if not preflight_checks():
+        log.critical('preflight checks failed, bailing!')
+        exit(1)
+    
+    if SIM_MODE:
+        log.info('simulation starting')
+        sim = minionfest()
+        sim.run()
+    else:
+        bob = minion('bob',wg.rt)
+        bob.begin()
+   
     
     while not wg.closing_time:
         time.sleep(SNOOZE_TIME)  
 
 if __name__ == "__main__":
     main()
-
