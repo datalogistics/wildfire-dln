@@ -77,6 +77,10 @@ LOCAL_UNIS_PORT=9000
 PERISCOPE_PN = 'periscoped'
 PERISCOPE_LAUNCH = '%s -p %d' % (PERISCOPE_PN,LOCAL_UNIS_PORT)
 
+DATA_FOR_TESSA = True
+TESSA_DATA_FN = 'data_for_tessa.csv'
+tessa_data_fh = open(TESSA_DATA_FN,'w')
+
 def get_minion_name():
     # alternatively, if not testing with a shared instance of UNISrt
     #return names.get_first_name()
@@ -224,6 +228,9 @@ class minionfest:
                 
         added_blast_to_legend = False   
     
+        if DATA_FOR_TESSA:
+            tessa_data_fh.write('FROM_LAT,FROM_LONG,FROM_NAME,TO_LAT,TO_LONG,TO_NAME,SIM_RSSI,MSG_KEY,TIME\n')
+    
         while not wg.closing_time:
             for M in self.horde:
                 for msg in M.dump_outbox():
@@ -246,6 +253,23 @@ class minionfest:
                             reissued.RSSI_val = sim_RSSI(M,N)
                             N.inbox_q.put(reissued)
                             log.data_flow('transferred %s -> %s' % (M.name,N.name))
+                            
+                            if DATA_FOR_TESSA:
+                                from_lat = M.curr_lat
+                                from_long = M.curr_long
+                                from_name = M.name
+                                
+                                to_lat = N.curr_lat
+                                to_long = N.curr_long
+                                to_name = N.name
+                                
+                                sim_rssi = reissued.RSSI_val
+                                lmsg_key = reissued.key
+                            
+                                tessa_data_fh.write('%f,%f,%s,%f,%f,%s,%f,%s,%f\n' % \
+                                    (from_lat,from_long,from_name, \
+                                    to_lat,to_long,to_name, \
+                                    sim_rssi,lmsg_key,now()))
         
     def summon_field_master(self):
         fm_t = threading.Thread(target=self.field_master, args = [])
@@ -418,4 +442,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
