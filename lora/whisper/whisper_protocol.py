@@ -61,7 +61,7 @@ class table_entry:
     def __init__(self,original_sender,bloom_count,relaying_node,last_observed):
         self.original_sender = original_sender
         self.bloom_count = bloom_count
-        self.relaying_node = relaying_node # TODO remove?
+        self.relaying_node = relaying_node 
         self.last_observed = last_observed
 
 class routing_table:
@@ -91,7 +91,7 @@ class message_store:
         self.thresholds = {}
         self.stock = {}
         
-        log.info('msg_store is active')
+        log.msg_store_updates('msg_store is active')
 
     def update_inventory(self,lmsg):
         self.inventory[lmsg.key] = self.inventory[lmsg.key] + 1
@@ -305,12 +305,14 @@ class lora_message:
         for i in range(3):
             try:
                 self.response_payload
-            except: #TODO
+            except: 
                 log.debug('message waiting to send')
                 time.sleep(SNOOZE_TIME)
                 continue
 
-        if i == 3: # TODO add error?
+        # could throw an error, but if this device can't send, odds are the entire 
+        # system is about to implode shortly
+        if i == 3: 
             return 
 
         if self.multicast:
