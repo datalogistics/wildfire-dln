@@ -16,7 +16,7 @@ A number of threads were used to logically separate production and consumption
 of messages for ease of troubleshooting. The use of queues adds a cushion to
 avoid lost messages, providing some resiliency.
 
-Last modified: March 17, 2019
+Last modified: March 26, 2019
 
 ****************************************************************************'''
 
@@ -32,20 +32,6 @@ import mpl_toolkits.mplot3d.art3d as art3d
 from minion import *
 import whisper_globals as wg
 
-#TODO put this in settings file when the code stabilizes
-
-# for CoAP
-#import asyncio 
-#from aiocoap import *
-#import aiocoap.resource as resource
-
-# for uploading files
-#import libdlt
-
-# this is getting damned annoying
-import sys # if the following path does not exist, no error will be thrown
-sys.path.append('/usr/local/lib/python3.6/dist-packages') 
-
 USING_NAMES = False
 try:
     import names
@@ -54,11 +40,11 @@ try:
 except:
     log.info('names package could not be imported')
 
-POP_SIZE = 2
-OUT_OF_RANGE = 10
-GRID_SIZE = 5 # square extending from (0,0) to (GRID_SIZE,GRID_SIZE)
+POP_SIZE = 100
+OUT_OF_RANGE = 7
+GRID_SIZE = 20 # square extending from (0,0) to (GRID_SIZE,GRID_SIZE)
 
-USING_PLOT = False
+USING_PLOT = True
 
 SIM_TIMESTEP = 0.5 # in seconds
 SIM_RUNTIME = 6 # in seconds
@@ -91,15 +77,11 @@ LOCAL_UNIS_PORT=9000
 PERISCOPE_PN = 'periscoped'
 PERISCOPE_LAUNCH = '%s -p %d' % (PERISCOPE_PN,LOCAL_UNIS_PORT)
 
-POSSIBLE_MINION_NAMES = ['Bob','Kevin','Stuart','Dave','Carl']
-
 def get_minion_name():
-    if USING_NAMES:
-        return names.get_first_name(gender='male')+str(random.randint(1,1000))
-        #return names.get_first_name(gender='male') # TODO put back
-
-    return random.choice(POSSIBLE_MINION_NAMES) + str(random.randint(1,POP_SIZE*100))
-
+    # alternatively, if not testing with a shared instance of UNISrt
+    #return names.get_first_name()
+    return names.get_first_name()+str(random.randint(1,1000))
+        
 def minion_dist(M,N):
     d = np.sqrt((M.curr_lat - N.curr_lat)**2 + (M.curr_long - N.curr_long)**2)
     return d
@@ -150,6 +132,18 @@ def preflight_checks():
         log.error('must run with Python 3.x')
         return False
 
+    # is periscoped running? redundant but leave in case needed later
+    '''
+    if not process_running(PERISCOPE_PN):
+        # try launching it
+        os.system(PERISCOPE_LAUNCH)
+    
+    # if launching failed, bail
+    if not process_running(PERISCOPE_PN): 
+        log.error('periscoped not found')
+        return False
+    '''
+
     # do we have UNIS?
     if wg.USING_UNIS and not wg.have_UNIS():
         log.critical('unable to connect to UNIS instance')
@@ -167,18 +161,6 @@ def preflight_checks():
         if not file_exists(WHISPER_C_FN):
             log.critical('whisper-c compilation failed')
             return False
-    
-    # is periscoped running?
-    '''
-    if not process_running(PERISCOPE_PN):
-        # try launching it
-        os.system(PERISCOPE_LAUNCH)
-    
-    # if launching failed, bail
-    if not process_running(PERISCOPE_PN): 
-        log.error('periscoped not found')
-        return False
-    '''
     
     return True
 
@@ -205,13 +187,13 @@ class minionfest:
             minion_name = get_minion_name()
             minion_lat = gen_horde_coord()
             minion_long = gen_horde_coord()
-            self.horde.append(minion(minion_name,self.rt))
+            self.horde.append(minion(minion_name))
             
             self.horde[i].begin()
             self.horde[i].curr_lat = minion_lat
             self.horde[i].curr_long = minion_long
             
-            log.info('minion %s is located at (%f,%f)' % (minion_name,minion_long,minion_lat))
+            log.data_flow('minion %s is located at (%f,%f)' % (minion_name,minion_long,minion_lat))
 
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
@@ -229,7 +211,7 @@ class minionfest:
         return minion_dist(M,N) < OUT_OF_RANGE
             
     def field_master(self):
-        log.info('thread active')
+        log.data_flow('thread active')
     
         if USING_PLOT:
             for M in self.horde:
@@ -263,7 +245,7 @@ class minionfest:
                             reissued = copy.deepcopy(msg)
                             reissued.RSSI_val = sim_RSSI(M,N)
                             N.inbox_q.put(reissued)
-                            log.debug('transferred %s -> %s' % (M.name,N.name))
+                            log.data_flow('transferred %s -> %s' % (M.name,N.name))
         
     def summon_field_master(self):
         fm_t = threading.Thread(target=self.field_master, args = [])
@@ -343,9 +325,7 @@ class minionfest:
             first_minion = self.horde[0]
         
             # test: requests position with saturation - passed
-            #plmsg = self.horde[0].prod_flood(MULTICAST,MSG_TYPE_POS_REQUEST,'tagh')
-            
-            # TODO move this to a Jupyter notebook
+            plmsg = self.horde[0].prod_flood(MULTICAST,MSG_TYPE_POS_REQUEST,'tagh')
             
             # for your UNIS integration testing pleasure, the options are:
             '''
@@ -412,11 +392,11 @@ class minionfest:
             time.sleep(SIM_TIMESTEP)
             L.append(np.sum(v) / (POP_SIZE - 1))
         
-        if USING_PLOT:
-            plt.show()
-        
         time.sleep(10)
         wg.closing_time = True
+        
+        if USING_PLOT:
+            plt.show()
        
 def main():
     signal.signal(signal.SIGINT, signal_handler)
@@ -433,9 +413,9 @@ def main():
         bob = minion('bob',wg.rt)
         bob.begin()
    
-    
     while not wg.closing_time:
         time.sleep(SNOOZE_TIME)  
 
 if __name__ == "__main__":
     main()
+
