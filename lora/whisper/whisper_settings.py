@@ -11,7 +11,7 @@ the code, such as the logger and the *BUCKETs used to provide a smooth
 shutdown. Additionally there are utilities for checking the validity of
 input data, and tests to show the utilities are working properly. 
 
-Last modified: March 18, 2019
+Last modified: March 25, 2019
 
 ****************************************************************************'''
 
@@ -26,6 +26,11 @@ import queue
 import subprocess
 import socket
 from contextlib import closing
+
+# for CoAP, if so desired
+#import asyncio 
+#from aiocoap import *
+#import aiocoap.resource as resource
 
 import whisper_globals as wg
 
@@ -54,7 +59,7 @@ RECEPTION_UPDATES_LEVEL_NUM = 8
 DATA_FOR_TESSA_LEVEL_NUM = 9
 
 # place the level number constants of the loggers you are interested in, as listed above
-SELECTED_LOGGERS = [UNIS_UPDATES_LEVEL_NUM,DATA_FLOW_LEVEL_NUM]
+SELECTED_LOGGERS = [DATA_FLOW_LEVEL_NUM,DATA_FOR_TESSA_LEVEL_NUM]
 
 counter = 11
 for level in SELECTED_LOGGERS:
@@ -69,7 +74,7 @@ for level in SELECTED_LOGGERS:
     elif level == DATA_FOR_TESSA_LEVEL_NUM: DATA_FOR_TESSA_LEVEL_NUM = counter
     counter += 1
     
-LOGGER_LEVEL = 10
+LOGGER_LEVEL = min(SELECTED_LOGGERS)
 
 logging.addLevelName(THREAD_STATUS_UPDATES_LEVEL_NUM, "THREAD_STATUS_UPDATES")
 def logger_thread_status_upates(self, message, *args, **kws):
@@ -263,7 +268,7 @@ def get_my_mac_addr():
     original_mac_address = getnode()
     hex_mac_address = str(":".join(re.findall('..', '%012x' % original_mac_address)))
 
-    return hex_mac_address
+    return normalize_addr(hex_mac_address)
 
 MESSAGE_DELIMITER = '/'
 MESSAGE_TERMINATOR = '|'
@@ -583,7 +588,7 @@ def test_tests():
     if is_plausible_RSSI_value('A'): return False
     if not is_plausible_RSSI_value('-21.5'): return False
 
-    if normalize_addr('01:a2:3d:1d:9e:55') != '01A23D1D9E55':
+    if normalize_addr('01:a2:3d:1d:9e:55') != '01a23d1d9e55':
         return False
 
     for R in RESPONSES:
