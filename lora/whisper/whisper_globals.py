@@ -11,7 +11,7 @@ for which the global reserved word proved insufficient. Global locks and flags,
 including closing_time, hwich is used to synchronize across many files to
 perform a smooth shutdown. 
 
-Last modified: March 17, 2019
+Last modified: March 26, 2019
 
 ****************************************************************************'''
 
@@ -29,6 +29,9 @@ whisper_c_p = 0
 # a lock to ensure atomic (uninterrupted) operations while threads are running around
 CONCH = threading.Lock() 
 
+# for uploading files
+#import libdlt
+
 USING_UNIS = True
 UNIS_FAIL = -1
 rt = UNIS_FAIL
@@ -43,4 +46,4 @@ if USING_UNIS:
         pass
         
 def have_UNIS():
-    return rt != UNIS_FAIL        
+    return rt != UNIS_FAIL
