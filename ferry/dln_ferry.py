@@ -33,6 +33,8 @@ def register(rt, name, fqdn):
     def do_register(rt, name, fqdn):
         global n
         global s
+
+        log.info("Registering Ferry Node")
         
         n = rt.nodes.where({"name": name})
         try:
@@ -74,7 +76,8 @@ def register(rt, name, fqdn):
                 #import traceback
                 #traceback.print_exc()
                 log.error("Could not update node/service resources: {}".format(e))
-                if rcount > settings.RETRY_COUNT:
+                if rcount >= settings.RETRY_COUNT:
+                    rt.delete(s)
                     do_register(rt, name, fqdn)
                     rcount = 0
                 else:
