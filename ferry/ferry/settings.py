@@ -16,3 +16,7 @@ FERRY_SERVICE="http://unis.crest.iu.edu/schema/ext/dln/1/ferry#"
 
 # Where is the IBP configuration file
 IBP_CONFIG="/usr/local/etc/ibp/ibp.cfg"
+
+# File handling
+DOWNLOAD_DIR="/depot/web"
+UPLOAD_DIR="/depot/upload"

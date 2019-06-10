@@ -15,10 +15,12 @@ from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from ferry.gps import GPS
 from ferry.ibp_iface import IBPWatcher
+from ferry.watcher import UploadWatcher
 from ferry.log import log
 
 # globals
-DOWNLOAD_DIR="/depot/web"
+DOWNLOAD_DIR=settings.DOWNLOAD_DIR
+UPLOAD_DIR=settings.UPLOAD_DIR
 sess = None
 
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
@@ -159,6 +161,8 @@ def main():
                         help='Set ferry node name (ignore system hostname)')
     parser.add_argument('-d', '--download', type=str, default=DOWNLOAD_DIR,
                         help='Set local download directory')
+    parser.add_argument('-u', '--upload', type=str, default=UPLOAD_DIR,
+                        help='Set local upload directory')
     parser.add_argument('-l', '--local', action='store_true',
                         help='Run using only local UNIS instance (on-ferry)')
     parser.add_argument('-i', '--ibp', action='store_true',
@@ -201,8 +205,8 @@ def main():
     
     # get our initial UNIS-RT and libdlt sessions
     rt = init_runtime(args.host, LOCAL_UNIS, args.local)
-    sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)
-
+    sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)    
+    
     # Start the registration loop
     # returns handles to the node and service objects
     (n,s) = register(rt, name, fqdn)
@@ -210,7 +214,10 @@ def main():
     # Start the iface watcher for IBP config
     if args.ibp:
         IBPWatcher()
-    
+
+    # Start the upload dir watcher
+    UploadWatcher(rt)
+        
     # run our main loop
     if args.local:
         run_local(sess, n, s, rt)
