@@ -17,7 +17,7 @@ A number of threads were used to logically separate production and consumption
 of messages for ease of troubleshooting. The use of queues adds a cushion to
 avoid lost messages, providing some resiliency.
 
-Last modified: March 18, 2019
+Last modified: March 26, 2019
 
 ****************************************************************************'''
 
@@ -33,20 +33,13 @@ import threading
 from whisper_protocol import *
 import whisper_globals as wg
 
-# for CoAP
-#import asyncio 
-#from aiocoap import *
-#import aiocoap.resource as resource
-
-# for uploading files
-#import libdlt
-
+# if we're USING_UNIS, an instance has already been connected in whisper_globals,
+# accessible via wg.rt; here we just need to include packages used in this script
 if wg.USING_UNIS:
     try:
-        #from unis import Runtime # is there a difference?
         from unis.runtime import Runtime   
         from unis.models import Node, schemaLoader
-        #rt = Runtime('http://localhost:9000')
+        #rt = Runtime('http://localhost:9000') # performed in whisper_globals
     except:
         pass
 
@@ -54,7 +47,7 @@ BROADCASTING = False # when testing hardware receipt, one device broadcasts on l
 RESTART_TIME = 1.0 # seconds; the time it takes for the LoRa driver to restart
 
 ANY_DEVICE = '^' # or think of something clever
-VAR_DOES_NOT_EXIST = 'VARDNE'
+VAR_DOES_NOT_EXIST = 'varDNE'
 
 def snooze_and_wait(Q):
     while not wg.closing_time:
@@ -68,11 +61,15 @@ def snooze_and_wait(Q):
         time.sleep(SNOOZE_TIME)
 
 def get_fake_mac_addr():
-    S = ''
+    S = '' # could use upper-case but lower-case makes disambiguating addresses easier
     for i in range(12): S += random.choice('0123456789abcdef')
     return S
 
-# borrowed this from the DLN ferry code # TODO cite
+# borrowed this from the ferry code, mostly written by Jeremy Musser and Ezra Kissel,
+# as part of the WildfireDLN project, of which Indiana University was a partner. 
+# code available online: 
+# <https://github.com/datalogistics/wildfire-dln/blob/master/ferry/dln_ferry.py>
+# last accessed March 26, 2019, master branch.
 def register_or_retrieve_node(dev_id):
     n = wg.rt.nodes.where({'dev_id': dev_id})
     try: # allow for reuse. alternatively, throw an error.
@@ -81,7 +78,7 @@ def register_or_retrieve_node(dev_id):
     except StopIteration:
         log.unis_updates('node with dev_id=%s not found, creating now' % (dev_id))
         n = Node()
-        #n.dev_id = dev_id # here, this creation and assignment fails
+        #n.dev_id = dev_id # note that here, this creation and assignment fails
         wg.rt.insert(n, commit=True) 
         wg.rt.flush() 
 
@@ -109,7 +106,6 @@ def quote(val):
     # ruled everything else out but string
     return '\'' + val + '\''
 
-#TODO cite meeting notes
 # updates a variable by the name of var_name in the given node; if the variable doesn't
 # exist, it will be created
 def update_var(node,var_name,val):
@@ -119,20 +115,14 @@ def update_var(node,var_name,val):
         exec(S)
         wg.rt.flush() 
         return
-    '''
-    S = 'node.%s = %s' % (var_name,quote(val))
-    log.unis_updates('variable %s not found, creating now via %s' % (var_name,S))
-    exec(S)
-    wg.rt.flush() 
-    node.extendSchema(var_name)
-    wg.rt.flush()
-    '''
+        
     S = 'node.extendSchema(\'%s\',%s)' % (var_name,quote(val))
     log.unis_updates('variable %s not found, creating now via %s' % (var_name,S))
     exec(S)
     
 class minion:
-    def __init__(self,name,rt):
+    # note that the small army of threads is not summoned until minion.begin() is called
+    def __init__(self,name):
         self.name = name
 
         if SIM_MODE:
@@ -170,6 +160,48 @@ class minion:
         # filters for streaming replies
         self.filtered_streams = []
 
+    def add_name(self,msg):
+        return ('*%s* ' % (self.name)) + msg
+
+    def logger_selected(self,LOGGER_LEVEL_NUM):
+        return LOGGER_LEVEL_NUM in SELECTED_LOGGERS
+        
+    def packet_errors(self,msg):
+        if self.logger_selected(PACKET_ERRORS_LEVEL_NUM):
+            log.packet_errors(self.add_name(msg))
+        
+    def thread_status_updates(self,msg):
+        if self.logger_selected(THREAD_STATUS_UPDATES_LEVEL_NUM):
+            log.thread_status_updates(self.add_name(msg))
+        
+    def plumbing_issues(self,msg):
+        if self.logger_selected(PLUMBING_ISSUES_LEVEL_NUM):
+            log.plumbing_issues(self.add_name(msg))
+    
+    def rtg_table_updates(self,msg):
+        if self.logger_selected(RTG_TABLE_UPDATES_LEVEL_NUM):
+            log.rtg_table_updates(self.add_name(msg))
+
+    def msg_store_updates(self,msg):
+        if self.logger_selected(MSG_STORE_UPDATES_LEVEL_NUM): 
+            log.msg_store_updates(self.add_name(msg))
+
+    def unis_updates(self,msg):
+        if self.logger_selected(UNIS_UPDATES_LEVEL_NUM):
+            log.unis_updates(self.add_name(msg))
+
+    def data_flow(self,msg):
+        if self.logger_selected(DATA_FLOW_LEVEL_NUM):
+            log.data_flow(self.add_name(msg))
+
+    def reception_updates(self,msg):
+        if self.logger_selected(RECEPTION_UPDATES_LEVEL_NUM):
+            log.reception_updates(self.add_name(msg))
+
+    def data_for_tessa(self,msg):
+        if self.logger_selected(DATA_FOR_TESSA_LEVEL_NUM):
+            log.data_for_tessa(self.add_name(msg))
+
     def transmit(self,lmsg):
         self.is_listening = False
         self.outbox_q.put(lmsg)
@@ -203,7 +235,7 @@ class minion:
 
     # will be a freestanding thread; handles broadcasting
     def promoter(self):
-        log.thread_status_updates('thread active for %s' % (self.name))
+        self.thread_status_updates('thread active')
 
         while not wg.closing_time:
             current_time = now()
@@ -230,7 +262,7 @@ class minion:
 
     # handles requests for GPS location, tracks the location of other devices
     def cartographer(self):
-        log.thread_status_updates('thread active for %s' % (self.name))
+        self.thread_status_updates('thread active')
 
         while not wg.closing_time:
             lmsg = snooze_and_wait(self.carto_q)
@@ -241,9 +273,9 @@ class minion:
             lmsg.hit_carto = True
 
             # we've got mail!
-            log.debug('%s received mail %s' % (self.name,lmsg.skey))
+            self.data_flow('received mail %s' % (lmsg.skey))
             
-            # TODO need to put these back in?
+            # TODO put this back in when ready
             # is this a request? if not, send it to UNIS to harvest information
             #if lmsg.msg_type in [MSG_TYPE_POS_UPDATE,MSG_TYPE_POS_RESPONSE]:
             #    self.altar_q.put(lmsg)
@@ -293,12 +325,12 @@ class minion:
         F = [RECIP_FIELD,SAT_FIELD,SENDER_FIELD,TIME_FIELD,MSG_TYPE_FIELD,PAYLOAD,RESERVED_FIELD]
         lmsg.gen_response_pkt(F)
         
-        log.debug('%s amplified %s' % (self.name,lmsg.skey))
+        self.data_flow('%s amplified %s' % (self.name,lmsg.skey))
         self.msg_store.incorporate(lmsg.response_lmsg) 
 
     # dedicated to the many-armed Postal Sorting Alien from "Men in Black II"
     def postal_sorter(self):
-        log.thread_status_updates('many-armed postal sorter active for %s' % (self.name))
+        self.thread_status_updates('many-armed postal sorter active')
 
         if SIM_MODE:
             self.inbox_record = {}
@@ -313,7 +345,7 @@ class minion:
                 break        
             
             if not lmsg.pkt_valid:
-                log.debug('%s received mail that was invalid, packet=%s' % (self.name,lmsg.initial_pkt))
+                self.data_flow('received mail that was invalid, %s' % (lmsg.initial_pkt))
                 continue
             
             lmsg.hit_sorter = True
@@ -325,7 +357,7 @@ class minion:
                 self.inbox_record[lmsg.sim_key] += 1
 
             # we've got mail!
-            log.debug('%s got mail %s' % (self.name,lmsg.skey))
+            self.data_flow('received message %s' % (lmsg.skey))
 
             # check filters to see if we need to stream the message elsewhere
             for (F,G) in self.filtered_streams:
@@ -344,42 +376,24 @@ class minion:
                 flyer = copy.deepcopy(lmsg)
                 self.continue_bloom(flyer)
 
-            # TODO check logic, place notes here
-            # accept any responses to harvest for data
-            
             # don't accept requests unless this device needs to respond to them 
             if msg_type_is_request(lmsg.msg_type) \
                 and not (lmsg.recipient_addr == self.mac_addr or lmsg.multicast):
                 # don't delete the message in the event it requested saturation
                 continue
 
+            # if data is harvestable, send it to the altar keeper
             if lmsg.msg_type in ALTAR_KEEPER_DOMAIN:
-                log.unis_updates('altar keeper has incoming mail')
+                self.unis_updates('altar keeper has incoming mail')
                 self.altar_q.put(lmsg)        
 
+            # send to the cartographer, if applicable
             elif lmsg.msg_type in CARTOGRAPHER_DOMAIN:
                 self.carto_q.put(lmsg)
-    '''
-    Notes from February 13, 2019 OPEN Lab Meeting:
-	- You can create objects like Nodes, but for it to be tracked by UNISrt, you must insert it,
-	i.e. if n is a Node, rt.insert(n,commit=True) will push it to the backend. Accessing its ID
-	is n.id; furthermore:
-	    - n._obj.__dict__ will output a list of all the objects associated with that Node instance
-		    To add a property:
-		        n.bar = 'baz'
-		        rt.flush() 
-		        n.extendSchema('bar')
-		        rt.flush()
-	    - Object Link builds on JSON's bifurcation of a class, with the 'directed' property
-	    indicating whether the object should be a dict or something else (note to self: don't
-	    mess with it)
-	- You can use Ports to define endpoints between Nodes, or other objects (make sure you
-	add the objects to UNIS first)
-    - DataCollection tracks data streams, and register functions associated with them (e.g. "sum")
-    '''
+
     # takes in requests from special altar_q
     def altar_keeper(self):
-        log.thread_status_updates('thread active for %s' % (self.name))
+        self.thread_status_updates('thread active')
 
         while not wg.closing_time:
             lmsg = snooze_and_wait(self.altar_q)
@@ -388,10 +402,10 @@ class minion:
                 break
 
             lmsg.hit_altar = True
-            log.data_flow('%s received offering %s' % (self.name,lmsg.skey))
+            self.data_flow('received offering, %s' % (lmsg.skey))
 
-            # TODO add timestamp? 
-            
+            # note: UNISrt will add a timestamp
+
             # format: relevant device address, variable to update, updated value
             # where the addressee is the MAC address of a specific device, or 
             # '*' to match any device, so long as the message is multicast
@@ -409,7 +423,7 @@ class minion:
             var_name = M[1]
 
             # all checks passed, onward to parsing
-            log.data_flow('%s%s' % (self.name,lmsg.show_request()))
+            self.data_flow('%s%s' % (lmsg.show_request()))
 
             # POST
             if lmsg.msg_type in [MSG_TYPE_UNIS_POST_NOTIF,MSG_TYPE_UNIS_POST_ACK_REQ, \
@@ -421,11 +435,11 @@ class minion:
                 
                 # don't insert into UNIS
                 if lmsg.msg_type == MSG_TYPE_UNIS_GET_RESPONSE and val == VAR_DOES_NOT_EXIST:
-                    log.data_flow('%s::%s does not exist' % (dev_id,var_name))
+                    self.data_flow('%s::%s does not exist' % (dev_id,var_name))
                     continue # TODO must map reply to receptionist
                 
                 # TODO should give some response via receptionist
-                if lmsg.msg_type == MSG_TYPE_UNIS_POST_ACK
+                if lmsg.msg_type == MSG_TYPE_UNIS_POST_ACK:
                     continue
                 
                 # that leaves us with MSG_TYPE_UNIS_POST_NOTIF, MSG_TYPE_UNIS_POST_ACK_REQ, and
@@ -438,7 +452,7 @@ class minion:
                 if lmsg.msg_type == MSG_TYPE_UNIS_POST_ACK_REQ:
                     lmsg.response_payload = lmsg.payload 
                     lmsg.send_response(self.mac_addr,self.outbox_q,self.msg_store)
-                    log.data_flow('%s%s' % (self.name,lmsg.show_response()))
+                    self.data_flow('%s' % (lmsg.show_response()))
                     
             # GET
             elif lmsg.msg_type in [MSG_TYPE_UNIS_GET_REQUEST]: # return requested information
@@ -451,7 +465,7 @@ class minion:
                 if not node_has_var(node,var_name) and lmsg.msg_type == MSG_TYPE_UNIS_GET_REQUEST:
                     lmsg.response_payload = '%s,%s,%s' % (self.mac_addr,var_name,VAR_DOES_NOT_EXIST)
                     lmsg.send_response(self.mac_addr,self.outbox_q,self.msg_store)
-                    log.data_flow('%s%s' % (self.name,lmsg.show_response()))
+                    self.data_flow('%s' % (lmsg.show_response()))
                     continue
                     
                 S = 'node.%s' % (var_name)
@@ -459,12 +473,12 @@ class minion:
 
                 lmsg.response_payload = '%s,%s,%s' % (self.mac_addr,var_name,str(val))
                 lmsg.send_response(self.mac_addr,self.outbox_q,self.msg_store)
-                log.data_flow('%s%s' % (self.name,lmsg.show_response()))
+                self.data_flow('%s' % (lmsg.show_response()))
 
     # listens for messages from whisper-c via socket, pushes received messages to the
     # inbox_q
     def c_listener(self):
-        log.thread_status_updates('thread active')
+        self.thread_status_updates('thread active')
 
         self.incoming_port = find_free_port()
 
@@ -472,24 +486,24 @@ class minion:
         self.inc_s.bind(('localhost', self.incoming_port))
         SOCKET_BUCKET.append(self.inc_s)
 
-        log.plumbing_issues('listening on port %d...' % (self.incoming_port))
+        self.plumbing_issues('listening on port %d...' % (self.incoming_port))
         self.inc_s.listen(1)
         inc_conn, inc_addr = self.inc_s.accept()
 
-        log.plumbing_issues('connector address is %s' % (str(inc_addr)))
+        self.plumbing_issues('connector address is %s' % (str(inc_addr)))
 
         while not wg.closing_time:
             if wg.whisper_c_is_dead:
-                log.plumbing_issues('listening on port %d...' % (self.incoming_port))
+                self.plumbing_issues('listening on port %d...' % (self.incoming_port))
                 self.inc_s.listen(1)
                 inc_conn, inc_addr = self.inc_s.accept()
 
-                log.plumbing_issues('connector address is %s' % (str(inc_addr)))
+                self.plumbing_issues('connector address is %s' % (str(inc_addr)))
 
             try:
                 stream = inc_conn.recv(BUFFER_SIZE)
             except:
-                log.plumbing_issues('whisper-c is dead?')
+                self.plumbing_issues('whisper-c is dead?')
                 wg.whisper_c_is_dead = True
                 continue
 
@@ -504,22 +518,22 @@ class minion:
             except:
                 continue
 
-            log.plumbing_issues("received packet: %s" % (pkt))
+            self.plumbing_issues("received packet: %s" % (pkt))
 
             msg = lora_message(pkt)
 
             if msg.pkt_valid:
                 self.inbox_q.put(msg)
             else:
-                log.plumbing_issues('PACKET INVALID')
+                self.plumbing_issues('PACKET INVALID')
 
             time.sleep(SNOOZE_TIME)
 
-        log.plumbing_issues('closing time! shutting down')        
+        self.plumbing_issues('closing time! shutting down')        
 
     # sends messages to whisper-c via socket, pulling from the outbox_q
     def c_speaker(self):
-        log.thread_status_updates('thread active')
+        self.thread_status_updates('thread active')
 
         self.outgoing_port = find_free_port()
 
@@ -527,20 +541,20 @@ class minion:
         self.out_s.bind(('localhost', self.outgoing_port))
         SOCKET_BUCKET.append(self.out_s)
 
-        log.plumbing_issues('listening on port %d...' % (self.outgoing_port))
+        self.plumbing_issues('listening on port %d...' % (self.outgoing_port))
         self.out_s.listen(1)
         out_conn, out_addr = self.out_s.accept()
 
-        log.plumbing_issues('connector address is %s' % (str(out_addr)))
+        self.plumbing_issues('connector address is %s' % (str(out_addr)))
 
         # if response not ready, put it back in the queue
         while not wg.closing_time:
             if wg.whisper_c_is_dead:
-                log.plumbing_issues('listening on port %d...' % (self.outgoing_port))
+                self.plumbing_issues('listening on port %d...' % (self.outgoing_port))
                 self.out_s.listen(1)
                 out_conn, out_addr = self.out_s.accept()
 
-                log.plumbing_issues('connector address is %s' % (str(out_addr)))
+                self.plumbing_issues('connector address is %s' % (str(out_addr)))
 
             # pull something from the queue here
             lmsg = snooze_and_wait(self.outbox_q)
@@ -564,13 +578,14 @@ class minion:
             except: # if we can't send, we have problems
                 retval = False
           
+            # put the message back in queue via transmit
             if not ret_val: 
-                self.transmit(pkt) #TODO check: is this supposed to be lmsg?
-                log.plumbing_issues('whisper-c is dead?')
+                self.transmit(lmsg) 
+                self.plumbing_issues('whisper-c is dead?')
                 wg.whisper_c_is_dead = True
                 continue
 
-            log.plumbing_issues("sent packet: %s" % (pkt))
+            self.plumbing_issues("sent packet: %s" % (pkt))
             #time.sleep(SNOOZE_TIME)
 
     def broadcaster(self):
@@ -579,7 +594,7 @@ class minion:
                 MSG_TYPE_POS_REQUEST)
 
             lmsg = lora_message(pkt)
-            log.plumbing_issues('%s put dummy request in queue' % (self.name))
+            self.data_flow('put dummy request in queue')
             self.transmit(lmsg)
             time.sleep(5)
             
@@ -590,10 +605,10 @@ class minion:
         lmsg = lora_message(pkt)
         
         if not lmsg.pkt_valid:
-            log.packet_errors('%s warns the saturation request is invalid!' % (self.name))
+            self.packet_errors('warns the saturation request is invalid!')
             return 
         
-        log.plumbing_issues('%s put the saturation request in queue' % (self.name))
+        self.data_flow('put the saturation request in queue')
         self.outbox_q.put(lmsg)
         
         return lmsg
@@ -605,10 +620,10 @@ class minion:
         lmsg = lora_message(pkt)
         
         if not lmsg.pkt_valid:
-            log.packet_errors('%s says the non-saturation packet is invalid!' % (self.name))
+            self.packet_errors('%s says the non-saturation packet is invalid!' % (self.name))
             return 
         
-        log.plumbing_issues('%s put the non-saturation packet in queue' % (self.name))
+        self.data_flow('%s put the non-saturation packet in queue' % (self.name))
         self.transmit(lmsg)
 
         return lmsg
@@ -663,7 +678,6 @@ class minion:
         def G(rmsg):
             T = '(%s,%f,%s)' % (rmsg.sender_addr,rmsg.send_time,rmsg.payload)
             # TODO add socket transmission
-
         
         # add (filter,response) tuple to self.filtered_streams
 
@@ -672,7 +686,7 @@ class minion:
                 break
             time.sleep(SNOOZE_TIME)                
                 
-        # TODO cleanup: delete queue objects, sockets, etc.
+        # TODO cleanup
 
     # TODO accepts requests via TCP connection then summons an intern to handle it
     def receptionist(self,rt):
@@ -725,13 +739,13 @@ class minion:
                 continue
 
             if len(msg) > 0:
-                log.info('\t',msg)
+                self.info('\t',msg)
 
     # summon a thread to handle the whisper-c instance, when sufficiently
     # stable to run unsupervised
     def summon_handler(self):
         while self.incoming_port == 0 or self.outgoing_port == 0:
-            log.plumbing_issues('waiting for ports to be acquired')
+            self.plumbing_issues('waiting for ports to be acquired')
             time.sleep(SNOOZE_TIME)   # reversed for whisper mirror in C
 
         self.c_handler_t = threading.Thread(target=self.c_handler, args=[])
@@ -739,7 +753,7 @@ class minion:
         THREAD_BUCKET.append(self.c_handler_t) # for easier cleanup
         self.c_handler_t.start()
 
-    def summon_keepers(self):#rt):
+    def summon_keepers(self):
         self.altar_t = threading.Thread(target=self.altar_keeper,args=[])#rt])
         self.altar_t.daemon = True # so it does with the host process
         THREAD_BUCKET.append(self.altar_t) # for easier cleanup
@@ -755,10 +769,10 @@ class minion:
         THREAD_BUCKET.append(self.carto_t) # for easier cleanup
         self.carto_t.start()
 
-        #self.promoter_t = threading.Thread(target=self.promoter)
-        #self.promoter_t.daemon = True # so it does with the host process
-        #THREAD_BUCKET.append(self.promoter_t) # for easier cleanup
-        #self.promoter_t.start()
+        self.promoter_t = threading.Thread(target=self.promoter)
+        self.promoter_t.daemon = True # so it does with the host process
+        THREAD_BUCKET.append(self.promoter_t) # for easier cleanup
+        self.promoter_t.start()
 
     def begin(self):
         # if not running bodiless, create limbs
@@ -767,7 +781,7 @@ class minion:
             time.sleep(3) # wait for the threads to start up
 
         # before summoning the rest
-        self.summon_keepers()#rt)
+        self.summon_keepers()
 
         if not SIM_MODE:
             # summon the c-handler or print out the ports to start the process manually
