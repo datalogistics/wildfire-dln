@@ -11,8 +11,10 @@ import subprocess
 import libdlt
 import ferry.settings as settings
 from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
+from asyncio import TimeoutError
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
+from unis.exceptions import ConnectionError
 from ferry.gps import GPS
 from ferry.ibp_iface import IBPWatcher
 from ferry.watcher import UploadWatcher
@@ -64,9 +66,7 @@ def register(rt, name, fqdn, **kwargs):
                     n.location.longitude = lon
                     rt.flush()
                 s.touch()
-            except Exception as e:
-                import traceback
-                traceback.print_exc()
+            except (ConnectionError, TimeoutError) as exp:
                 log.error("Could not update node/service resources: {}".format(e))
         
     th = threading.Thread(
@@ -93,9 +93,7 @@ def init_runtime(remote, local, local_only):
             if local_only:
                 rt.exnodes.addCallback(file_cb)
             return rt
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
+        except (ConnectionError, TimeoutError) as exp:
             log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
         time.sleep(5)
 
@@ -216,7 +214,7 @@ def main():
         IBPWatcher()
 
     # Start the upload dir watcher
-    UploadWatcher(rt)
+    UploadWatcher(s, LOCAL_UNIS)
         
     # run our main loop
     if args.local:
