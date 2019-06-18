@@ -19,4 +19,7 @@ IBP_CONFIG="/usr/local/etc/ibp/ibp.cfg"
 
 # File handling
 DOWNLOAD_DIR="/depot/web"
-UPLOAD_DIR="/depot/upload"
+UPLOAD_DIR="/depot/web"
+
+# File HTTP endpoint
+UPLOAD_PORT=8080
