@@ -1,7 +1,0 @@
-HelicopterType,RotorDiameter,OuterDiameter,TrainingLength,TrainingWidth,ContingencyLength,ContingencyWidth,BrownOutLength,BrownOutWidth,Units,version 1
-MH-53,75,150,150,150,140,125,150,150,FEET,
-UH-1,50,100,100,100,100,100,100,100,FEET,
-HH-60,60,120,110,110,110,110,110,110,FEET,
-CV-22,85,170,170,170,110,135,240,240,FEET,
-MH-47E,100,200,120,120,140,110,140,120,FEET,
-MH-6/AH-6,27,54,50,50,40,35,50,50,FEET,

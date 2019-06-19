@@ -1,4 +1,0 @@
-#NAME,Block,Max Fuel Points,Start Angle deg,End Angle deg,MIN FAM ft,Min RX ft,fuel pannel offset ft,nosewheel offset,fuel pannel centerline offset ft,rgr centerline offset ft,rgr wing offset ft
-C-130,atsk/ac_block_files/C-130.block,2,90,180,200,250,38,1,6.6,45,14.16
-C-17,atsk/ac_block_files/C-17.block,3,90,165,200,250,70,2,7.2,66,-10
-CASA-212,atsk/ac_block_files/CASA-212.block,1,90,170,200,250,20,1,2.8,20,3

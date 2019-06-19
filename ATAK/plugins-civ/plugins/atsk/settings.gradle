@@ -1,2 +1,0 @@
-include ':SurveyInterface'
-project(':SurveyInterface').projectDir = new File(settingsDir, 'required/SurveyInterface')
