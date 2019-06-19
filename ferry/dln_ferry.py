@@ -11,14 +11,18 @@ import subprocess
 import libdlt
 import ferry.settings as settings
 from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
+from asyncio import TimeoutError
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
+from unis.exceptions import ConnectionError
 from ferry.gps import GPS
 from ferry.ibp_iface import IBPWatcher
+from ferry.watcher import UploadWatcher
 from ferry.log import log
 
 # globals
-DOWNLOAD_DIR="/depot/web"
+DOWNLOAD_DIR=settings.DOWNLOAD_DIR
+UPLOAD_DIR=settings.UPLOAD_DIR
 sess = None
 
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
@@ -62,9 +66,7 @@ def register(rt, name, fqdn, **kwargs):
                     n.location.longitude = lon
                     rt.flush()
                 s.touch()
-            except Exception as e:
-                import traceback
-                traceback.print_exc()
+            except (ConnectionError, TimeoutError) as exp:
                 log.error("Could not update node/service resources: {}".format(e))
         
     th = threading.Thread(
@@ -91,9 +93,7 @@ def init_runtime(remote, local, local_only):
             if local_only:
                 rt.exnodes.addCallback(file_cb)
             return rt
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
+        except (ConnectionError, TimeoutError) as exp:
             log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
         time.sleep(5)
 
@@ -159,6 +159,8 @@ def main():
                         help='Set ferry node name (ignore system hostname)')
     parser.add_argument('-d', '--download', type=str, default=DOWNLOAD_DIR,
                         help='Set local download directory')
+    parser.add_argument('-u', '--upload', type=str, default=UPLOAD_DIR,
+                        help='Set local upload directory')
     parser.add_argument('-l', '--local', action='store_true',
                         help='Run using only local UNIS instance (on-ferry)')
     parser.add_argument('-i', '--ibp', action='store_true',
@@ -201,8 +203,8 @@ def main():
     
     # get our initial UNIS-RT and libdlt sessions
     rt = init_runtime(args.host, LOCAL_UNIS, args.local)
-    sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)
-
+    sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)    
+    
     # Start the registration loop
     # returns handles to the node and service objects
     (n,s) = register(rt, name, fqdn)
@@ -210,7 +212,10 @@ def main():
     # Start the iface watcher for IBP config
     if args.ibp:
         IBPWatcher()
-    
+
+    # Start the upload dir watcher
+    UploadWatcher(s, LOCAL_UNIS)
+        
     # run our main loop
     if args.local:
         run_local(sess, n, s, rt)

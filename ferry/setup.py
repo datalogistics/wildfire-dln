@@ -40,7 +40,8 @@ setup(
         "libdlt",
         "gps3",
         "shapely",
-        "netifaces"
+        "netifaces",
+        "watchdog"
     ],
     dependency_links=[
         "git+https://github.com/periscope-ps/lace.git/@master#egg=lace",

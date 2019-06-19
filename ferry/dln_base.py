@@ -9,9 +9,11 @@ import logging
 import subprocess
 
 import ferry.settings as settings
+from asyncio import TimeoutError
 from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
+from unis.exceptions import ConnectionError
 from ferry.gps import GPS
 from ferry.base_sync import BaseFerrySync
 from ferry.log import log
@@ -84,9 +86,7 @@ def init_runtime(local):
             rt = Runtime(urls, **opts)
             rt.nodes.addCallback(node_cb)
             return rt
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
+        except (ConnectionError, TimeoutError) as exp:
             log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
         time.sleep(5)
 
