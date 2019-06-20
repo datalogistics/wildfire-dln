@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<lint>
-    <issue id="DefaultLocale" severity="ignore"/>
-    <issue id="InflateParams" severity="ignore">
-        <ignore path="src/com/gmeci/atskservice/dbDisplays/LinePointsListActivity.java"/>
-    </issue>
-    <issue id="NewApi" severity="ignore"/>
-</lint>

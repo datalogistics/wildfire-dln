@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-        <Preference
-            android:title="Weather Report Plugin Documentation"
-            android:summary="Get Help With Using This Tool By Browsing The User Guide"
-            android:icon="@drawable/weatherreportplugin48"
-            android:key="weather_documentation"/>
-</PreferenceScreen>

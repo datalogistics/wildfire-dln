@@ -8,10 +8,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-<!--
+        <Button
+            android:id="@+id/uploadButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Upload" />
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!--
         <ImageView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -29,14 +44,14 @@
             android:id="@+id/refreshButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Refresh"/>
+            android:text="Refresh" />
+
         <ProgressBar
             android:id="@+id/refreshBar"
             style="@android:style/Widget.ProgressBar"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:visibility="invisible"
-            />
+            android:visibility="invisible" />
 
         <CheckBox
             android:id="@+id/autoBox"
@@ -44,13 +59,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Auto-Download" />
-
-        <Button
-            android:id="@+id/uploadButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Upload" />
 
 
     </LinearLayout>

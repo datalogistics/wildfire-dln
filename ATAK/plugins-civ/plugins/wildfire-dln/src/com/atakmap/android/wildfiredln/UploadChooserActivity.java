@@ -62,7 +62,7 @@ public class UploadChooserActivity extends Activity
 
         Bundle b = getIntent().getExtras();
         ips = (ArrayList<String>)b.get("ips");
-        ips.add("204.38.5.195:8080/UploadFiles");
+        //ips.add("204.38.5.195:8080/UploadFiles");
 
         refreshTable();
 
@@ -112,7 +112,7 @@ public class UploadChooserActivity extends Activity
 
         for(int i=0;i<ips.size();i++)
         {
-            final String s = ips.get(i);
+            final String s = ips.get(i)+":8080/upload";
 
             TableRow row = new TableRow(getApplicationContext());
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT);

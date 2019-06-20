@@ -125,6 +125,7 @@ public class DownloadReference
 
         if(!(size == dr.size))
         {
+            Log.d(TAG,"File Sizes for downloads "+name+"("+url+"), "+dr.name+"("+dr.url+") are not equal: "+size+", "+dr.size);
             return false;
         }
 
