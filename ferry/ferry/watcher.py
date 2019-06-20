@@ -30,18 +30,20 @@ class Handler(FileSystemEventHandler):
 
         elif event.event_type == 'created':
             log.info("Received created event: %s" % event.src_path)
+            self._do_upload(event.src_path)
             
-            LOCAL_DEPOT={"ibp://{}:6714".format(socket.getfqdn()): { "enabled": True}}
-            try:
-                with libdlt.Session(self._local, bs="5m", depots=LOCAL_DEPOT, threads=1) as sess:
-                    res = sess.upload(event.src_path)
-            except ValueError as e:
-                log.warn(e)
-            if not hasattr(self._s, 'uploaded_exnodes'):
-                self._s.extendSchema('uploaded_exnodes', [res.exnode])
-            else:
-                self._s.uploaded_exnodes.append(res.exnode)
-        
         elif event.event_type == 'modified':
             log.info("Received modified event: %s" % event.src_path)
 
+    def _do_upload(self, src):
+        LOCAL_DEPOT={"ibp://{}:6714".format(socket.getfqdn()): { "enabled": True}}
+        try:
+            with libdlt.Session(self._local, bs="5m", depots=LOCAL_DEPOT, threads=1) as sess:
+                res = sess.upload(src)
+        except ValueError as e:
+            log.warn(e)
+        if not hasattr(self._s, 'uploaded_exnodes'):
+            self._s.extendSchema('uploaded_exnodes', [res.exnode])
+        else:
+            self._s.uploaded_exnodes.append(res.exnode)
+        

@@ -67,7 +67,7 @@ def register(rt, name, fqdn, **kwargs):
                     rt.flush()
                 s.touch()
             except (ConnectionError, TimeoutError) as exp:
-                log.error("Could not update node/service resources: {}".format(e))
+                log.error("Could not update node/service resources: {}".format(exp))
         
     th = threading.Thread(
         name='toucher',
