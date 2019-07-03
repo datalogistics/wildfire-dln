@@ -32,6 +32,7 @@ GeoLoc = schemaLoader.get_class(settings.GEOLOC)
 # so they can be refreshed if base resets
 n = None
 s = None
+slock = threading.Lock()
 
 def register(rt, name, fqdn):
     def do_register(rt, name, fqdn):
@@ -52,7 +53,7 @@ def register(rt, name, fqdn):
         s = rt.services.where({"runningOn": n})
         try:
             s = next(s)
-        except StopIteration:
+        except (StopIteration, AttributeError):
             s = DLNFerry()
             s.runningOn = n
             s.serviceType="datalogistics:wdln:ferry"
@@ -82,8 +83,10 @@ def register(rt, name, fqdn):
                 #traceback.print_exc()
                 log.error("Could not update node/service resources: {}".format(exp))
                 if rcount >= settings.RETRY_COUNT:
+                    slock.acquire()
                     rt.delete(s)
                     do_register(rt, name, fqdn)
+                    slock.release()
                     rcount = 0
                 else:
                     rcount = rcount + 1
@@ -160,14 +163,15 @@ def run_local(sess, rt):
 def run_remote(sess, rt):
     i=0
     while True:
-        (i%5) or log.info("[{}]Waiting for some remote action...".format(s.status))
-        if s.status == "UPDATE":
-            dl_list = s.new_exnodes
-            log.info("Caught UPDATE status with {} new exnodes".format(len(dl_list)))
-            local_download(sess, dl_list)
-            time.sleep(1)
-            s.status = "READY"
-            rt.flush()
+        with slock:
+            (i%5) or log.info("[{}]Waiting for some remote action...".format(s.status))
+            if s.status == "UPDATE":
+                dl_list = s.new_exnodes
+                log.info("Caught UPDATE status with {} new exnodes".format(len(dl_list)))
+                local_download(sess, dl_list)
+                time.sleep(1)
+                s.status = "READY"
+                rt.flush()
         i+=1
         time.sleep(1)
         
