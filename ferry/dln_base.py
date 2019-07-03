@@ -21,35 +21,46 @@ from ferry.log import log
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
 GeoLoc = schemaLoader.get_class(settings.GEOLOC)
 
-def register(rt, name, fqdn, **kwargs):
-    n = rt.nodes.where({"name": name})
-    try:
-        n = next(n)
-    except StopIteration:
-        n = Node()
-        n.name = name
-        rt.insert(n, commit=True)
-        rt.flush()
+# Global node and service objects
+# so they can be refreshed if UNIS resets
+n = None
+s = None
+slock = threading.Lock()
+
+def register(rt, name, fqdn):
+    def do_register(rt, name, fqdn):
+        global n
+        global s
+
+        log.info("Registering Ferry Node")
         
-    s = rt.services.where({"runningOn": n})
-    try:
-        s = next(s)
-    except StopIteration:
-        s = DLNFerry()
-        s.runningOn = n
-        s.serviceType="datalogistics:wdln:base"
-        s.name = name
-        s.accessPoint = "ibp://{}:6714".format(fqdn)
-        s.unis_url = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
-        s.status = "READY"
-        s.ttl = 600 # 10m
-        rt.insert(s, commit=True)
-        rt.flush()
+        n = rt.nodes.where({"name": name})
+        try:
+            n = next(n)
+        except StopIteration:
+            n = Node()
+            n.name = name
+            rt.insert(n, commit=True)
+            rt.flush()
         
-    gps = GPS()
-    
+        s = rt.services.where({"runningOn": n})
+        try:
+            s = next(s)
+        except (StopIteration, AttributeError):
+            s = DLNFerry()
+            s.runningOn = n
+            s.serviceType="datalogistics:wdln:base"
+            s.name = name
+            s.accessPoint = "ibp://{}:6714".format(fqdn)
+            s.unis_url = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
+            s.status = "READY"
+            s.ttl = 600 # 10m
+            rt.insert(s, commit=True)
+            rt.flush()
+
     # simply update the timestamps on our node and service resources
-    def touch(n,s,gps):
+    def touch(rt, name, fqdn, gps):
+        rcount = 0
         while True:
             time.sleep(settings.UPDATE_INTERVAL)
             try:
@@ -59,18 +70,33 @@ def register(rt, name, fqdn, **kwargs):
                     n.location.longitude = lon
                     rt.flush()
                 s.touch()
-            except Exception as e:
-                log.error("Could not update node/service resources: {}".format(e))
-        
+
+            except (ConnectionError, TimeoutError) as exp:
+                #import traceback
+                #traceback.print_exc()
+                log.error("Could not update node/service resources: {}".format(exp))
+                if rcount >= settings.RETRY_COUNT:
+                    slock.acquire()
+                    rt.delete(s)
+                    do_register(rt, name, fqdn)
+                    slock.release()
+                    rcount = 0
+                else:
+                    rcount = rcount + 1
+
+    # make sure we get an initial node and service object
+    while not n or not s:
+        do_register(rt, name, fqdn)
+        time.sleep(settings.UPDATE_INTERVAL)
+    
+    gps = GPS()
     th = threading.Thread(
         name='toucher',
         target=touch,
         daemon=True,
-        args=(n,s,gps),
+        args=(rt, name, fqdn, gps),
     )
     th.start()
-    
-    return (n,s)
 
 def node_cb(node, event):
     #nstr = "http://"+node.name+":9000"
@@ -90,7 +116,7 @@ def init_runtime(local):
             log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
         time.sleep(5)
 
-def run_base(n, s, rt):
+def run_base(rt):
     i=0
     while True:
         (i%5) or log.info("Waiting for something to do...")
@@ -136,12 +162,12 @@ def main():
 
     # Start the registration loop
     # returns handles to the node and service objects
-    (n,s) = register(rt, name, fqdn)
+    register(rt, name, fqdn)
 
     # start base-ferry sync
     BaseFerrySync(rt, name)
     
-    run_base(n, s, rt)
+    run_base(rt)
     
 if __name__ == "__main__":
     main()

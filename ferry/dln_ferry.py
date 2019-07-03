@@ -29,7 +29,7 @@ DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
 GeoLoc = schemaLoader.get_class(settings.GEOLOC)
 
 # Global node and service objects
-# so they can be refreshed if base resets
+# so they can be refreshed if UNIS resets
 n = None
 s = None
 slock = threading.Lock()
