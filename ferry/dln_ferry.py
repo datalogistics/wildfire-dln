@@ -28,35 +28,45 @@ sess = None
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
 GeoLoc = schemaLoader.get_class(settings.GEOLOC)
 
-def register(rt, name, fqdn, **kwargs):
-    n = rt.nodes.where({"name": name})
-    try:
-        n = next(n)
-    except StopIteration:
-        n = Node()
-        n.name = name
-        rt.insert(n, commit=True)
-        rt.flush()
+# Global node and service objects
+# so they can be refreshed if base resets
+n = None
+s = None
+
+def register(rt, name, fqdn):
+    def do_register(rt, name, fqdn):
+        global n
+        global s
+
+        log.info("Registering Ferry Node")
         
-    s = rt.services.where({"runningOn": n})
-    try:
-        s = next(s)
-    except StopIteration:
-        s = DLNFerry()
-        s.runningOn = n
-        s.serviceType="datalogistics:wdln:ferry"
-        s.name = name
-        s.accessPoint = "ibp://{}:6714".format(fqdn)
-        s.unis_url = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
-        s.status = "READY"
-        s.ttl = 600 # 10m
-        rt.insert(s, commit=True)
-        rt.flush()
+        n = rt.nodes.where({"name": name})
+        try:
+            n = next(n)
+        except StopIteration:
+            n = Node()
+            n.name = name
+            rt.insert(n, commit=True)
+            rt.flush()
         
-    gps = GPS()
-    
+        s = rt.services.where({"runningOn": n})
+        try:
+            s = next(s)
+        except StopIteration:
+            s = DLNFerry()
+            s.runningOn = n
+            s.serviceType="datalogistics:wdln:ferry"
+            s.name = name
+            s.accessPoint = "ibp://{}:6714".format(fqdn)
+            s.unis_url = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
+            s.status = "READY"
+            s.ttl = 600 # 10m
+            rt.insert(s, commit=True)
+            rt.flush()
+
     # simply update the timestamps on our node and service resources
-    def touch(n,s,gps):
+    def touch(rt, name, fqdn, gps):
+        rcount = 0
         while True:
             time.sleep(settings.UPDATE_INTERVAL)
             try:
@@ -66,19 +76,32 @@ def register(rt, name, fqdn, **kwargs):
                     n.location.longitude = lon
                     rt.flush()
                 s.touch()
+
             except (ConnectionError, TimeoutError) as exp:
+                #import traceback
+                #traceback.print_exc()
                 log.error("Could not update node/service resources: {}".format(exp))
-        
+                if rcount >= settings.RETRY_COUNT:
+                    rt.delete(s)
+                    do_register(rt, name, fqdn)
+                    rcount = 0
+                else:
+                    rcount = rcount + 1
+
+    # make sure we get an initial node and service object
+    while not n or not s:
+        do_register(rt, name, fqdn)
+        time.sleep(settings.UPDATE_INTERVAL)
+    
+    gps = GPS()
     th = threading.Thread(
         name='toucher',
         target=touch,
         daemon=True,
-        args=(n,s,gps),
+        args=(rt, name, fqdn, gps),
     )
     th.start()
-
-    return (n,s)
-    
+   
 def init_runtime(remote, local, local_only):
     while True:
         try:
@@ -127,14 +150,14 @@ def local_download(sess, exnodes):
                                                          res.size/1e6/diff,
                                                          res.selfRef))
             
-def run_local(sess, n, s, rt):
+def run_local(sess, rt):
     i=0
     while True:
         (i%5) or log.info("Waiting for some local action...")
         i+=1
         time.sleep(1)
         
-def run_remote(sess, n, s, rt):
+def run_remote(sess, rt):
     i=0
     while True:
         (i%5) or log.info("[{}]Waiting for some remote action...".format(s.status))
@@ -206,8 +229,7 @@ def main():
     sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)    
     
     # Start the registration loop
-    # returns handles to the node and service objects
-    (n,s) = register(rt, name, fqdn)
+    register(rt, name, fqdn)
 
     # Start the iface watcher for IBP config
     if args.ibp:
@@ -218,9 +240,9 @@ def main():
         
     # run our main loop
     if args.local:
-        run_local(sess, n, s, rt)
+        run_local(sess, rt)
     else:
-        run_remote(sess, n, s, rt)
+        run_remote(sess, rt)
     
 if __name__ == "__main__":
     main()
