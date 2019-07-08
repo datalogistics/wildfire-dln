@@ -1,8 +1,8 @@
-import time, libdlt, socket
+import time, libdlt, socket, os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from ferry.log import log
-from ferry.settings import UPLOAD_DIR
+from ferry.settings import UPLOAD_DIR, DOWNLOAD_DIR
 
 class UploadWatcher:
     def __init__(self, service, local_unis, wdir=UPLOAD_DIR):
@@ -28,13 +28,19 @@ class Handler(FileSystemEventHandler):
         if event.is_directory:
             return None
 
-        elif event.event_type == 'created':
-            log.info("Received created event: %s" % event.src_path)
-            self._do_upload(event.src_path)
+        if event.event_type == 'moved':
+            if not os.path.basename(event.src_path).startswith("."):
+                return
             
-        elif event.event_type == 'modified':
-            log.info("Received modified event: %s" % event.src_path)
-
+            fname = os.path.basename(event.src_path)
+            dname = os.path.dirname(event.src_path)
+            npath = os.path.join(dname, fname[1:])
+            dpath = os.path.join(DOWNLOAD_DIR, fname[1:])
+            if os.path.getsize(npath) > 0:
+                log.info("Handling new file upload: %s" % npath)
+                self._do_upload(npath)
+                os.rename(npath, dpath)
+            
     def _do_upload(self, src):
         LOCAL_DEPOT={"ibp://{}:6714".format(socket.getfqdn()): { "enabled": True}}
         try:
