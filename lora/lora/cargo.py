@@ -105,13 +105,18 @@ class cargo_hold:
     def update_devices_seen(self):
         dev_seen = set(self.df['sender_dev_id']) \
             | set(self.df['relayer_dev_id']) - set(['',MULTICAST])
+
+        if wg.HAVE_UNIS:
+            dev_recorded_in_unis = wg.rt.nodes #TODO pick up here
+
+
         self.data_lock.acquire()
         self.devices_seen = dev_seen
         self.data_lock.release()
 
     def who_has_promoted(self,skey):
         # no errors thrown if no record exists with the skey given    
-        return set(self.df[self.df['skey'] == skey]['sender_addr'])- set(['',MULTICAST])
+        return set(self.df[self.df['skey'] == skey]['sender_addr']) - set(['',MULTICAST])
 
     def has_promoted(self,skey,dev_id):
         return dev_id in self.who_has_promoted(skey)

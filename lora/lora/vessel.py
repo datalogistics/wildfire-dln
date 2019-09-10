@@ -67,6 +67,7 @@ class vessel:
         self.my_name = name
         self.silent_running = False
 
+        # TODO replace with hostname as self.my_lora_id
         if SIM_MODE:
             self.my_dev_id = get_fake_mac_addr()
         else:
@@ -180,7 +181,7 @@ class vessel:
             last_batch.append(mini_df)
             
             # get data, insert into UNIS node
-            if lmsg.harvestable and wg.HAVE_UNIS \
+            if lmsg.harvestable and wg.HAVE_UNIS:
                 t = (lmsg.obs_time,lmsg.obs_dev_id,lmsg.obs_gps_lat,lmsg.obs_gps_long)
                 self.my_data_stream.append(t)
 
@@ -699,16 +700,15 @@ class vessel:
         return reduce(lambda x,y: x+'/'+y,S) # returns a string
 
     # used by c_listener to chop up packets that got stuck together when transmitted
-    # over socket
+    # over socket TODO
     def chop_packet_stream(self,pkt):
         P = pkt # copy
         chopped = []
 
         while len(P) > 10: # absurdly low lower bound on valid packet string length
-        
             # base case: is this a single, valid packet?
             lmsg = lora_message(P)
-            if lmsg.pkt_valid: #done
+            if not lmsg.pkt_valid: #done
                 chopped.append(lmsg) 
                 break # so stop here
       
@@ -730,10 +730,8 @@ class vessel:
                 if lmsg.pkt_valid:
                     chopped.append(lmsg)
                     # no break!
-                else:
-                    print('\n***************** crap!!! ********************\n')
-                    
-                    print('CRAP?',pkt)
+                else: 
+                    print('BAD SLICING',pkt)
 
                 # finally, chop off the first packet
                 P = P.replace(p0,'')
@@ -782,16 +780,12 @@ class vessel:
             except:
                 continue
 
+            # TODO remove when no longer needed. for now, it makes debugging easier for the nearsighted.
             print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
 
             log.plumbing_issues(self.add_name('received packet: %s' % (pkt)))
 
-            print(pkt)
-
-            msgs = self.chop_packet_stream(pkt)
-
-
-            print('got',len(msgs),'messages in this batch\n\n')
+            msgs = self.chop_packet_stream(pkt) 
 
             for msg in msgs:
                 if msg.pkt_valid:
@@ -961,7 +955,7 @@ class vessel:
         self.glean_t.daemon = True # so it does with the host process
         THREAD_BUCKET.append(self.glean_t) # for easier cleanup
         self.glean_t.start()
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        AAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
         self.request_t = threading.Thread(target=self.request_handler)
         self.request_t.daemon = True # so it does with the host process
         THREAD_BUCKET.append(self.request_t) # for easier cleanup

@@ -122,7 +122,7 @@ UNIS_UPDATES_LEVEL_NUM = counter
 logging.addLevelName(UNIS_UPDATES_LEVEL_NUM, "UNIS_UPDATES")
 def logger_unis_updates(self, message, *args, **kws):
     if self.isEnabledFor(UNIS_UPDATES_LEVEL_NUM) and WANT_UNIS_UPDATES:
-        self._log(UNIS_UPDATES_LEVEL_NUM, Fore.+MAGENTAtranslate_text(message), args, **kws) 
+        self._log(UNIS_UPDATES_LEVEL_NUM, Fore.MAGENTA+translate_text(message), args, **kws) 
 logging.Logger.unis_updates = logger_unis_updates
 counter += 1
 
@@ -492,10 +492,7 @@ def dispose_of_whisper_c():
 def mopup():
     log.info('cleaning up...')
 
-    #TODO remove this omfg
-
-    os.system('./apocalypse.sh')
-
+    #os.system('./apocalypse.sh') 
 
     dump_process_bucket()
     dispose_of_whisper_c()

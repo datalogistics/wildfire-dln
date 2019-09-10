@@ -100,8 +100,6 @@ methods of inference used.
 '''
 class lora_message:
     def __init__(self,pkt):
-        global DEMOING # TODO um why?
-    
         # set some flags to initial values; if True, they will be reset
         self.pkt_valid = False
         self.has_ref = False
@@ -111,10 +109,7 @@ class lora_message:
         self.is_panic = False
         self.is_harvestable = False
         
-        #TODO test for bitstring or ascii (count the number of /'s) 
-        # if ascii do nothing, if bitstring convert to ascii so I don't have 
-        # to change all this code
-        # TODO need conversion functions, obviously
+        # TODO encode in base 64, will need conversion functions bitstring->str
         
         self.initial_pkt = pkt
         M = pkt.strip(MESSAGE_TERMINATOR).split(MESSAGE_DELIMITER)
@@ -270,10 +265,11 @@ class lora_message:
             # if demoing in a place where GPS is unavailable, add "seasoning"
             # to simulate movement of the device, like a buoy in the ocean
             # subjected to Brownian motion
-            if self.obs_gps_lat == DEFAULT_LATITUDE
-            if wg.USE_BUOY_EFFECT: self.obs_gps_lat += season()
+            if self.obs_gps_lat == DEFAULT_LATITUDE:
+                if wg.USE_BUOY_EFFECT: self.obs_gps_lat += season()
+
             if self.obs_gps_long == DEFAULT_LONGITUDE:
-            if wg.USE_BUOY_EFFECT: self.obs_gps_long += season()
+                if wg.USE_BUOY_EFFECT: self.obs_gps_long += season()
 
             self.is_harvestable = True
 
