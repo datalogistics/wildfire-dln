@@ -334,11 +334,7 @@ byte readReg(byte addr){
     uint8_t rxbuf[2];
 
     spibuf[0] = addr & 0x7F;
-    spibuf[1] = 0x00;// Solution from Friek (2011) at StackOverflow
-// in response to the following posted question:
-// "How to get local IP and MAC address C [duplicate]" available at
-// <https://stackoverflow.com/questions/6767296/how-to-get-local-ip-and-mac-address-c>
-// last accessed: November 27, 2018
+    spibuf[1] = 0x00;
 
     selectreceiver();
     mraa_spi_transfer_buf(spi, spibuf,rxbuf, 2);

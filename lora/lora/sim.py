@@ -27,8 +27,8 @@ from scipy.interpolate import griddata
 import numpy as np
 from math import ceil
 
-from whisper_vessel import *
-import whisper_globals as wg
+from vessel import *
+import deck
 
 ###############################################################################
 #  FLAGS AND SETTINGS
@@ -162,7 +162,7 @@ def create_spiral():
 
 class whisper_sim:
     def __init__(self):
-        self.rt = wg.rt
+        self.rt = deck.rt
         self.fleet = []
 
         self.fleet = create_random_fleet()
@@ -212,7 +212,7 @@ class whisper_sim:
                 
         added_blast_to_legend = False   
     
-        while not wg.closing_time:
+        while not deck.closing_time:
             for M in self.fleet:
                 for msg in M.dump_outbox():
                     if USING_PLOT:
@@ -369,7 +369,7 @@ class whisper_sim:
         
         time.sleep(2)
         '''
-        wg.closing_time = True
+        deck.closing_time = True
         mopup()
 
         fig = plt.figure()

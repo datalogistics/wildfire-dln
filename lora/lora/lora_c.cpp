@@ -11,7 +11,7 @@ functions for interacting with the LoRa transceiver in the LoRa Hat
 manufactured by Dragino and passes the data on via sockets to Python
 counterparts for processing. 
 
-Last modified: August 22, 2018 
+Last modified: September 10, 2018 
 
 *******************************************************************************/
 
@@ -30,7 +30,7 @@ Last modified: August 22, 2018
 #include <stdlib.h>
 #include <getopt.h>
 
-#include <string> // TODO still need?
+#include <string> 
 #include <queue> 
 
 using namespace std;
@@ -51,19 +51,18 @@ using namespace std;
 #define RECEIVING_DURATION      1
 #define TRANSMITTING_DURATION   1
 
+// Method of determining board type came from Yaakov H. via "Hello, I'm Yaakov!"
+// in the post "Finding your Operating System version programmatically"
+// available at <https://blog.yaakov.online/finding-operating-system-version/>
+// last accessed: August 5, 2019
+
 #define MACHINE_RPI             "armv7l"
 #define MACHINE_UP_BOARD        "x86_64"
-
-// TODO cite
 
 #define CONFIRMED_RPI           31 // because
 #define CONFIRMED_UP_BOARD      41 // prime 
 #define BOARD_UNKNOWN           53 // numbers
 
-// Method of determining board type came from Yaakov H. via "Hello, I'm Yaakov!"
-// in the post "Finding your Operating System version programmatically"
-// available at <https://blog.yaakov.online/finding-operating-system-version/>
-// last accessed: August 5, 2019
 int discern_board(){
     struct utsname details;
     int ret = uname(&details);
@@ -89,9 +88,9 @@ int board_type = discern_board();
 
 // by default, assume we're on an Up Board
 #if board_type == CONFIRMED_RPI
-    #include "whisper_lora_up.h"
+    #include "lora_up.h"
 #else
-    #include "whisper_lora_rpi.h" 
+    #include "lora_rpi.h" 
 #endif
 
 // Command-line option parsing solution based off an example in the GNU Documentation,

@@ -1,12 +1,15 @@
 import pandas as pd
 
-from whisper_protocol import *
-import whisper_globals as wg
+from protocol import *
+import deck
+
+LAST_OBS_VAR_NAME = 'last_obs_time'
 
 class cargo_hold:
-    def __init__(self,my_name,my_dev_id,vessel_transmit_f):
+    def __init__(self,my_name,my_dev_id,my_lora_id,vessel_transmit_f):
         self.name = my_name
         self.my_dev_id = my_dev_id
+        self.my_lora_id = my_lora_id        
         self.vessel_transmit_f = vessel_transmit_f
     
         # warning: pandas is not thread safe (v0.11 onward)
@@ -19,10 +22,10 @@ class cargo_hold:
         # redundant data structures reduce computational load. what is elegant
         # code on a cluster is torture for a small device.
         self.devices_seen = set() 
-        self.who_I_need = set() # probably grammatically incorrecct
-        self.who_needs_me = set() # quiet...
-        self.who_does_not_need_me = set() # I sense an impending attack
-        self.who_needs_whom = set() # from beleaguered English teachers
+        self.who_I_need = set() # probably grammatically incorrect
+        self.who_needs_me = set() # it's quiet...
+        self.who_does_not_need_me = set() # beleaguered English teachers
+        self.who_needs_whom = set() # must be sleeping
         self.who_does_not_need_whom = set()
 
     def gen_init_df(self): 
@@ -58,7 +61,7 @@ class cargo_hold:
         print(self.name,'who needs whom',self.who_needs_whom)
         print(self.name,'who does not need whom',self.who_does_not_need_whom)
 
-        print(wg.dev_id2name_mapping)
+        print(deck.dev_id2name_mapping)
         
     def seen_msg(self,lmsg):
         skey = lmsg.skey
@@ -66,11 +69,11 @@ class cargo_hold:
         return skey in all_skeys
 
     def update_table_entry(self,idx,col_name,val): # keep for reference!
-        if wg.closing_time: return # avoid threading errors during shutdown
+        if deck.closing_time: return # avoid threading errors during shutdown
         if idx not in self.df.index or col_name not in self.df.columns: return
 
         # no checks for pre-existing data
-        if not wg.closing_time:
+        if not deck.closing_time:
             self.data_lock.acquire()
             '''
             A reminder:
@@ -89,7 +92,7 @@ class cargo_hold:
             except IndexError:
                 log.error('failure! saving progress to file for analysis')
                 self.df.to_csv('update-failure-%s-%s-%s.csv' % (idx,col_name,val))
-                wg.closing_time = True
+                deck.closing_time = True
                 mopup()  
     
             self.data_lock.release()
@@ -102,17 +105,38 @@ class cargo_hold:
         self.update_who_needs_whom()
         #self.in_the_weeds('gleaner update complete')
 
+    def update_ferry_loc(self,dev_id,gps_lat,gps_long,obs_time):
+        n = register_or_retrieve_node(dev_id)
+        
+        # does the node have a timestamp of the last observation of its location?
+        if LAST_OBS_VAR_NAME in n._obj.__dict__['location'].__dict__:
+            # if we already have a more recent (presumably better) estimate, do nothing
+            if obs_time < n.location.last_obs_time:
+                return 
+
+        # otherwise update. note that attempting update_var(n,'location.latitude',gps_lat) 
+        # produces errors, so do this one manually
+        n.location.longitude = gps_long
+        n.location.latitude = gps_lat
+        n.location.last_obs_time = obs_time
+        deck.rt.flush()
+
     def update_devices_seen(self):
         dev_seen = set(self.df['sender_dev_id']) \
             | set(self.df['relayer_dev_id']) - set(['',MULTICAST])
 
-        if wg.HAVE_UNIS:
-            dev_recorded_in_unis = wg.rt.nodes #TODO pick up here
-
-
         self.data_lock.acquire()
         self.devices_seen = dev_seen
         self.data_lock.release()
+
+        if deck.HAVE_UNIS:
+            for d in self.devices_seen:
+                # do we have data? 
+                (gps_lat,gps_long,obs_time) = self.estimate_loc(d,now())
+                
+                if DATA_NOT_FOUND not in [gps_lat,gps_long,obs_time]:
+                    update_ferry_loc(d,gps_lat,gps_long,obs_time)
+                # if not, do nothing. wait until the next check to try updating.
 
     def who_has_promoted(self,skey):
         # no errors thrown if no record exists with the skey given    
@@ -370,7 +394,7 @@ class cargo_hold:
         
         # make a copy to ensure nothing is changed in the main DataFrame
         this_dev_loc = this_dev_df[this_dev_df['obs_gps_lat'] != ''].copy(deep=True)
-        if len(this_dev_loc) == 0: return (DATA_NOT_FOUND,DATA_NOT_FOUND)
+        if len(this_dev_loc) == 0: return (DATA_NOT_FOUND,DATA_NOT_FOUND, DATA_NOT_FOUND)
         
         # compute differences. find an observation of location as close
         # to obs_time as possible.
@@ -379,12 +403,13 @@ class cargo_hold:
         row = this_dev_loc[this_dev_loc['diff'] == min_time_diff].head(1) 
         gps_lat = row['obs_gps_lat'].item()
         gps_long = row['obs_gps_long'].item()
+        obs_time = row['obs_time'].item()
 
         # send back default values in the DataFrame
-        if gps_lat == DATA_NOT_FOUND or gps_long == DATA_NOT_FOUND:
-            return (DATA_NOT_FOUND, DATA_NOT_FOUND)
+        if DATA_NOT_FOUND in [gps_lat, gps_long, obs_time]:
+            return (DATA_NOT_FOUND, DATA_NOT_FOUND, DATA_NOT_FOUND)
 
-        return (gps_lat,gps_long)
+        return (gps_lat,gps_long,obs_time)
 
     def best_estimate_dataset(self):
         est_d = {}

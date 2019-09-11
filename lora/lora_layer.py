@@ -2,29 +2,29 @@
 
 '''**************************************************************************
 
-File: whisper.py
+File: lora_layer.py
 Language: Python 3.6.8
 Author: Juliette Zerick (jzerick@iu.edu)
         for the WildfireDLN Project
         OPeN Networks Lab at Indiana University-Bloomington
 
 This contains the higher-level protocol and switch behaviors. It interfaces
-with whisper.cpp, which quickly filters relevant messages that are passed
-to whisper.py.
+with lora_c.cpp, which quickly filters relevant messages that are passed
+to lora_layer.py.
 
 A number of threads were used to logically separate production and consumption
 of messages for ease of troubleshooting. The use of queues adds a cushion to
 avoid lost messages, providing some resiliency.
 
-Last modified: August 26, 2019
+Last modified: September 10, 2019
 
 ****************************************************************************'''
 
 import argparse
 
-import whisper_globals as wg
-from whisper_vessel import *
-from whisper_sim import *
+import lora.deck as deck
+from lora.vessel import *
+from lora.sim import *
 
 # Command-line option parsing solution based off an example in the docs, i.e.
 # Python Documentation on argparse, available at
@@ -33,7 +33,7 @@ from whisper_sim import *
 def handle_opts():
     parser = argparse.ArgumentParser(description='Life, the universe, and everything.')
 
-    parser.add_argument('-m', '--manual', help='run whisper_c manually',action="store_true")
+    parser.add_argument('-m', '--manual', help='run lora_c manually',action="store_true")
     parser.add_argument('-r', '--receiver', help='receive only',action="store_true")
     parser.add_argument('-t', '--transmitter', help='transmit only',action="store_true")
     parser.add_argument('-f', '--defcoords', help='set default GPS coordinates as \'(lat,long)\'')
@@ -81,18 +81,18 @@ def handle_opts():
             
         # otherwise, extract the data here
         arg_lat, arg_long = pluck_GPS_coordinates(args.defcoords)
-        wg.DEFAULT_LATITUDE = arg_lat
-        wg.BLOOMINGTON_LONGITUDE = arg_long
+        deck.DEFAULT_LATITUDE = arg_lat
+        deck.BLOOMINGTON_LONGITUDE = arg_long
 
     # extract the remaining data
     
-    wg.DEMOING = args.demo
-    wg.ANIMATING = args.anim
-    wg.SIM_MODE = args.sim
-    wg.RECEIVE_ONLY = args.receiver
-    wg.TRANSMIT_ONLY = args.transmitter
-    wg.USE_BUOY_EFFECT = args.buoy
-    wg.USING_WHISPER_C_HANDLER = not args.manual
+    deck.DEMOING = args.demo
+    deck.ANIMATING = args.anim
+    deck.SIM_MODE = args.sim
+    deck.RECEIVE_ONLY = args.receiver
+    deck.TRANSMIT_ONLY = args.transmitter
+    deck.USE_BUOY_EFFECT = args.buoy
+    deck.USING_LORA_C_HANDLER = not args.manual
 
     return True
 
@@ -103,7 +103,7 @@ def begin():
         log.critical('preflight checks failed, bailing!')
         exit(1)
     
-    if wg.SIM_MODE:
+    if deck.SIM_MODE:
         log.info('simulation starting')
         sim = fleet()
         sim.run() 
@@ -112,7 +112,7 @@ def begin():
         M = vessel(my_name)
         M.begin() 
   
-    while not wg.closing_time:
+    while not deck.closing_time:
         time.sleep(SNOOZE_TIME)  
 
 if __name__ == "__main__":

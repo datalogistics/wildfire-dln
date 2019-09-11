@@ -1,7 +1,7 @@
 '''**************************************************************************
 
-File: whisper_settings.py
-Language: Python 3.6/7
+File: settings.py
+Language: Python 3.6.8
 Author: Juliette Zerick (jzerick@iu.edu)
         for the WildfireDLN Project
         OPeN Networks Lab at Indiana University-Bloomington
@@ -11,7 +11,7 @@ the code, such as the logger and the *BUCKETs used to provide a smooth
 shutdown. Additionally there are utilities for checking the validity of
 input data, and tests to show the utilities are working properly. 
 
-Last modified: August 27, 2019
+Last modified: September 10, 2019
 
 ****************************************************************************'''
 
@@ -34,7 +34,30 @@ import os
 import argparse
 from colorama import init, Fore, Back, Style
 
-import whisper_globals as wg
+import deck
+
+if deck.HAVE_UNIS:
+    try:
+        #from unis import Runtime # is there a difference?
+        from unis.runtime import Runtime   
+        from unis.models import Node, schemaLoader
+        from unis.models import Metadata
+        rt = Runtime('http://localhost:9000')
+        print('able to import everything!')
+    except: # possible alternative, depending on the environment
+        try: # in this case, Ubuntu 16.04 via Windows Subsystem for Linux
+            sys.path.append('/home/minion/repobin/Lace')
+            sys.path.append('/home/minion/repobin/UNISrt')
+            
+            # once more with less fail?
+            from unis import Runtime  
+            #from unis.runtime import Runtime   
+            from unis.models import Node, schemaLoader
+            from unis.models import Metadata
+            rt = Runtime('http://localhost:9000')
+            print('able to import everything!')
+        except:
+            pass
 
 ###############################################################################
 #  FLAGS AND SETTINGS
@@ -90,7 +113,7 @@ THREAD_STATUS_UPDATES_LEVEL_NUM = counter
 logging.addLevelName(THREAD_STATUS_UPDATES_LEVEL_NUM, "THREAD_STATUS_UPDATES")
 def logger_thread_status_upates(self, message, *args, **kws):
     if self.isEnabledFor(THREAD_STATUS_UPDATES_LEVEL_NUM) and WANT_THREAD_STATUS_UPDATES: 
-        self._log(THREAD_STATUS_UPDATES_LEVEL_NUM, Fore.BLUE+translate_text(message), args, **kws) 
+        self._log(THREAD_STATUS_UPDATES_LEVEL_NUM, Fore.BLUE+translate_text(message)+Fore.WHITE, args, **kws) 
 logging.Logger.thread_status_updates = logger_thread_status_upates
 counter += 1
 
@@ -98,7 +121,7 @@ PACKET_ERRORS_LEVEL_NUM = counter
 logging.addLevelName(PACKET_ERRORS_LEVEL_NUM, "PACKET_ERRORS")
 def logger_packet_errors(self, message, *args, **kws):
     if self.isEnabledFor(PACKET_ERRORS_LEVEL_NUM) and WANT_PACKET_ERRORS:
-        self._log(PACKET_ERRORS_LEVEL_NUM, Fore.YELLOW+translate_text(message), args, **kws) 
+        self._log(PACKET_ERRORS_LEVEL_NUM, Fore.YELLOW+translate_text(message)+Fore.WHITE, args, **kws) 
 logging.Logger.packet_errors = logger_packet_errors
 counter += 1
 
@@ -106,7 +129,7 @@ PLUMBING_ISSUES_LEVEL_NUM = counter
 logging.addLevelName(PLUMBING_ISSUES_LEVEL_NUM, "PLUMBING_ISSUES")
 def logger_plumbing_issues(self, message, *args, **kws):
     if self.isEnabledFor(PLUMBING_ISSUES_LEVEL_NUM and WANT_PLUMBING_ISSUES):
-        self._log(PLUMBING_ISSUES_LEVEL_NUM, Fore.RED+translate_text(message), args, **kws) 
+        self._log(PLUMBING_ISSUES_LEVEL_NUM, Fore.RED+translate_text(message)+Fore.WHITE, args, **kws) 
 logging.Logger.plumbing_issues = logger_plumbing_issues
 counter += 1
 
@@ -114,7 +137,7 @@ RTG_TABLE_UPDATES_LEVEL_NUM = counter
 logging.addLevelName(RTG_TABLE_UPDATES_LEVEL_NUM, "RTG_TABLE_UPDATES")
 def logger_rtg_table_updates(self, message, *args, **kws):
     if self.isEnabledFor(RTG_TABLE_UPDATES_LEVEL_NUM) and WANT_RTG_TABLE_UPDATES:
-        self._log(RTG_TABLE_UPDATES_LEVEL_NUM, Fore.GREEN+translate_text(message), args, **kws) 
+        self._log(RTG_TABLE_UPDATES_LEVEL_NUM, Fore.MAGENTA+translate_text(message)+Fore.WHITE, args, **kws) 
 logging.Logger.rtg_table_updates = logger_rtg_table_updates
 counter += 1
 
@@ -122,7 +145,7 @@ UNIS_UPDATES_LEVEL_NUM = counter
 logging.addLevelName(UNIS_UPDATES_LEVEL_NUM, "UNIS_UPDATES")
 def logger_unis_updates(self, message, *args, **kws):
     if self.isEnabledFor(UNIS_UPDATES_LEVEL_NUM) and WANT_UNIS_UPDATES:
-        self._log(UNIS_UPDATES_LEVEL_NUM, Fore.MAGENTA+translate_text(message), args, **kws) 
+        self._log(UNIS_UPDATES_LEVEL_NUM, Fore.GREEN+translate_text(message)+Fore.WHITE, args, **kws) 
 logging.Logger.unis_updates = logger_unis_updates
 counter += 1
 
@@ -130,7 +153,7 @@ DATA_FLOW_LEVEL_NUM = counter
 logging.addLevelName(DATA_FLOW_LEVEL_NUM, "DATA_FLOW")
 def logger_data_flow(self, message, *args, **kws):
     if self.isEnabledFor(DATA_FLOW_LEVEL_NUM) and WANT_DATA_FLOW:
-        self._log(DATA_FLOW_LEVEL_NUM, Fore.CYAN+translate_text(message), args, **kws) 
+        self._log(DATA_FLOW_LEVEL_NUM, Fore.CYAN+translate_text(message)+Fore.WHITE, args, **kws) 
 logging.Logger.data_flow = logger_data_flow
 counter += 1
 
@@ -138,7 +161,7 @@ RECEPTION_UPDATES_LEVEL_NUM = counter
 logging.addLevelName(RECEPTION_UPDATES_LEVEL_NUM, "RECEPTION_UPDATES")
 def logger_reception_updates(self, message, *args, **kws):
     if self.isEnabledFor(RECEPTION_UPDATES_LEVEL_NUM) and WANT_RECEPTION_UPDATES:
-        self._log(RECEPTION_UPDATES_LEVEL_NUM, Fore.WHITE+translate_text(message), args, **kws) 
+        self._log(RECEPTION_UPDATES_LEVEL_NUM, Fore.WHITE+translate_text(message)+Fore.WHITE, args, **kws) 
 logging.Logger.reception_updates = logger_reception_updates
 counter += 1
 
@@ -171,8 +194,8 @@ def readable_time(t0):
     except:
         return t0
         
-    if t - wg.sim_start > 0:
-        t = t - wg.sim_start
+    if t - deck.sim_start > 0:
+        t = t - deck.sim_start
         t = t*1 # some kind of fudge factor
    
     return round(t,2)
@@ -199,14 +222,14 @@ def translate_time(var_name): # a literal translation.
     return var_name
 
 def translate_text(V):
-    for dev_id in wg.dev_id2name_mapping:
+    for dev_id in deck.dev_id2name_mapping:
         try:            # test the waters first, because
             dev_id in V # this 
         except:         # may
             continue    # explode!
 
         if dev_id in V:
-            V = V.replace(dev_id,wg.dev_id2name_mapping[dev_id])
+            V = V.replace(dev_id,deck.dev_id2name_mapping[dev_id])
             
     return translate_time(V)
 
@@ -333,7 +356,7 @@ def empty_df(df):
     
 # parameter listing matches function name
 def funnel_q2list(Q,L):
-    while not wg.closing_time and Q.qsize() > 0:
+    while not deck.closing_time and Q.qsize() > 0:
         try:
             item = Q.get_nowait()
             L.append(item)
@@ -369,18 +392,18 @@ def cull_mulligans(L):
 # <https://github.com/datalogistics/wildfire-dln/blob/master/ferry/dln_ferry.py>
 # last accessed March 26, 2019, master branch.
 def register_or_retrieve_node(name):
-    if not wg.HAVE_UNIS: return UNIS_FAIL
+    if not deck.HAVE_UNIS: return UNIS_FAIL
 
-    n = wg.rt.nodes.where({'name': name})
+    n = deck.rt.nodes.where({'name': name})
     try: # allow for reuse. alternatively, throw an error.
         n = next(n)
-        log.unis_updates('node with name=%s found' % (dev_id))
+        log.unis_updates('node with name=%s found' % (name))
     except StopIteration:
         log.unis_updates('node with name=%s not found, creating now' % (name))
         n = Node()
         #n.dev_id = dev_id # note that here, this creation and assignment fails
-        wg.rt.insert(n, commit=True) 
-        wg.rt.flush() 
+        deck.rt.insert(n, commit=True) 
+        deck.rt.flush() 
         update_var(n,'name',name)   
 
     return n
@@ -389,9 +412,9 @@ def node_has_var(node,var_name):
     return var_name in node._obj.__dict__ 
 
 def register_or_retrieve_metadata(subject):
-    if not wg.HAVE_UNIS: return UNIS_FAIL
+    if not deck.HAVE_UNIS: return UNIS_FAIL
 
-    m = wg.rt.metadata.where({'subject': subject})
+    m = deck.rt.metadata.where({'subject': subject})
     try: # allow for reuse. alternatively, throw an error.
         m = next(m)
         log.unis_updates('metadata with subject=%s found' % (subject))
@@ -399,8 +422,8 @@ def register_or_retrieve_metadata(subject):
         log.unis_updates('node with subject=%s not found, creating now' % (subject))
         m = Metadata({'subject':subject})
         #n.dev_id = dev_id # note that here, this creation and assignment fails
-        wg.rt.insert(m, commit=True) 
-        wg.rt.flush() 
+        deck.rt.insert(m, commit=True) 
+        deck.rt.flush() 
 
     return m
 
@@ -429,7 +452,7 @@ def update_var(node,var_name,val):
         S = 'node.%s = %s' % (var_name,quote(val))
         log.unis_updates('variable %s was found, setting now via %s' % (var_name,S))
         exec(S)
-        wg.rt.flush() 
+        deck.rt.flush() 
         return
         
     S = 'node.extendSchema(\'%s\',%s)' % (var_name,quote(val))
@@ -442,11 +465,11 @@ def update_var(node,var_name,val):
 #  cleanly disposing of them when the time comes.
 ###############################################################################    
 
-WHISPER_PATH = '/home/pi/repos/minionfest/whisper/' # full path needed
-WHISPER_C_FN = WHISPER_PATH + 'whisper_c' # if running this process at boot
-WHISPER_C_PROC_CALL = WHISPER_C_FN + ' -i %d -o %d'
-WHISPER_C_RECEIVER_OPT = '--receiver'
-WHISPER_C_TRANSMITTER_OPT = '--transmitter'
+LORA_PATH = '/home/wildfire-dln/lora/lora/' # full path needed
+LORA_C_FN = LORA_PATH + 'lora_c' # if running this process at boot
+LORA_C_PROC_CALL = LORA_C_FN + ' -i %d -o %d'
+LORA_C_RECEIVER_OPT = '--receiver'
+LORA_C_TRANSMITTER_OPT = '--transmitter'
 
 # buckets that will contain all threads, processes, and sockets used for easier mopup() 
 THREAD_BUCKET = [] # one day I'll come up with better names
@@ -461,16 +484,16 @@ def now():
 
 INITIATION_TIME = now()
 
-def start_whisper_c(incoming_port,outgoing_port):
-    proc_call = WHISPER_C_PROC_CALL % (incoming_port,outgoing_port)
+def start_lora_c(incoming_port,outgoing_port):
+    proc_call = lora_c_pROC_CALL % (incoming_port,outgoing_port)
 
     # at most one of these options will be added to the call
-    if wg.RECEIVE_ONLY: proc_call += ' %s' % (WHISPER_C_RECEIVER_OPT)
-    if wg.TRANSMIT_ONLY: proc_call += ' %s' % (WHISPER_C_TRANSMITTER_OPT)
+    if deck.RECEIVE_ONLY: proc_call += ' %s' % (LORA_C_RECEIVER_OPT)
+    if deck.TRANSMIT_ONLY: proc_call += ' %s' % (LORA_C_TRANSMITTER_OPT)
     
     log.info('summoning the c-handler via %s' % (proc_call))
 
-    wg.whisper_c_p = subprocess.Popen(proc_call,shell=True, #TODO remove shell
+    deck.lora_c_p = subprocess.Popen(proc_call,shell=True, #TODO remove shell
         stdin=subprocess.PIPE,stdout=subprocess.PIPE,
         stderr=subprocess.PIPE) # for tidiness
 
@@ -480,11 +503,11 @@ def dump_process_bucket():
         del PROCESS_BUCKET[i]
         log.info('subprocess terminated')
 
-def dispose_of_whisper_c():
-    try: # note that whisper_c_p is the subprocess handle 
-        wg.whisper_c_p.terminate()
-        del wg.whisper_c_p
-        log.info('whisper_c_p disposed of')
+def dispose_of_lora_c():
+    try: # note that lora_c_p is the subprocess handle 
+        deck.lora_c_p.terminate()
+        del deck.lora_c_p
+        log.info('lora_c_p disposed of')
     except:
         pass
 
@@ -495,7 +518,7 @@ def mopup():
     #os.system('./apocalypse.sh') 
 
     dump_process_bucket()
-    dispose_of_whisper_c()
+    dispose_of_lora_c()
 
     for t in THREAD_BUCKET:
         del t
@@ -540,7 +563,7 @@ def find_free_port():
 # <https://stackoverflow.com/questions/1112343/how-do-i-capture-sigint-in-python>
 # last accessed: November 27, 2018
 def signal_handler(sig, frame):
-    wg.closing_time = True
+    deck.closing_time = True
     time.sleep(SNOOZE_TIME)
     mopup()
 
@@ -572,7 +595,7 @@ def spin_until(ts,eps):
         pass
 
 def snooze_and_wait(Q):
-    while not wg.closing_time:
+    while not deck.closing_time:
         if Q.qsize() > 0:
             try:
                 item = Q.get_nowait()
@@ -591,7 +614,7 @@ def gps_available():
     rlat, rlong = retrieve_gps()
     
     # check both to reduce the odds of mistaken lack of availability
-    return rlat == wg.DEFAULT_LATITUDE and rlong == wg.DEFAULT_LONGITUDE
+    return rlat == deck.DEFAULT_LATITUDE and rlong == deck.DEFAULT_LONGITUDE
 
 # Solution from 
 # Solution from mluebke (2011), then edited by monk-time (2017) at StackOverflow 
@@ -607,14 +630,14 @@ def process_running(pn):
 # recognize the hardware it's being run on, the library will avert its
 # inclusion. note that the first two parameters are defined previously line ~454.
 # they are shown here for reference.
-WHISPER_C_FN = wg.CURRENT_PATH + 'whisper_c' # need full path if running this process at boot
-WHISPER_C_SRC_FN = wg.CURRENT_PATH + 'whisper_c.cpp'
-MAKE_CLEAN = 'rm -rf __pycache__ edit %s *.o a.out *.pyc' % (WHISPER_C_FN)
+LORA_C_FN = deck.CURRENT_PATH + 'lora_c' # need full path if running this process at boot
+LORA_C_SRC_FN = deck.CURRENT_PATH + 'lora_c.cpp'
+MAKE_CLEAN = 'rm -rf __pycache__ edit %s *.o a.out *.pyc' % (LORA_C_FN)
 
-if wg.DEVICE_ARCH_IS_RPI: # assume by default we are on an Up Board
-    MAKE_WHISPER = 'g++ -Wall -o %s -lwiringPi -pthread %s' % (WHISPER_C_FN, WHISPER_C_SRC_FN)
+if deck.DEVICE_ARCH_IS_RPI: # assume by default we are on an Up Board
+    MAKE_LORA = 'g++ -Wall -o %s -lwiringPi -pthread %s' % (LORA_C_FN, LORA_C_SRC_FN)
 else:
-    MAKE_WHISPER = 'g++ -Wall -o %s -pthread %s' % (WHISPER_C_FN, WHISPER_C_SRC_FN)
+    MAKE_LORA = 'g++ -Wall -o %s -pthread %s' % (LORA_C_FN, LORA_C_SRC_FN)
 
 # Solution from Jeremy Grifski of The Renegade Coder.
 # "How to Check if a File Exists in Python," posted February 17, 2018, available at:
@@ -624,7 +647,7 @@ def file_exists(fn):
     p = pathlib.Path(fn) 
     return p.is_file()
 
-# check if whisper exists; if not, compile; check for daemons, etc. 
+# check if lora_c exists; if not, compile; check for daemons, etc. 
 def preflight_checks():
     # was this script run with the Python 3 interpreter? 
     major_version_num = sys.version_info[0]
@@ -648,20 +671,20 @@ def preflight_checks():
     '''
 
     # do we have UNIS?
-    if not wg.HAVE_UNIS:
+    if not deck.HAVE_UNIS:
         log.critical('unable to connect to UNIS instance')
 
     # if we're running on hardware,
     if not SIM_MODE:
-        # does whisper-c exist in compiled form?
-        if not file_exists(WHISPER_C_FN): # try compiling
-            log.error('whisper-c executable not found, attempting compilation')
+        # does lora-c exist in compiled form?
+        if not file_exists(LORA_C_FN): # try compiling
+            log.error('lora-c executable not found, attempting compilation')
             os.system(MAKE_CLEAN)
-            os.system(MAKE_WHISPER)
+            os.system(MAKE_LORA)
         
         # if compilation failed, bail
-        if not file_exists(WHISPER_C_FN):
-            log.critical('whisper-c compilation failed')
+        if not file_exists(LORA_C_FN):
+            log.critical('lora-c compilation failed')
             return False
 
         # if we expect it, is GPS available?
@@ -1052,15 +1075,15 @@ def get_my_mac_addr():
 ###############################################################################
 
 # if demoing indoors with little room for movement, add some simulated noise to
-# the retrieved coordinate. seasoning is applied in whisper_protocol.__init__s
+# the retrieved coordinate. seasoning is applied in protocol.__init__s
 def season(): 
-    return np.random.normal(0,wg.BUOY_NOISE_STD)
+    return np.random.normal(0,deck.BUOY_NOISE_STD)
 
 GPS_DEV_READ_LEN=50 # number of lines of output to read from said device
 MAX_GPS_READ_ATTEMPTS=3 # number of times to attempt extraction of GPS coordinates
 
 # path/location to the Hat's GPS device
-if wg.DEVICE_ARCH_IS_RPI: # by default, asssume we're on an Up Board
+if deck.DEVICE_ARCH_IS_RPI: # by default, asssume we're on an Up Board
     GPS_DEV_LOC='/dev/ttyS0' 
 else:
     GPS_DEV_LOC='/dev/ttyS4' 
@@ -1092,8 +1115,8 @@ def extract_coords(S):
 # GPS_DEV_READ_LEN lines of output from GPS_DEV_LOC per attempt, with
 # at most MAX_GPS_READ_ATTEMPTS attempts. 
 def retrieve_gps():
-    latitude = wg.DEFAULT_LATITUDE 
-    longitude = wg.DEFAULT_LONGITUDE
+    latitude = deck.DEFAULT_LATITUDE 
+    longitude = deck.DEFAULT_LONGITUDE
 
     for i in range(MAX_GPS_READ_ATTEMPTS):
         p = subprocess.Popen(GPS_DEV_PROC_CALL,shell=True, #TODO remove shell
@@ -1138,7 +1161,7 @@ FAKE_ONBOARD_TEMPERATURE = -42.
 # <https://medium.com/@kevalpatel2106/monitor-the-core-temperature-of-your-raspberry-pi-3ddfdf82989f>
 # last accessed: June 28, 2019
 def get_onboard_temp():
-    if wg.DEVICE_ARCH_IS_RPI:
+    if deck.DEVICE_ARCH_IS_RPI:
         temp = os.popen('vcgencmd measure_temp').readline()
         return float(temp.replace('temp=','').replace('\'C',''))    
 

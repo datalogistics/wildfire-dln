@@ -1,30 +1,30 @@
 '''**************************************************************************
 
-File: whisper_protocol.py
+File: protocol.py
 Language: Python 3.6.8
 Author: Juliette Zerick (jzerick@iu.edu)
         for the WildfireDLN Project
         OPeN Networks Lab at Indiana University-Bloomington
 
 In this file the class lora_message encapsulates the protocol used in the
-whisper tool. For the moment it is defined and processed as ASCII strings.
+lora tool. For the moment it is defined and processed as ASCII strings.
 The class has methods to verify the validity of7 strings as legitimate
 packets handled by the protocol. The fields are defined in a long
 comment a few lines farther down.
 
-Last modified: August 12, 2019
+Last modified: September 10, 2019
 
 ****************************************************************************'''
 
 import copy # for copy.deepcopy()
 import pandas as pd
 
-from whisper_settings import * # contains protocol utilities for tidiness
-import whisper_globals as wg
+from settings import * # contains protocol utilities for tidiness
+import deck
 
 '''
-The class lora_message encapsulates the protocol and switch behavior of whisper-py.
-Relevant messages (~packets) are received from whisper-c, fed to the inbox_q, then 
+The class lora_message encapsulates the protocol and switch behavior of lora-py.
+Relevant messages (~packets) are received from lora-c, fed to the inbox_q, then 
 consumed.
 
 The protocol uses ASCII-encoded messages (for now):
@@ -266,10 +266,10 @@ class lora_message:
             # to simulate movement of the device, like a buoy in the ocean
             # subjected to Brownian motion
             if self.obs_gps_lat == DEFAULT_LATITUDE:
-                if wg.USE_BUOY_EFFECT: self.obs_gps_lat += season()
+                if deck.USE_BUOY_EFFECT: self.obs_gps_lat += season()
 
             if self.obs_gps_long == DEFAULT_LONGITUDE:
-                if wg.USE_BUOY_EFFECT: self.obs_gps_long += season()
+                if deck.USE_BUOY_EFFECT: self.obs_gps_long += season()
 
             self.is_harvestable = True
 
