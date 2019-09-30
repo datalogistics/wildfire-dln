@@ -34,7 +34,9 @@ import os
 import argparse
 from colorama import init, Fore, Back, Style
 
-import bridge
+# bear in mind the importation of these modules will be executed above the
+# modules' containing directory
+import lora.bridge as bridge
 
 if bridge.HAVE_UNIS:
     try:
@@ -465,7 +467,7 @@ def update_var(node,var_name,val):
 #  cleanly disposing of them when the time comes.
 ###############################################################################    
 
-LORA_PATH = '/home/wildfire-dln/lora/lora/' # full path needed
+LORA_PATH = bridge.CURRENT_PATH + 'lora/' # full path needed
 LORA_C_FN = LORA_PATH + 'lora_c' # if running this process at boot
 LORA_C_PROC_CALL = LORA_C_FN + ' -i %d -o %d'
 LORA_C_RECEIVER_OPT = '--receiver'

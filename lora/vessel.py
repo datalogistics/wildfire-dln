@@ -35,10 +35,11 @@ import copy
 from math import floor, ceil
 
 from scipy.interpolate import griddata
-#import matplotlib.pyplot as plt # not yet
 
-from cargo import *
-import bridge
+# bear in mind the importation of these modules will be executed above the
+# modules' containing directory
+from lora.cargo import *
+import lora.bridge as bridge
 
 # check if UNIS is available. this test should have already been performed in bridge.py
 if bridge.HAVE_UNIS:
@@ -48,12 +49,6 @@ if bridge.HAVE_UNIS:
         #rt = Runtime('http://localhost:9000') # performed in bridge
     except:
         pass
-
-# TODO fix or remove
-#if bridge.ANIMATING:
-#    import matplotlib
-#    matplotlib.use('GTK3Agg')
-import matplotlib.pyplot as plt
 
 TABLE_NONCASE = ''
 UPDATE_TIME = 10
@@ -74,9 +69,6 @@ class vessel:
             self.my_dev_id = get_my_mac_addr() 
 
         bridge.dev_id2name_mapping[self.my_dev_id] = self.my_name
-
-        if bridge.DEMOING and bridge.ANIMATING:
-            self.fig, self.ax = plt.subplots()
 
         # for storing messages, and looking them up later
         self.msg_lookup = {}
@@ -542,49 +534,6 @@ class vessel:
             #log.plumbing_issues(self.add_name("sent packet: %s" % (pkt)))
             print('sent',pkt)
 
-    def animator(self): # doesn't actually animate
-        log.thread_status_updates(self.add_name('thread active'))
-        self.fig,self.ax = plt.subplots()
-
-        num_points = 0
-        
-        while not bridge.closing_time:
-            time.sleep(1)
-
-            if len(self.temp_df) > 3 and len(self.temp_df) > num_points:
-                num_points = len(self.temp_df)
-
-                x = np.array(self.temp_df['obs_gps_long'])
-                y = np.array(self.temp_df['obs_gps_lat'])
-                z = np.array(self.temp_df['obs_val'])                
-
-                print(self.temp_df)
-        
-                xmin = np.min(x)
-                xmax = np.max(x)
-                ymin = np.min(y)
-                ymax = np.max(y)
-
-                stepsize = min([abs(xmax-xmin),abs(ymax-ymin)])/100
-
-                try:
-                    xi = np.arange(xmin,xmax+stepsize,stepsize)
-                    yi = np.arange(ymin,ymax+stepsize,stepsize)
-                    xi, yi = np.meshgrid(xi,yi)
-                    zi = griddata((x,y),z,(xi,yi),method='cubic')
-                except:
-                    time.sleep(3)
-                    continue
-                                
-                #self.ax.clear()
-                #self.fig.clf()
-                self.ax.contourf(xi,yi,zi)
-                plt.xlabel('longitude',fontsize=14)
-                plt.ylabel('latitude',fontsize=14)
-                plt.title('Composite contour map of locally interpolated, simulated temperature values')
-
-                plt.pause(0.06)
-
     def emcee(self): # vessel name is the hostname
         while not bridge.closing_time:
             start_time = now()
@@ -920,12 +869,6 @@ class vessel:
         THREAD_BUCKET.append(self.emcee_t) # for easier cleanup
         self.emcee_t.start()
 
-    def summon_animator(self):
-        self.animator_t = threading.Thread(target=self.animator, args = [])
-        self.animator_t.daemon = True # so it does with the host process
-        THREAD_BUCKET.append(self.animator_t) # for easier cleanup
-        self.animator_t.start()
-
     # summon threads to communicate with wihsper-c
     def summon_comms_threads(self):
         self.c_listener_t = threading.Thread(target=self.c_listener, args = [])
@@ -1000,10 +943,7 @@ class vessel:
 
                 ''' % (self.incoming_port,self.outgoing_port))
 
-        if bridge.DEMOING:
-            self.temp_df = []
+        if bridge.USE_EMCEE: 
             self.summon_emcee()   
 
-        if bridge.DEMOING and bridge.ANIMATING:
-            self.summon_animator()
 

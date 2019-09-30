@@ -105,11 +105,10 @@ else:
     DEVICE_ARCH_IS_UPB = True
 
 # re/set via command-line arguments
-DEMOING = False
-ANIMATING = False # when available
 SIM_MODE = False
 RECEIVE_ONLY = False
 TRANSMIT_ONLY = False
+USE_EMCEE = False
 USE_BUOY_EFFECT = False
 USING_WHISPER_C_HANDLER = True
 
@@ -133,3 +132,5 @@ DEFAULT_LONGITUDE += INTENTIONAL_SMUDGE
 CURRENT_PATH = os.getcwd()
 if CURRENT_PATH[-1] != '/':
     CURRENT_PATH += '/'
+
+print(CURRENT_PATH)

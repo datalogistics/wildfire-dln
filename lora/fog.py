@@ -22,9 +22,11 @@ Last modified: September 10, 2019
 
 import argparse
 
-import lora.deck as deck
+# bear in mind the importation of these modules will be executed above the
+# modules' containing directory
+import lora.bridge as deck
 from lora.vessel import *
-from lora.sim import *
+#from lora.sim import *
 
 # Command-line option parsing solution based off an example in the docs, i.e.
 # Python Documentation on argparse, available at
@@ -36,9 +38,8 @@ def handle_opts():
     parser.add_argument('-m', '--manual', help='run lora_c manually',action="store_true")
     parser.add_argument('-r', '--receiver', help='receive only',action="store_true")
     parser.add_argument('-t', '--transmitter', help='transmit only',action="store_true")
+    parser.add_argument('-e', '--emcee', help='use the emcee',action="store_true")
     parser.add_argument('-f', '--defcoords', help='set default GPS coordinates as \'(lat,long)\'')
-    parser.add_argument('-d', '--demo', help='demo mode',action="store_true")
-    parser.add_argument('-a', '--anim', help='live visualization of temperature',action="store_true") 
     parser.add_argument('-b', '--buoy', \
         help='use fixed coordinates with artificial noise',action="store_true")
     parser.add_argument('-s', '--sim', help='simulation mode',action="store_true")
@@ -54,45 +55,38 @@ def handle_opts():
 
     # check for invalid combinations first
     
-    # can't be in receive-only and transmit-only modes simultaneously
-    if args.receiver and args.transmitter: 
-        log.error('receive-only and transmit-only modes selected. ' + \
-            'please pick --receiver, --transmitter, or transceiver mode (default)')
+    # can't be in receive-only/transmit-only/emcee-only modes simultaneously
+    # note that boolean addition (+) reverts to integer addition
+    if sum([args.receiver,args.transmitter,args.emcee]) > 1:
+        log.error('more than one mode was selected. ' + \
+                'if you are not using the default transceiver behavior, ' + \
+                'please select only ONE of the following modes:\n' + \
+                '\treceiver mode\t\t--receiver\n'
+                '\ttransmitter mode\t\t--transmitter\n' 
+                '\temcee mode\t\t--emcee')
         return False
     
-    # animation requires demonstration mode
-    if args.anim and not args.demo: 
-        log.error('animation (--anim) requires demonstration-mode enabled, i.e. --demo.')
-        return False
-    
-    # a simulation isn't a demonstration
-    if args.demo and args.sim: 
-        log.error('simulations (--sim) and demonstrations (--demo) cannot be run simultaneously.')
-        return False
-
     # now sanity checks on input data
 
     # check whether coordinates make sense
     if args.defcoords != None:
         if not are_plausible_GPS_coordinates(args.defcoords): 
-            log.error('receive-only and transmit-only modes selected. ' + \
-                'please pick --receiver, --transmitter, or transceiver mode (default)')
+            log.error('specified GPS coordinates are implausible.')
             return False
             
         # otherwise, extract the data here
         arg_lat, arg_long = pluck_GPS_coordinates(args.defcoords)
-        deck.DEFAULT_LATITUDE = arg_lat
-        deck.BLOOMINGTON_LONGITUDE = arg_long
+        bridge.DEFAULT_LATITUDE = arg_lat
+        bridge.BLOOMINGTON_LONGITUDE = arg_long
 
     # extract the remaining data
     
-    deck.DEMOING = args.demo
-    deck.ANIMATING = args.anim
-    deck.SIM_MODE = args.sim
-    deck.RECEIVE_ONLY = args.receiver
-    deck.TRANSMIT_ONLY = args.transmitter
-    deck.USE_BUOY_EFFECT = args.buoy
-    deck.USING_LORA_C_HANDLER = not args.manual
+    bridge.SIM_MODE = args.sim
+    bridge.RECEIVE_ONLY = args.receiver
+    bridge.TRANSMIT_ONLY = args.transmitter
+    bridge.USE_EMCEE = args.emcee
+    bridge.USE_BUOY_EFFECT = args.buoy
+    bridge.USING_LORA_C_HANDLER = not args.manual
 
     return True
 
@@ -103,7 +97,7 @@ def begin():
         log.critical('preflight checks failed, bailing!')
         exit(1)
     
-    if deck.SIM_MODE:
+    if bridge.SIM_MODE:
         log.info('simulation starting')
         sim = fleet()
         sim.run() 
@@ -112,7 +106,7 @@ def begin():
         M = vessel(my_name)
         M.begin() 
   
-    while not deck.closing_time:
+    while not bridge.closing_time:
         time.sleep(SNOOZE_TIME)  
 
 if __name__ == "__main__":
