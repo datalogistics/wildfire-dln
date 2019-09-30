@@ -38,19 +38,19 @@ from scipy.interpolate import griddata
 #import matplotlib.pyplot as plt # not yet
 
 from cargo import *
-import deck
+import bridge
 
-# check if UNIS is available. this test should have already been performed in deck.py
-if deck.HAVE_UNIS:
+# check if UNIS is available. this test should have already been performed in bridge.py
+if bridge.HAVE_UNIS:
     try:
         from unis.runtime import Runtime   
         from unis.models import Node, schemaLoader
-        #rt = Runtime('http://localhost:9000') # performed in deck
+        #rt = Runtime('http://localhost:9000') # performed in bridge
     except:
         pass
 
 # TODO fix or remove
-#if deck.ANIMATING:
+#if bridge.ANIMATING:
 #    import matplotlib
 #    matplotlib.use('GTK3Agg')
 import matplotlib.pyplot as plt
@@ -73,19 +73,19 @@ class vessel:
         else:
             self.my_dev_id = get_my_mac_addr() 
 
-        deck.dev_id2name_mapping[self.my_dev_id] = self.my_name
+        bridge.dev_id2name_mapping[self.my_dev_id] = self.my_name
 
-        if deck.DEMOING and deck.ANIMATING:
+        if bridge.DEMOING and bridge.ANIMATING:
             self.fig, self.ax = plt.subplots()
 
         # for storing messages, and looking them up later
         self.msg_lookup = {}
 
-        if deck.HAVE_UNIS:
+        if bridge.HAVE_UNIS:
             # find or create an appropriate node
-            if deck.HAVE_FERRY_NODE: # are we on a ferry with a node already?
-                self.my_node = deck.MY_FERRY_NODE 
-                self.my_node_name = deck.MY_FERRY_NODE_NAME
+            if bridge.HAVE_FERRY_NODE: # are we on a ferry with a node already?
+                self.my_node = bridge.MY_FERRY_NODE 
+                self.my_node_name = bridge.MY_FERRY_NODE_NAME
             else: 
                 self.my_node = register_or_retrieve_node(self.my_dev_id) 
                 self.my_node_name = self.my_dev_id
@@ -150,7 +150,7 @@ class vessel:
             return []
 
         bundle = []
-        while not deck.closing_time and self.outbox_q.qsize() > 0:
+        while not bridge.closing_time and self.outbox_q.qsize() > 0:
             try:
                 item = self.outbox_q.get_nowait()
             except: # no messages
@@ -164,11 +164,11 @@ class vessel:
         last_updated = now()
         last_batch = []
 
-        while not deck.closing_time:
+        while not bridge.closing_time:
             lmsg = snooze_and_wait(self.glean_q)
             
             # not enough time to do a last gleaner_update here
-            if deck.closing_time: break
+            if bridge.closing_time: break
             
             # note that while the postal_sorter checks for invalid packets, transmit does not
             #if not lmsg.pkt_valid:
@@ -181,7 +181,7 @@ class vessel:
             last_batch.append(mini_df)
             
             # get data, insert into UNIS node
-            if lmsg.harvestable and deck.HAVE_UNIS:
+            if lmsg.harvestable and bridge.HAVE_UNIS:
                 t = (lmsg.obs_time,lmsg.obs_dev_id,lmsg.obs_gps_lat,lmsg.obs_gps_long)
                 self.my_data_stream.append(t)
 
@@ -212,9 +212,9 @@ class vessel:
     def promoter(self):
         log.thread_status_updates(self.add_name('thread active'))
 
-        while not deck.closing_time:
+        while not bridge.closing_time:
             lmsg = snooze_and_wait(self.promotion_q)
-            if deck.closing_time: break
+            if bridge.closing_time: break
 
             init_sender = lmsg.init_sender_addr
             relaying_node = lmsg.sender_addr
@@ -274,9 +274,9 @@ class vessel:
     def request_handler(self): #TODO fix payload
         log.thread_status_updates(self.add_name('thread active'))
 
-        while not deck.closing_time:
+        while not bridge.closing_time:
             lmsg = snooze_and_wait(self.request_q)
-            if deck.closing_time: break
+            if bridge.closing_time: break
             lmsg.hit_request = True
 
             # we've got mail!
@@ -314,7 +314,7 @@ class vessel:
                 reply_data_not_found = True
 
                 # data requested from the UNIS instance, specifically
-                if deck.HAVE_UNIS and lmsg.msg_type == MSG_TYPE_UNIS_GET_REQUEST:
+                if bridge.HAVE_UNIS and lmsg.msg_type == MSG_TYPE_UNIS_GET_REQUEST:
                     if dev_id == ANY_DEVICE or dev_id == self.my_dev_id: # valid parameter here
                         node = self.my_node
                     else:
@@ -328,7 +328,7 @@ class vessel:
                 # generic request, or UNIS GET request when not using UNIS. 
                 # be kind and check the DataFrame, and hope for the best.
                 elif lmsg.msg_type == MSG_TYPE_QUERY or \
-                (lmsg.msg_type == MSG_TYPE_UNIS_GET_REQUEST and not deck.HAVE_UNIS):
+                (lmsg.msg_type == MSG_TYPE_UNIS_GET_REQUEST and not bridge.HAVE_UNIS):
                     if dev_id == ANY_DEVICE or dev_id == self.my_dev_id: 
                         dev_id == self.my_dev_id
 
@@ -362,9 +362,9 @@ class vessel:
         log.thread_status_updates(self.add_name('postal sorter active'))
         msgs_seen = set()
 
-        while not deck.closing_time:
+        while not bridge.closing_time:
             lmsg = snooze_and_wait(self.inbox_q)
-            if deck.closing_time: break
+            if bridge.closing_time: break
 
             print('got something!!!!!!!!!!!!!!!');
 
@@ -427,17 +427,17 @@ class vessel:
         eps = 10e-3 # increase in size to avoid losing packets
         mulligan_bucket = []
 
-        while not deck.closing_time:
+        while not bridge.closing_time:
             # synchronize with the lora_listener, and other devices
             
-            while now() % 10 > eps and not deck.closing_time: 
+            while now() % 10 > eps and not bridge.closing_time: 
                 pass # status will be RESET initially
 
             start_time = floor(now())
             curr_time = start_time
             m = 0
             
-            while not deck.closing_time and m < len(self.my_ordering):
+            while not bridge.closing_time and m < len(self.my_ordering):
                 curr_phase = self.my_ordering[m]
                 
                 if m > 0: last_phase = self.my_ordering[m-1]
@@ -502,8 +502,8 @@ class vessel:
         log.plumbing_issues(self.add_name('connector address is %s' % (str(out_addr))))
 
         # if response not ready, put it back in the queue
-        while not deck.closing_time:
-            if deck.lora_c_is_dead:
+        while not bridge.closing_time:
+            if bridge.lora_c_is_dead:
                 log.plumbing_issues(self.add_name('listening on port %d...' % (self.outgoing_port)))
                 self.out_s.listen(1)
                 out_conn, out_addr = self.out_s.accept()
@@ -515,7 +515,7 @@ class vessel:
 
             # pull something from the queue here
             lmsg = snooze_and_wait(self.outbox_q)
-            if deck.closing_time: break
+            if bridge.closing_time: break
  
             #TODO repeatedly send add counter within this func only, decrement 
  
@@ -536,7 +536,7 @@ class vessel:
             if not ret_val: 
                 #self.transmit(lmsg)  # unnecessary thanks to mulligans. left as a reminder.
                 log.plumbing_issues(self.add_name('lora-c is dead?'))
-                deck.lora_c_is_dead = True
+                bridge.lora_c_is_dead = True
                 continue
 
             #log.plumbing_issues(self.add_name("sent packet: %s" % (pkt)))
@@ -548,7 +548,7 @@ class vessel:
 
         num_points = 0
         
-        while not deck.closing_time:
+        while not bridge.closing_time:
             time.sleep(1)
 
             if len(self.temp_df) > 3 and len(self.temp_df) > num_points:
@@ -586,7 +586,7 @@ class vessel:
                 plt.pause(0.06)
 
     def emcee(self): # vessel name is the hostname
-        while not deck.closing_time:
+        while not bridge.closing_time:
             start_time = now()
             self.temp_df = self.temp_dataset()
             end_time = now()  
@@ -755,8 +755,8 @@ class vessel:
 
         log.plumbing_issues(self.add_name('connector address is %s' % (str(inc_addr))))
 
-        while not deck.closing_time:
-            if deck.lora_c_is_dead:
+        while not bridge.closing_time:
+            if bridge.lora_c_is_dead:
                 log.plumbing_issues(self.add_name('listening on port %d...' % (self.incoming_port)))
                 self.inc_s.listen(1)
                 inc_conn, inc_addr = self.inc_s.accept()
@@ -767,7 +767,7 @@ class vessel:
                 stream = inc_conn.recv(BUFFER_SIZE)
             except:
                 log.plumbing_issues(self.add_name('lora-c is dead?'))
-                deck.lora_c_is_dead = True
+                bridge.lora_c_is_dead = True
                 continue
 
             if not stream:
@@ -881,29 +881,29 @@ class vessel:
     # <https://eli.thegreenplace.net/2017/interacting-with-a-long-running-child-process-in-python/>
     # last accessed: August 22, 2019
     def attempt_read(): 
-        return deck.lora_c_p.stdout.readline().decode('utf-8')
+        return bridge.lora_c_p.stdout.readline().decode('utf-8')
 
     # a handler for lora-c when stable enough to run unsupervised
     def c_handler(self):
         start_lora_c(self.incoming_port,self.outgoing_port)
         last_observed = now()
     
-        while not deck.closing_time: 
-            if deck.lora_c_is_dead:
+        while not bridge.closing_time: 
+            if bridge.lora_c_is_dead:
                 dispose_of_lora_c() # lora-c is dead
                 start_lora_c(self.incoming_port,self.outgoing_port) # long live lora-c
-                deck.lora_c_is_dead = False
+                bridge.lora_c_is_dead = False
                 print('long live lora-c')
 
             # I could have implemented a keep-alive message via socket but 
             # figured I might at some point need to observe the process more closely
-            while not deck.lora_c_is_dead:
+            while not bridge.lora_c_is_dead:
                 line = self.attempt_read()
                 print(line) #TODO remove once stable
                 if line != '':
                     last_observed = now()
                 if now() - last_observed > PRESUMED_DEAD:
-                    deck.lora_c_is_dead = True
+                    bridge.lora_c_is_dead = True
                     break
                 time.sleep(1)
                 print('checking for pulse again') #TODO remove as well
@@ -987,7 +987,7 @@ class vessel:
 
         if not SIM_MODE:
             # summon the c-handler or print out the ports to start the process manually
-            if deck.USING_lora_c_HANDLER:
+            if bridge.USING_lora_c_HANDLER:
                 self.summon_handler()
             else: # notify the user they need to run lora-c manually
                 log.warning( \
@@ -1000,10 +1000,10 @@ class vessel:
 
                 ''' % (self.incoming_port,self.outgoing_port))
 
-        if deck.DEMOING:
+        if bridge.DEMOING:
             self.temp_df = []
             self.summon_emcee()   
 
-        if deck.DEMOING and deck.ANIMATING:
+        if bridge.DEMOING and bridge.ANIMATING:
             self.summon_animator()
 

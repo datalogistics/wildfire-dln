@@ -28,7 +28,7 @@ import numpy as np
 from math import ceil
 
 from vessel import *
-import deck
+import bridge
 
 ###############################################################################
 #  FLAGS AND SETTINGS
@@ -162,7 +162,7 @@ def create_spiral():
 
 class whisper_sim:
     def __init__(self):
-        self.rt = deck.rt
+        self.rt = bridge.rt
         self.fleet = []
 
         self.fleet = create_random_fleet()
@@ -212,7 +212,7 @@ class whisper_sim:
                 
         added_blast_to_legend = False   
     
-        while not deck.closing_time:
+        while not bridge.closing_time:
             for M in self.fleet:
                 for msg in M.dump_outbox():
                     if USING_PLOT:
@@ -369,7 +369,7 @@ class whisper_sim:
         
         time.sleep(2)
         '''
-        deck.closing_time = True
+        bridge.closing_time = True
         mopup()
 
         fig = plt.figure()

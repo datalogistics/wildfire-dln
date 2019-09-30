@@ -1,7 +1,7 @@
 import pandas as pd
 
 from protocol import *
-import deck
+import bridge
 
 LAST_OBS_VAR_NAME = 'last_obs_time'
 
@@ -61,7 +61,7 @@ class cargo_hold:
         print(self.name,'who needs whom',self.who_needs_whom)
         print(self.name,'who does not need whom',self.who_does_not_need_whom)
 
-        print(deck.dev_id2name_mapping)
+        print(bridge.dev_id2name_mapping)
         
     def seen_msg(self,lmsg):
         skey = lmsg.skey
@@ -69,11 +69,11 @@ class cargo_hold:
         return skey in all_skeys
 
     def update_table_entry(self,idx,col_name,val): # keep for reference!
-        if deck.closing_time: return # avoid threading errors during shutdown
+        if bridge.closing_time: return # avoid threading errors during shutdown
         if idx not in self.df.index or col_name not in self.df.columns: return
 
         # no checks for pre-existing data
-        if not deck.closing_time:
+        if not bridge.closing_time:
             self.data_lock.acquire()
             '''
             A reminder:
@@ -92,7 +92,7 @@ class cargo_hold:
             except IndexError:
                 log.error('failure! saving progress to file for analysis')
                 self.df.to_csv('update-failure-%s-%s-%s.csv' % (idx,col_name,val))
-                deck.closing_time = True
+                bridge.closing_time = True
                 mopup()  
     
             self.data_lock.release()
@@ -119,7 +119,7 @@ class cargo_hold:
         n.location.longitude = gps_long
         n.location.latitude = gps_lat
         n.location.last_obs_time = obs_time
-        deck.rt.flush()
+        bridge.rt.flush()
 
     def update_devices_seen(self):
         dev_seen = set(self.df['sender_dev_id']) \
@@ -129,7 +129,7 @@ class cargo_hold:
         self.devices_seen = dev_seen
         self.data_lock.release()
 
-        if deck.HAVE_UNIS:
+        if bridge.HAVE_UNIS:
             for d in self.devices_seen:
                 # do we have data? 
                 (gps_lat,gps_long,obs_time) = self.estimate_loc(d,now())

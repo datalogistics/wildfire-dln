@@ -20,7 +20,7 @@ import copy # for copy.deepcopy()
 import pandas as pd
 
 from settings import * # contains protocol utilities for tidiness
-import deck
+import bridge
 
 '''
 The class lora_message encapsulates the protocol and switch behavior of lora-py.
@@ -266,10 +266,10 @@ class lora_message:
             # to simulate movement of the device, like a buoy in the ocean
             # subjected to Brownian motion
             if self.obs_gps_lat == DEFAULT_LATITUDE:
-                if deck.USE_BUOY_EFFECT: self.obs_gps_lat += season()
+                if bridge.USE_BUOY_EFFECT: self.obs_gps_lat += season()
 
             if self.obs_gps_long == DEFAULT_LONGITUDE:
-                if deck.USE_BUOY_EFFECT: self.obs_gps_long += season()
+                if bridge.USE_BUOY_EFFECT: self.obs_gps_long += season()
 
             self.is_harvestable = True
 

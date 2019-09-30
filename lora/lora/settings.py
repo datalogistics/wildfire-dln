@@ -34,9 +34,9 @@ import os
 import argparse
 from colorama import init, Fore, Back, Style
 
-import deck
+import bridge
 
-if deck.HAVE_UNIS:
+if bridge.HAVE_UNIS:
     try:
         #from unis import Runtime # is there a difference?
         from unis.runtime import Runtime   
@@ -194,8 +194,8 @@ def readable_time(t0):
     except:
         return t0
         
-    if t - deck.sim_start > 0:
-        t = t - deck.sim_start
+    if t - bridge.sim_start > 0:
+        t = t - bridge.sim_start
         t = t*1 # some kind of fudge factor
    
     return round(t,2)
@@ -222,14 +222,14 @@ def translate_time(var_name): # a literal translation.
     return var_name
 
 def translate_text(V):
-    for dev_id in deck.dev_id2name_mapping:
+    for dev_id in bridge.dev_id2name_mapping:
         try:            # test the waters first, because
             dev_id in V # this 
         except:         # may
             continue    # explode!
 
         if dev_id in V:
-            V = V.replace(dev_id,deck.dev_id2name_mapping[dev_id])
+            V = V.replace(dev_id,bridge.dev_id2name_mapping[dev_id])
             
     return translate_time(V)
 
@@ -356,7 +356,7 @@ def empty_df(df):
     
 # parameter listing matches function name
 def funnel_q2list(Q,L):
-    while not deck.closing_time and Q.qsize() > 0:
+    while not bridge.closing_time and Q.qsize() > 0:
         try:
             item = Q.get_nowait()
             L.append(item)
@@ -392,9 +392,9 @@ def cull_mulligans(L):
 # <https://github.com/datalogistics/wildfire-dln/blob/master/ferry/dln_ferry.py>
 # last accessed March 26, 2019, master branch.
 def register_or_retrieve_node(name):
-    if not deck.HAVE_UNIS: return UNIS_FAIL
+    if not bridge.HAVE_UNIS: return UNIS_FAIL
 
-    n = deck.rt.nodes.where({'name': name})
+    n = bridge.rt.nodes.where({'name': name})
     try: # allow for reuse. alternatively, throw an error.
         n = next(n)
         log.unis_updates('node with name=%s found' % (name))
@@ -402,8 +402,8 @@ def register_or_retrieve_node(name):
         log.unis_updates('node with name=%s not found, creating now' % (name))
         n = Node()
         #n.dev_id = dev_id # note that here, this creation and assignment fails
-        deck.rt.insert(n, commit=True) 
-        deck.rt.flush() 
+        bridge.rt.insert(n, commit=True) 
+        bridge.rt.flush() 
         update_var(n,'name',name)   
 
     return n
@@ -412,9 +412,9 @@ def node_has_var(node,var_name):
     return var_name in node._obj.__dict__ 
 
 def register_or_retrieve_metadata(subject):
-    if not deck.HAVE_UNIS: return UNIS_FAIL
+    if not bridge.HAVE_UNIS: return UNIS_FAIL
 
-    m = deck.rt.metadata.where({'subject': subject})
+    m = bridge.rt.metadata.where({'subject': subject})
     try: # allow for reuse. alternatively, throw an error.
         m = next(m)
         log.unis_updates('metadata with subject=%s found' % (subject))
@@ -422,8 +422,8 @@ def register_or_retrieve_metadata(subject):
         log.unis_updates('node with subject=%s not found, creating now' % (subject))
         m = Metadata({'subject':subject})
         #n.dev_id = dev_id # note that here, this creation and assignment fails
-        deck.rt.insert(m, commit=True) 
-        deck.rt.flush() 
+        bridge.rt.insert(m, commit=True) 
+        bridge.rt.flush() 
 
     return m
 
@@ -452,7 +452,7 @@ def update_var(node,var_name,val):
         S = 'node.%s = %s' % (var_name,quote(val))
         log.unis_updates('variable %s was found, setting now via %s' % (var_name,S))
         exec(S)
-        deck.rt.flush() 
+        bridge.rt.flush() 
         return
         
     S = 'node.extendSchema(\'%s\',%s)' % (var_name,quote(val))
@@ -488,12 +488,12 @@ def start_lora_c(incoming_port,outgoing_port):
     proc_call = lora_c_pROC_CALL % (incoming_port,outgoing_port)
 
     # at most one of these options will be added to the call
-    if deck.RECEIVE_ONLY: proc_call += ' %s' % (LORA_C_RECEIVER_OPT)
-    if deck.TRANSMIT_ONLY: proc_call += ' %s' % (LORA_C_TRANSMITTER_OPT)
+    if bridge.RECEIVE_ONLY: proc_call += ' %s' % (LORA_C_RECEIVER_OPT)
+    if bridge.TRANSMIT_ONLY: proc_call += ' %s' % (LORA_C_TRANSMITTER_OPT)
     
     log.info('summoning the c-handler via %s' % (proc_call))
 
-    deck.lora_c_p = subprocess.Popen(proc_call,shell=True, #TODO remove shell
+    bridge.lora_c_p = subprocess.Popen(proc_call,shell=True, #TODO remove shell
         stdin=subprocess.PIPE,stdout=subprocess.PIPE,
         stderr=subprocess.PIPE) # for tidiness
 
@@ -505,8 +505,8 @@ def dump_process_bucket():
 
 def dispose_of_lora_c():
     try: # note that lora_c_p is the subprocess handle 
-        deck.lora_c_p.terminate()
-        del deck.lora_c_p
+        bridge.lora_c_p.terminate()
+        del bridge.lora_c_p
         log.info('lora_c_p disposed of')
     except:
         pass
@@ -563,7 +563,7 @@ def find_free_port():
 # <https://stackoverflow.com/questions/1112343/how-do-i-capture-sigint-in-python>
 # last accessed: November 27, 2018
 def signal_handler(sig, frame):
-    deck.closing_time = True
+    bridge.closing_time = True
     time.sleep(SNOOZE_TIME)
     mopup()
 
@@ -595,7 +595,7 @@ def spin_until(ts,eps):
         pass
 
 def snooze_and_wait(Q):
-    while not deck.closing_time:
+    while not bridge.closing_time:
         if Q.qsize() > 0:
             try:
                 item = Q.get_nowait()
@@ -614,7 +614,7 @@ def gps_available():
     rlat, rlong = retrieve_gps()
     
     # check both to reduce the odds of mistaken lack of availability
-    return rlat == deck.DEFAULT_LATITUDE and rlong == deck.DEFAULT_LONGITUDE
+    return rlat == bridge.DEFAULT_LATITUDE and rlong == bridge.DEFAULT_LONGITUDE
 
 # Solution from 
 # Solution from mluebke (2011), then edited by monk-time (2017) at StackOverflow 
@@ -630,11 +630,11 @@ def process_running(pn):
 # recognize the hardware it's being run on, the library will avert its
 # inclusion. note that the first two parameters are defined previously line ~454.
 # they are shown here for reference.
-LORA_C_FN = deck.CURRENT_PATH + 'lora_c' # need full path if running this process at boot
-LORA_C_SRC_FN = deck.CURRENT_PATH + 'lora_c.cpp'
+LORA_C_FN = bridge.CURRENT_PATH + 'lora_c' # need full path if running this process at boot
+LORA_C_SRC_FN = bridge.CURRENT_PATH + 'lora_c.cpp'
 MAKE_CLEAN = 'rm -rf __pycache__ edit %s *.o a.out *.pyc' % (LORA_C_FN)
 
-if deck.DEVICE_ARCH_IS_RPI: # assume by default we are on an Up Board
+if bridge.DEVICE_ARCH_IS_RPI: # assume by default we are on an Up Board
     MAKE_LORA = 'g++ -Wall -o %s -lwiringPi -pthread %s' % (LORA_C_FN, LORA_C_SRC_FN)
 else:
     MAKE_LORA = 'g++ -Wall -o %s -pthread %s' % (LORA_C_FN, LORA_C_SRC_FN)
@@ -671,7 +671,7 @@ def preflight_checks():
     '''
 
     # do we have UNIS?
-    if not deck.HAVE_UNIS:
+    if not bridge.HAVE_UNIS:
         log.critical('unable to connect to UNIS instance')
 
     # if we're running on hardware,
@@ -1077,13 +1077,13 @@ def get_my_mac_addr():
 # if demoing indoors with little room for movement, add some simulated noise to
 # the retrieved coordinate. seasoning is applied in protocol.__init__s
 def season(): 
-    return np.random.normal(0,deck.BUOY_NOISE_STD)
+    return np.random.normal(0,bridge.BUOY_NOISE_STD)
 
 GPS_DEV_READ_LEN=50 # number of lines of output to read from said device
 MAX_GPS_READ_ATTEMPTS=3 # number of times to attempt extraction of GPS coordinates
 
 # path/location to the Hat's GPS device
-if deck.DEVICE_ARCH_IS_RPI: # by default, asssume we're on an Up Board
+if bridge.DEVICE_ARCH_IS_RPI: # by default, asssume we're on an Up Board
     GPS_DEV_LOC='/dev/ttyS0' 
 else:
     GPS_DEV_LOC='/dev/ttyS4' 
@@ -1115,8 +1115,8 @@ def extract_coords(S):
 # GPS_DEV_READ_LEN lines of output from GPS_DEV_LOC per attempt, with
 # at most MAX_GPS_READ_ATTEMPTS attempts. 
 def retrieve_gps():
-    latitude = deck.DEFAULT_LATITUDE 
-    longitude = deck.DEFAULT_LONGITUDE
+    latitude = bridge.DEFAULT_LATITUDE 
+    longitude = bridge.DEFAULT_LONGITUDE
 
     for i in range(MAX_GPS_READ_ATTEMPTS):
         p = subprocess.Popen(GPS_DEV_PROC_CALL,shell=True, #TODO remove shell
@@ -1161,7 +1161,7 @@ FAKE_ONBOARD_TEMPERATURE = -42.
 # <https://medium.com/@kevalpatel2106/monitor-the-core-temperature-of-your-raspberry-pi-3ddfdf82989f>
 # last accessed: June 28, 2019
 def get_onboard_temp():
-    if deck.DEVICE_ARCH_IS_RPI:
+    if bridge.DEVICE_ARCH_IS_RPI:
         temp = os.popen('vcgencmd measure_temp').readline()
         return float(temp.replace('temp=','').replace('\'C',''))    
 

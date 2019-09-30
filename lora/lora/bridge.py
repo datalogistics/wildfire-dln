@@ -1,6 +1,6 @@
 '''**************************************************************************
 
-File: deck.py
+File: bridge.py
 Language: Python 3.6.8
 Author: Juliette Zerick (jzerick@iu.edu)
         for the WildfireDLN Project
@@ -11,7 +11,7 @@ for which the global reserved word proved insufficient. Global locks and flags,
 including closing_time, hwich is used to synchronize across many files to
 perform a smooth shutdown. 
 
-Last modified: September 10, 2019
+Last modified: September 29, 2019
 
 ****************************************************************************'''
 
