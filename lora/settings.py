@@ -33,10 +33,11 @@ import pathlib
 import os
 import argparse
 from colorama import init, Fore, Back, Style
+import requests
 
 # bear in mind the importation of these modules will be executed above the
 # modules' containing directory
-import lora.bridge as bridge
+import bridge
 
 if bridge.HAVE_UNIS:
     try:
@@ -74,13 +75,13 @@ SIM_MODE = False
 BUFFER_SIZE = 1024  # for a faster response, use a smaller value (256)
 
 # flags to indicate which notifications and updates are desired
-WANT_THREAD_STATUS_UPDATES = False
+WANT_THREAD_STATUS_UPDATES = True
 WANT_PACKET_ERRORS = True
-WANT_PLUMBING_ISSUES = False
-WANT_RTG_TABLE_UPDATES = False
+WANT_PLUMBING_ISSUES = True
+WANT_RTG_TABLE_UPDATES = True
 WANT_UNIS_UPDATES = True
 WANT_DATA_FLOW = True
-WANT_RECEPTION_UPDATES = False
+WANT_RECEPTION_UPDATES = True
 
 INIT_LOG_NUM_COUNTER = 11
 
@@ -387,47 +388,74 @@ def cull_mulligans(L):
         if L[i].mulligan_counter == 0: 
             del L[i].mulligan_counter
             del L[i]
-        
+
+def get_node_data(node_name,node_id):
+    data = {'id':node_id,'name':node_name}
+    return data
+
 # borrowed this from the ferry code, written by Jeremy Musser and Dr. Ezra Kissel,
 # as part of the WildfireDLN project, of which Indiana University was a partner. 
 # code available online publicly: 
 # <https://github.com/datalogistics/wildfire-dln/blob/master/ferry/dln_ferry.py>
 # last accessed March 26, 2019, master branch.
-def register_or_retrieve_node(name):
-    if not bridge.HAVE_UNIS: return UNIS_FAIL
+def register_or_retrieve_node(node_name,node_id):
+    if not bridge.HAVE_UNIS: return bridge.UNIS_FAIL
 
-    n = bridge.rt.nodes.where({'name': name})
+    node_name += '_TEST'
+
+    n = bridge.rt.nodes.where({'name': node_name})
     try: # allow for reuse. alternatively, throw an error.
         n = next(n)
-        log.unis_updates('node with name=%s found' % (name))
+        log.unis_updates('node with name=%s found' % (node_name))
     except StopIteration:
-        log.unis_updates('node with name=%s not found, creating now' % (name))
-        n = Node()
+        log.unis_updates('node with name=%s not found, creating now' % (node_name))
+        n = Node(get_node_data())
         #n.dev_id = dev_id # note that here, this creation and assignment fails
         bridge.rt.insert(n, commit=True) 
         bridge.rt.flush() 
-        update_var(n,'name',name)   
+    
+    update_var(n,'name',node_name)   
+    update_var(n,'id',node_id)
 
     return n
 
 def node_has_var(node,var_name):
     return var_name in node._obj.__dict__ 
 
-def register_or_retrieve_metadata(subject):
-    if not bridge.HAVE_UNIS: return UNIS_FAIL
+def get_metadata_data(node_id,metadata_id):
+    data = {'id': metadata_id, \
+        'subject': {'rel': 'full','href': 'http://localhost:9000/nodes/{}'.format(node_id)}, \
+        'eventType': 'test'}
+    
+    #requests.post(url, data=json.dumps(data))
+    return data
 
-    m = bridge.rt.metadata.where({'subject': subject})
+def register_or_retrieve_metadata(node_id,metadata_id):
+    if not bridge.HAVE_UNIS: return bridge.UNIS_FAIL
+
+    m = bridge.rt.metadata.where({'id': metadata_id})
     try: # allow for reuse. alternatively, throw an error.
         m = next(m)
-        log.unis_updates('metadata with subject=%s found' % (subject))
-    except StopIteration:
-        log.unis_updates('node with subject=%s not found, creating now' % (subject))
-        m = Metadata({'subject':subject})
-        #n.dev_id = dev_id # note that here, this creation and assignment fails
+        log.unis_updates('metadata with mid=%s found' % (metadata_id))
+    except:
+        log.unis_updates('metadata with mid=%s not found, creating now' % (metadata_id))
+        m = Metadata(get_metadata_data(node_id,metadata_id))
         bridge.rt.insert(m, commit=True) 
         bridge.rt.flush() 
 
     return m
+
+# TODO cite the noise.py code
+def create_data_stream_poster(metadata_id):
+    url = "{}/data/{}".format(url, metadata_id)
+
+    def data_poster_function(ts,val):
+        data = { 'mid': metadata_id, 'data': [{'ts': ts, 'value': val}] }
+        headers= { "Content-Type": "application/perfsonar+json profile=http://unis.crest.iu.edu/schema/20160630/datum#",
+               "Accept": "*/*" }
+        requests.post(url, data=json.dumps(data), headers=headers)
+
+    return data_poster_function
 
 # this takes in a string parameter, a value set to some variable, and determines if
 # quotation marks need to be inserted. if so, marks are added. otherwise, no change is made.
@@ -467,7 +495,7 @@ def update_var(node,var_name,val):
 #  cleanly disposing of them when the time comes.
 ###############################################################################    
 
-LORA_PATH = bridge.CURRENT_PATH + 'lora/' # full path needed
+LORA_PATH = bridge.CURRENT_PATH # full path needed
 LORA_C_FN = LORA_PATH + 'lora_c' # if running this process at boot
 LORA_C_PROC_CALL = LORA_C_FN + ' -i %d -o %d'
 LORA_C_RECEIVER_OPT = '--receiver'
@@ -487,7 +515,7 @@ def now():
 INITIATION_TIME = now()
 
 def start_lora_c(incoming_port,outgoing_port):
-    proc_call = lora_c_pROC_CALL % (incoming_port,outgoing_port)
+    proc_call = LORA_C_PROC_CALL % (incoming_port,outgoing_port)
 
     # at most one of these options will be added to the call
     if bridge.RECEIVE_ONLY: proc_call += ' %s' % (LORA_C_RECEIVER_OPT)
@@ -688,10 +716,13 @@ def preflight_checks():
         if not file_exists(LORA_C_FN):
             log.critical('lora-c compilation failed')
             return False
+        else: log.critical('lora-c compilation successful')
 
         # if we expect it, is GPS available?
         if not gps_available():
             log.critical('GPS appears to be unavailable, will use default coordinates')
+        else:
+            log.critical('GPS appears to be available')
 
     return True
 

@@ -19,10 +19,8 @@ Last modified: September 10, 2019
 import copy # for copy.deepcopy()
 import pandas as pd
 
-# bear in mind the importation of these modules will be executed above the
-# modules' containing directory
-from lora.settings import * # contains protocol utilities for tidiness
-import lora.bridge as bridge
+from settings import * # contains protocol utilities for tidiness
+import bridge 
 
 '''
 The class lora_message encapsulates the protocol and switch behavior of lora-py.

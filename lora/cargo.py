@@ -1,9 +1,7 @@
 import pandas as pd
 
-# bear in mind the importation of these modules will be executed above the
-# modules' containing directory
-from lora.protocol import *
-import lora.bridge as bridge
+from protocol import *
+import bridge
 
 LAST_OBS_VAR_NAME = 'last_obs_time'
 

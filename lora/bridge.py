@@ -133,4 +133,3 @@ CURRENT_PATH = os.getcwd()
 if CURRENT_PATH[-1] != '/':
     CURRENT_PATH += '/'
 
-print(CURRENT_PATH)

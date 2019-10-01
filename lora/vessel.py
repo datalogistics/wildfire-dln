@@ -38,8 +38,8 @@ from scipy.interpolate import griddata
 
 # bear in mind the importation of these modules will be executed above the
 # modules' containing directory
-from lora.cargo import *
-import lora.bridge as bridge
+from cargo import *
+import bridge
 
 # check if UNIS is available. this test should have already been performed in bridge.py
 if bridge.HAVE_UNIS:
@@ -68,29 +68,33 @@ class vessel:
         else:
             self.my_dev_id = get_my_mac_addr() 
 
+        self.my_lora_id = self.my_dev_id
+
         bridge.dev_id2name_mapping[self.my_dev_id] = self.my_name
 
         # for storing messages, and looking them up later
         self.msg_lookup = {}
 
         if bridge.HAVE_UNIS:
+            # makes searching easier 
+            self.my_node_name = bridge.MY_FERRY_NODE_NAME
+            self.my_node_id = self.my_node_name
+
             # find or create an appropriate node
             if bridge.HAVE_FERRY_NODE: # are we on a ferry with a node already?
                 self.my_node = bridge.MY_FERRY_NODE 
-                self.my_node_name = bridge.MY_FERRY_NODE_NAME
             else: 
-                self.my_node = register_or_retrieve_node(self.my_dev_id) 
-                self.my_node_name = self.my_dev_id
-        
-            # now find or add Metadata objects to stream data into DataCollections
+                self.my_node = register_or_retrieve_node(self.my_node_name,self.my_node_id) 
             
             # messages are posted to the msg_stream in transmit() and by the postal_sorter
-            self.my_msg_metadata = register_or_retrieve_metadata(self.my_node_name+'_msg_stream')
-            self.my_msg_stream = self.my_msg_metadata.data 
+            self.my_msg_metadata_id = self.my_node_name+'_msg_stream'
+            self.my_msg_metadata = register_or_retrieve_metadata(self.my_node_id,self.my_msg_metadata_id)
+            self.my_msg_stream_poster = create_data_stream_poster(self.my_msg_metadata_id)
             
             # data are posted to the data_stream by the gleaner
-            self.my_data_metadata = register_or_retrieve_metadata(self.my_node_name+'_data_stream')
-            self.my_data_stream = self.my_data_metadata.data
+            self.my_data_metadata_id = self.my_node_name+'_data_stream'
+            self.my_data_metadata = register_or_retrieve_metadata(self.my_node_id,self.my_data_metadata_id)
+            self.my_data_stream_poster = self.my_data_stream_poster(self.my_data_metadata_id)
         
         # dependency list is a routing table for colocalization
         self.last_updated_dep_list = now()  
@@ -121,7 +125,7 @@ class vessel:
         self.out_s = 0
 
         # an ephemeral data store
-        self.cargo = cargo_hold(self.my_name,self.my_dev_id,self.transmit)
+        self.cargo = cargo_hold(self.my_name,self.my_dev_id,self.my_lora_id,self.transmit)
         
         #self.my_ordering = get_ordering(self.my_dev_id)
         self.my_ordering = [1]*48
@@ -130,7 +134,7 @@ class vessel:
     def transmit(self,lmsg): 
         self.glean_q.put(lmsg) # always
         
-        self.my_msg_stream.append(lmsg.initial_pkt)
+        self.my_msg_stream_poster(now(),lmsg.initial_pkt)
         
         # left as a reminder that this action is now handled by the radio_operator
         #self.outbox_q.put(lmsg) 
@@ -175,7 +179,7 @@ class vessel:
             # get data, insert into UNIS node
             if lmsg.harvestable and bridge.HAVE_UNIS:
                 t = (lmsg.obs_time,lmsg.obs_dev_id,lmsg.obs_gps_lat,lmsg.obs_gps_long)
-                self.my_data_stream.append(t)
+                self.my_data_stream_poster(lmsg.obs_time,t)
 
             self.append_batch(last_batch) 
             last_batch = []
@@ -375,7 +379,7 @@ class vessel:
             else: msgs_seen.add(msg_sig)
             
             # push data to UNIS
-            self.my_msg_stream.append(lmsg.initial_pkt)
+            self.my_msg_stream_poster(now(),lmsg.initial_pkt)
             
             if lmsg.saturation_req and lmsg.init_sender_addr == self.my_dev_id \
             or lmsg.sender_addr == self.my_dev_id or self.cargo.seen_msg(lmsg): 

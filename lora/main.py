@@ -22,11 +22,9 @@ Last modified: September 10, 2019
 
 import argparse
 
-# bear in mind the importation of these modules will be executed above the
-# modules' containing directory
-import lora.bridge as deck
-from lora.vessel import *
-#from lora.sim import *
+import bridge
+from vessel import *
+#from sim import *
 
 # Command-line option parsing solution based off an example in the docs, i.e.
 # Python Documentation on argparse, available at

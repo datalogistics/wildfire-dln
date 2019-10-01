@@ -151,6 +151,7 @@ void get_mac_eth0(char* mac_str){
 
 void get_ordering(int* ord_vec){
     int i;
+    char c;
 
     // for debugging: only transmit or only receive messages
     if (transmitter_flag || receiver_flag){
@@ -158,7 +159,7 @@ void get_ordering(int* ord_vec){
             MY_ORDERING[i] = transmitter_flag*TRANSMITTING + receiver_flag*RECEIVING;
         }
         return;
-    )
+    }
 
     // alternative: assign roles to each minion by checking against the device hostname
     //      or the current user's name. code left if ever needed.
@@ -196,8 +197,6 @@ void get_ordering(int* ord_vec){
         }
         return;
     } */
-
-    char c;
 
     for (i=0; i<48; i=i+4){
         c = tolower(MY_MAC_ADDR[i/4]);
@@ -428,7 +427,7 @@ void* py_listener(void* arg){
         printf("py_listener: data received is %s \n",msg);
 
         // insert into outbox queue here
-        split_lock_push(outbox_q,msg,outbox_q_lock);
+        lock_push(outbox_q,msg,outbox_q_lock);
 
         msg = new char[MESSAGE_LEN];
         //delay_in_ms(SNOOZE_TIME); // TODO ditto check
