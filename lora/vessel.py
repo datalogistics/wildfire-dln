@@ -90,11 +90,12 @@ class vessel:
             self.my_msg_metadata_id = self.my_node_name+'_msg_stream'
             self.my_msg_metadata = register_or_retrieve_metadata(self.my_node_id,self.my_msg_metadata_id)
             self.my_msg_stream_poster = create_data_stream_poster(self.my_msg_metadata_id)
-            
+
+
             # data are posted to the data_stream by the gleaner
             self.my_data_metadata_id = self.my_node_name+'_data_stream'
             self.my_data_metadata = register_or_retrieve_metadata(self.my_node_id,self.my_data_metadata_id)
-            self.my_data_stream_poster = self.my_data_stream_poster(self.my_data_metadata_id)
+            self.my_data_stream_poster = create_data_stream_poster(self.my_data_metadata_id)
         
         # dependency list is a routing table for colocalization
         self.last_updated_dep_list = now()  

@@ -34,6 +34,7 @@ import os
 import argparse
 from colorama import init, Fore, Back, Style
 import requests
+import json
 
 # bear in mind the importation of these modules will be executed above the
 # modules' containing directory
@@ -447,7 +448,7 @@ def register_or_retrieve_metadata(node_id,metadata_id):
 
 # TODO cite the noise.py code
 def create_data_stream_poster(metadata_id):
-    url = "{}/data/{}".format(url, metadata_id)
+    url = "{}/data/{}".format(bridge.UNIS_URL, metadata_id)
 
     def data_poster_function(ts,val):
         data = { 'mid': metadata_id, 'data': [{'ts': ts, 'value': val}] }

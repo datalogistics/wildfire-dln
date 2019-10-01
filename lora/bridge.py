@@ -43,6 +43,7 @@ dev_id2name_mapping = {}
 # for uploading files
 #import libdlt
 
+UNIS_URL = 'http://localhost:9000'
 HAVE_UNIS = False
 UNIS_FAIL = -1
 rt = UNIS_FAIL
@@ -52,7 +53,7 @@ try:
     from unis.runtime import Runtime   
     from unis.models import Node, schemaLoader
     from unis.models import Metadata
-    rt = Runtime('http://localhost:9000')
+    rt = Runtime(UNIS_URL)
     print('able to import everything!')
 except: # possible alternative, depending on the environment
     try: # in this case, Ubuntu 16.04 via Windows Subsystem for Linux
@@ -62,7 +63,7 @@ except: # possible alternative, depending on the environment
         from unis import Runtime  
         from unis.models import Node, schemaLoader
         from unis.models import Metadata
-        rt = Runtime('http://localhost:9000')
+        rt = Runtime(UNIS_URL)
         print('able to import everything!')
     except:
         pass
