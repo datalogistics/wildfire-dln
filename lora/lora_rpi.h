@@ -178,7 +178,7 @@ int dio0  = 7;
 int RST   = 0;
 
 // Set spreading factor (SF7 - SF12)
-enum sf_t sf = SF7;
+enum sf_t sf = SF12;
 
 // Set center frequency
 uint32_t  freq = 915000000; // in Mhz! (EU=868.1, US=915.0)

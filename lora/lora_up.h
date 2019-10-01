@@ -190,7 +190,7 @@ char message[MESSAGE_LEN];
 enum sf_t { SF7=7, SF8, SF9, SF10, SF11, SF12 };
 
 // Set spreading factor (SF7 - SF12)
-sf_t sf = SF7;
+sf_t sf = SF12;
 
 // Set center frequency
 uint32_t  freq = 915000000; // in Mhz! (EU=868.1, US=915.0)
