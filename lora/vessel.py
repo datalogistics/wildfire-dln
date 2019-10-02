@@ -951,9 +951,11 @@ class vessel:
                 The lora-c handler has not been selected for use. Please manually execute
                 the lora-c module with ports being used, i.e. run the following:
 
-                ./lora_c -i %d -o %d
+                sudo ./lora_c -i %d -o %d
 
-                ''' % (self.incoming_port,self.outgoing_port))
+                ''' % (self.outgoing_port,self.incoming_port))
+                #''' % (self.incoming_port,self.outgoing_port))
+                # TODO write suitable reminder here
 
         if bridge.USE_EMCEE: 
             self.summon_emcee()

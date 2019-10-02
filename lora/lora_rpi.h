@@ -475,8 +475,12 @@ bool listen_for_lora(char* msg_buf, int* msg_len, int* rssi_val) {
 	return false;
     }
 
+
     if(digitalRead(dio0) == 1){
+	printf("1\n");
+
         if(lora_recv(msg_buf,msg_len)) {
+		printf("2\n");
 	    if ((*msg_len) == 0){
 	        return false;
 	    }

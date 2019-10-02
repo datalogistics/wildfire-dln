@@ -552,16 +552,16 @@ int main (int argc, char *argv[]) {
                 break;
 
             case 'f':
-                //printf ("at index %d, option -i with value %s\n", option_index,optarg);
+                printf ("at index %d, option -f with value %s\n", option_index,optarg);
                 break;
 
             case 'i': // left for reference
-                //printf ("at index %d, option -i with value %s\n", option_index,optarg);
+                printf ("at index %d, option -i with value %s\n", option_index,optarg);
                 py_inc_port = atoi(optarg);
                 break;
 
             case 'o': // left for reference
-                //printf ("at index %d,option -o with value %s\n", option_index, optarg);
+                printf ("at index %d,option -o with value %s\n", option_index, optarg);
                 py_out_port = atoi(optarg);
                 break;
 
@@ -579,6 +579,7 @@ int main (int argc, char *argv[]) {
     get_mac_eth0(MY_MAC_ADDR);
     get_ordering(MY_ORDERING);
 
+    setup_hw_interface();
     SetupLoRa();
     put_in_neutral();
     //opmode(OPMODE_RX); // optional: start in receive mode

@@ -515,7 +515,7 @@ def update_var(node,var_name,val):
 
 LORA_PATH = bridge.CURRENT_PATH # full path needed
 LORA_C_FN = LORA_PATH + 'lora_c' # if running this process at boot
-LORA_C_PROC_CALL = LORA_C_FN + ' -i %d -o %d'
+LORA_C_PROC_CALL = 'sudo ' + LORA_C_FN + ' -i %d -o %d'
 LORA_C_RECEIVER_OPT = '--receiver'
 LORA_C_TRANSMITTER_OPT = '--transmitter'
 
@@ -533,7 +533,9 @@ def now():
 INITIATION_TIME = now()
 
 def start_lora_c(incoming_port,outgoing_port):
-    proc_call = LORA_C_PROC_CALL % (incoming_port,outgoing_port)
+    #TODO write suitable reminder
+    #proc_call = LORA_C_PROC_CALL % (incoming_port,outgoing_port)
+    proc_call = LORA_C_PROC_CALL % (outgoing_port,incoming_port)
 
     # at most one of these options will be added to the call
     if bridge.RECEIVE_ONLY: proc_call += ' %s' % (LORA_C_RECEIVER_OPT)
