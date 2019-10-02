@@ -533,8 +533,7 @@ def now():
 INITIATION_TIME = now()
 
 def start_lora_c(incoming_port,outgoing_port):
-    #TODO write suitable reminder
-    #proc_call = LORA_C_PROC_CALL % (incoming_port,outgoing_port)
+    # TODO something is wrong here, will need to check the raw call. manual works for now.
     proc_call = LORA_C_PROC_CALL % (outgoing_port,incoming_port)
 
     # at most one of these options will be added to the call
