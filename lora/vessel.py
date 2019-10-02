@@ -148,7 +148,7 @@ class vessel:
         
         # left as a reminder that this action is now handled by the radio_operator
         #self.outbox_q.put(lmsg) 
-        
+        print('put',lmsg.initial_pkt,'in queue') 
         self.operator_q.put(lmsg)
 
     def dump_outbox(self): 
@@ -458,7 +458,7 @@ class vessel:
                     self.my_status = RESETTING
                     spin_until(curr_time + RESET_DURATION, eps)
                     curr_time += RESET_DURATION
-                    #print(self.my_name,'HAS RESET')
+                    print(self.my_name,'HAS RESET')
                 
                 #TODO when ready, remove the print statements entirely
 
@@ -466,19 +466,19 @@ class vessel:
                     self.my_status = RECEIVING
                     spin_until(curr_time + RECEIVING_DURATION, eps)
                     curr_time += RECEIVING_DURATION
-                    #print(self.my_name,'IS DONE RECEIVING')
+                    print(self.my_name,'IS DONE RECEIVING')
                     continue
                 
                 if curr_phase == TRANSMITTING:
                     self.my_status = TRANSMITTING
-                    #print(self.my_name,'IS TRANSMITTING')
+                    print(self.my_name,'IS TRANSMITTING')
                     
                     ts = curr_time + TRANSMITTING_DURATION
                     
                     # first toss out the mulligans
                     if ts - now() > eps: 
                         funnel_list2q(mulligan_bucket,self.outbox_q)
-                        #print('funneled %d' % (len(mulligan_bucket)))
+                        print('funneled %d' % (len(mulligan_bucket)))
                         
                     # transmit new stuff
                     while ts - now() > eps:
@@ -490,7 +490,7 @@ class vessel:
                     cull_mulligans(mulligan_bucket)
                     
                     curr_time += TRANSMITTING
-                    #print('post transmitting',curr_time,now())
+                    print('post transmitting',curr_time,now())
                     continue
 
     # sends messages to lora-c via socket, pulling from the outbox_q

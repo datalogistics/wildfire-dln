@@ -153,6 +153,8 @@ void get_ordering(int* ord_vec){
     int i;
     char c;
 
+    printf("%d %d\n",transmitter_flag,receiver_flag);
+
     // for debugging: only transmit or only receive messages
     if (transmitter_flag || receiver_flag){
         for (i=0; i<48; i=i+1){
