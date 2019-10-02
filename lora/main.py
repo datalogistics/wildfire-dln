@@ -50,7 +50,8 @@ def handle_opts():
     minion@runabout:~/repobin/minionfest/whisper$ python3 parse_test.py --transmitter -f '(10,10)'
     Namespace(anim=False, buoy=False, defcoords='(10,10)', demo=False, receiver=False, sim=False, transmitter=True)
     '''
-
+    
+    print(args)
     # check for invalid combinations first
     
     # can't be in receive-only/transmit-only/emcee-only modes simultaneously
@@ -84,7 +85,7 @@ def handle_opts():
     bridge.TRANSMIT_ONLY = args.transmitter
     bridge.USE_EMCEE = args.emcee
     bridge.USE_BUOY_EFFECT = args.buoy
-    bridge.USING_LORA_C_HANDLER = not args.manual
+    bridge.USING_lora_c_HANDLER = not args.manual
 
     return True
 

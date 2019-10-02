@@ -84,7 +84,7 @@ class vessel:
             if bridge.HAVE_FERRY_NODE: # are we on a ferry with a node already?
                 self.my_node = bridge.MY_FERRY_NODE 
             else: 
-                self.my_node = register_or_retrieve_node(self.my_node_name,self.my_node_id) 
+                self.my_node = register_or_retrieve_node({'name':self.my_node_name,'id':self.my_node_id}) 
             
             # messages are posted to the msg_stream in transmit() and by the postal_sorter
             self.my_msg_metadata_id = self.my_node_name+'_msg_stream'
@@ -128,9 +128,18 @@ class vessel:
         # an ephemeral data store
         self.cargo = cargo_hold(self.my_name,self.my_dev_id,self.my_lora_id,self.transmit)
         
-        #self.my_ordering = get_ordering(self.my_dev_id)
-        self.my_ordering = [1]*48
+        self.my_ordering = self.get_my_ordering()
+
+
         self.my_status = RESETTING
+
+    def get_my_ordering(self):
+        if bridge.RECEIVE_ONLY: S = str(RECEIVING)*len(self.my_dev_id)
+        elif bridge.TRANSMIT_ONLY: S = str(TRANSMITTING)*len(self.my_dev_id)
+        else: S = self.my_dev_id
+
+        return get_ordering(S)
+
 
     def transmit(self,lmsg): 
         self.glean_q.put(lmsg) # always
@@ -178,11 +187,11 @@ class vessel:
             last_batch.append(mini_df)
             
             # get data, insert into UNIS node
-            if lmsg.harvestable and bridge.HAVE_UNIS:
+            if lmsg.is_harvestable and bridge.HAVE_UNIS:
                 t = (lmsg.obs_time,lmsg.obs_dev_id,lmsg.obs_gps_lat,lmsg.obs_gps_long)
                 self.my_data_stream_poster(lmsg.obs_time,t)
 
-            self.append_batch(last_batch) 
+            self.cargo.append_batch(last_batch) 
             last_batch = []
 
             # the update methods generate announcement packets which go through
@@ -200,8 +209,8 @@ class vessel:
             if now() - last_updated > UPDATE_TIME \
             and ((now() - last_updated) / UPDATE_TIME) < 2.:
                 if not SIM_MODE:
-                    self.append_batch(last_batch) 
-                self.gleaner_update()
+                    self.cargo.append_batch(last_batch) 
+                self.cargo.gleaner_update()
                 last_batch = []
                 last_updated = now() 
 
@@ -315,7 +324,7 @@ class vessel:
                     if dev_id == ANY_DEVICE or dev_id == self.my_dev_id: # valid parameter here
                         node = self.my_node
                     else:
-                        node = register_or_retrieve_node(dev_id)
+                        node = register_or_retrieve_node({'id':dev_id})
 
                     if node_has_var(node,var_name):
                         S = 'node.%s' % (var_name)
@@ -423,7 +432,7 @@ class vessel:
 
         eps = 10e-3 # increase in size to avoid losing packets
         mulligan_bucket = []
-
+        
         while not bridge.closing_time:
             # synchronize with the lora_listener, and other devices
             
@@ -449,25 +458,27 @@ class vessel:
                     self.my_status = RESETTING
                     spin_until(curr_time + RESET_DURATION, eps)
                     curr_time += RESET_DURATION
-                    print(self.my_name,'HAS RESET')
+                    #print(self.my_name,'HAS RESET')
                 
+                #TODO when ready, remove the print statements entirely
+
                 if curr_phase == RECEIVING:
                     self.my_status = RECEIVING
                     spin_until(curr_time + RECEIVING_DURATION, eps)
                     curr_time += RECEIVING_DURATION
-                    print(self.my_name,'IS DONE RECEIVING')
+                    #print(self.my_name,'IS DONE RECEIVING')
                     continue
                 
                 if curr_phase == TRANSMITTING:
                     self.my_status = TRANSMITTING
-                    print(self.my_name,'IS TRANSMITTING')
+                    #print(self.my_name,'IS TRANSMITTING')
                     
                     ts = curr_time + TRANSMITTING_DURATION
                     
                     # first toss out the mulligans
                     if ts - now() > eps: 
                         funnel_list2q(mulligan_bucket,self.outbox_q)
-                        print('funneled %d' % (len(mulligan_bucket)))
+                        #print('funneled %d' % (len(mulligan_bucket)))
                         
                     # transmit new stuff
                     while ts - now() > eps:
@@ -479,7 +490,7 @@ class vessel:
                     cull_mulligans(mulligan_bucket)
                     
                     curr_time += TRANSMITTING
-                    print('post transmitting',curr_time,now())
+                    #print('post transmitting',curr_time,now())
                     continue
 
     # sends messages to lora-c via socket, pulling from the outbox_q
@@ -537,31 +548,21 @@ class vessel:
                 continue
 
             #log.plumbing_issues(self.add_name("sent packet: %s" % (pkt)))
-            print('sent',pkt)
 
     def emcee(self): # vessel name is the hostname
         while not bridge.closing_time:
-            start_time = now()
-            self.temp_df = self.temp_dataset()
-            end_time = now()  
-            log.data_flow(self.add_name('created estimated dataset in %fs with %s records' \
-                % (end_time - start_time, len(self.temp_df))))          
-            #print(self.my_name,'@',retrieve_gps())
-            
             # randomly choose the next broadcast action
-            #fl = [self.flood_var_broadcast,self.flood_pos_update,self.var_broadcast,self.flood_pos_update]
-            #f = random.choice(fl)   
-            #lmsg = f('*')
+            fl = [self.flood_var_broadcast,self.flood_pos_update,self.var_broadcast,self.flood_pos_update]
+            f = random.choice(fl)   
+            lmsg = f('*')
              
-            # or just blast away
-            #self.flood_temp_var_broadcast('*')
-            self.flood_pos_update('*')
-                
-            #log.data_flow(self.add_name('put dummy request in queue'))  
-            #print(self.my_name,'@',retrieve_gps())
+            st = random.randint(1,3) 
+            time.sleep(st)
 
-            #st = random.randint(1,3) 
-            st=1             
+    def noisemaker(self): # vessel name is the hostname
+        while not bridge.closing_time:
+            self.flood_pos_update('*')
+            st = random.randint(1,3) 
             time.sleep(st)
 
 ############################################################################################
@@ -834,7 +835,7 @@ class vessel:
     # available at 
     # <https://eli.thegreenplace.net/2017/interacting-with-a-long-running-child-process-in-python/>
     # last accessed: August 22, 2019
-    def attempt_read(): 
+    def attempt_read(self): 
         return bridge.lora_c_p.stdout.readline().decode('utf-8')
 
     # a handler for lora-c when stable enough to run unsupervised
@@ -873,6 +874,12 @@ class vessel:
         self.emcee_t.daemon = True # so it does with the host process
         THREAD_BUCKET.append(self.emcee_t) # for easier cleanup
         self.emcee_t.start()
+
+    def summon_noisemaker(self):
+        self.noisemaker_t = threading.Thread(target=self.noisemaker, args = [])
+        self.noisemaker_t.daemon = True # so it does with the host process
+        THREAD_BUCKET.append(self.noisemaker_t) # for easier cleanup
+        self.noisemaker_t.start()
 
     # summon threads to communicate with wihsper-c
     def summon_comms_threads(self):
@@ -949,6 +956,8 @@ class vessel:
                 ''' % (self.incoming_port,self.outgoing_port))
 
         if bridge.USE_EMCEE: 
-            self.summon_emcee()   
+            self.summon_emcee()
+        elif bridge.TRANSMIT_ONLY:
+            self.summon_noisemaker()
 
 

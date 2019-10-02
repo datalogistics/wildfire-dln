@@ -254,8 +254,8 @@ static void opmodeLora() {
 }
 
 void SetupLoRa(){
-    double start,end;
-    start = now();
+    //double start,end;
+    //start = now();
 
     digitalWrite(RST, HIGH);
     delay_in_ms(100);
@@ -325,7 +325,7 @@ void SetupLoRa(){
     writeReg(REG_FIFO_ADDR_PTR, readReg(REG_FIFO_RX_BASE_AD));
     writeReg(REG_LNA, LNA_MAX_GAIN);
 
-    end = now();
+    //end = now();
     //printf("Setup elapsed time=%f seconds\n",end-start);
 }
 

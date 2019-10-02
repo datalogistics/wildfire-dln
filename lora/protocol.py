@@ -265,10 +265,10 @@ class lora_message:
             # if demoing in a place where GPS is unavailable, add "seasoning"
             # to simulate movement of the device, like a buoy in the ocean
             # subjected to Brownian motion
-            if self.obs_gps_lat == DEFAULT_LATITUDE:
+            if self.obs_gps_lat == bridge.DEFAULT_LATITUDE:
                 if bridge.USE_BUOY_EFFECT: self.obs_gps_lat += season()
 
-            if self.obs_gps_long == DEFAULT_LONGITUDE:
+            if self.obs_gps_long == bridge.DEFAULT_LONGITUDE:
                 if bridge.USE_BUOY_EFFECT: self.obs_gps_long += season()
 
             self.is_harvestable = True

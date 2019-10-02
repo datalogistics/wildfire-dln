@@ -399,24 +399,41 @@ def get_node_data(node_name,node_id):
 # code available online publicly: 
 # <https://github.com/datalogistics/wildfire-dln/blob/master/ferry/dln_ferry.py>
 # last accessed March 26, 2019, master branch.
-def register_or_retrieve_node(node_name,node_id):
+def register_or_retrieve_node(id_dict):
     if not bridge.HAVE_UNIS: return bridge.UNIS_FAIL
 
-    node_name += '_TEST'
+    #if 'name' in id_dict:
+    if True:
+        if 'name' in id_dict:
+            node_name = id_dict['name'] 
+        else: node_name = id_dict['id']
+        n = bridge.rt.nodes.where({'name': node_name})
+        try: # allow for reuse. alternatively, throw an error.
+            n = next(n)
+            log.unis_updates('node with name=%s found' % (node_name))
+        except StopIteration:
+            log.unis_updates('node with name=%s not found, creating now' % (node_name))
+            n = Node(id_dict)
+            #n.dev_id = dev_id # note that here, this creation and assignment fails
+            bridge.rt.insert(n, commit=True) 
+            bridge.rt.flush() 
 
-    n = bridge.rt.nodes.where({'name': node_name})
-    try: # allow for reuse. alternatively, throw an error.
-        n = next(n)
-        log.unis_updates('node with name=%s found' % (node_name))
-    except StopIteration:
-        log.unis_updates('node with name=%s not found, creating now' % (node_name))
-        n = Node(get_node_data())
-        #n.dev_id = dev_id # note that here, this creation and assignment fails
-        bridge.rt.insert(n, commit=True) 
-        bridge.rt.flush() 
-    
-    update_var(n,'name',node_name)   
-    update_var(n,'id',node_id)
+    elif 'id' in id_dict:
+        node_id = id_dict['id']
+        n = bridge.rt.nodes.where({'id': node_id})
+        print(bridge.rt.nodes)
+        try: # allow for reuse. alternatively, throw an error.
+            print(n)
+            n = next(n)
+            log.unis_updates('node with id=%s found' % (node_id))
+        except StopIteration:
+            log.unis_updates('node with id=%s not found, creating now' % (node_id))
+            n = Node(id_dict)
+            #n.dev_id = dev_id # note that here, this creation and assignment fails
+            bridge.rt.insert(n, commit=True) 
+            bridge.rt.flush() 
+
+    else: return bridge.UNIS_FAIL
 
     return n
 

@@ -107,10 +107,10 @@ class cargo_hold:
         #self.in_the_weeds('gleaner update complete')
 
     def update_ferry_loc(self,dev_id,gps_lat,gps_long,obs_time):
-        n = register_or_retrieve_node(dev_id)
-        
+        n = register_or_retrieve_node({'id':dev_id})
+         
         # does the node have a timestamp of the last observation of its location?
-        if LAST_OBS_VAR_NAME in n._obj.__dict__['location'].__dict__:
+        if LAST_OBS_VAR_NAME in n.location.__dict__:
             # if we already have a more recent (presumably better) estimate, do nothing
             if obs_time < n.location.last_obs_time:
                 return 
@@ -136,7 +136,7 @@ class cargo_hold:
                 (gps_lat,gps_long,obs_time) = self.estimate_loc(d,now())
                 
                 if DATA_NOT_FOUND not in [gps_lat,gps_long,obs_time]:
-                    update_ferry_loc(d,gps_lat,gps_long,obs_time)
+                    self.update_ferry_loc(d,gps_lat,gps_long,obs_time)
                 # if not, do nothing. wait until the next check to try updating.
 
     def who_has_promoted(self,skey):
@@ -381,13 +381,13 @@ class cargo_hold:
         if len(last_obs) == 0: return DATA_NOT_FOUND,DATA_NOT_FOUND
         
         if var_name == 'obs_gps_lat':
-            retval = last_obs['obs_gps_lat'].item()
+            retval = last_obs['obs_gps_lat'].values[0]
         elif var_name == 'obs_gps_long':
-            retval = last_obs['obs_gps_long'].item()
+            retval = last_obs['obs_gps_long'].values[0]
         else:
-            retval = last_obs['obs_val'].item()
+            retval = last_obs['obs_val'].values[0]
         
-        return last_obs['obs_time'].item(), retval
+        return last_obs['obs_time'].values[0], retval
 
     def estimate_loc(self,dev_id,obs_time): 
         # isolate data pertaining to this device
@@ -402,9 +402,9 @@ class cargo_hold:
         this_dev_loc['diff'] = abs(this_dev_loc['obs_time'] - obs_time)
         min_time_diff = min(list(this_dev_loc['diff']))
         row = this_dev_loc[this_dev_loc['diff'] == min_time_diff].head(1) 
-        gps_lat = row['obs_gps_lat'].item()
-        gps_long = row['obs_gps_long'].item()
-        obs_time = row['obs_time'].item()
+        gps_lat = row['obs_gps_lat'].values[0]
+        gps_long = row['obs_gps_long'].values[0]
+        obs_time = row['obs_time'].values[0]
 
         # send back default values in the DataFrame
         if DATA_NOT_FOUND in [gps_lat, gps_long, obs_time]:

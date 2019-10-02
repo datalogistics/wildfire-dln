@@ -572,6 +572,8 @@ int main (int argc, char *argv[]) {
         }
     }
 
+    printf("%d %d\n", transmitter_flag,receiver_flag);
+
     get_mac_eth0(MY_MAC_ADDR);
     get_ordering(MY_ORDERING);
 
