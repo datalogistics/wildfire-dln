@@ -1,6 +1,6 @@
 /******************************************************************************
 
-File: whisper_lora_rpi.h
+File: lora_rpi.h
 Author: Juliette Zerick (jzerick@iu.edu)
         for the WildfireDLN Project
         OPeN Networks Lab at Indiana University-Bloomington
@@ -20,11 +20,11 @@ The code was modified to interface with the Periscope system and its components.
 Periscope and other tools are available in GitHub at:
 https://github.com/periscope-ps
 
-Last modified: August 12, 2019
+Last modified: October 7, 2019
 
  *******************************************************************************/
 
-#include <string> // TODO still need?
+#include <string> 
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -203,7 +203,12 @@ int cleanup_hw_interface(){
     return 0;
 }
 
-// CITE #TODO that portability page see July 17 notes
+
+// Solution from Ciro Santilli (2016) at StackOverflow
+// in response to the following posted question:
+// "How to measure time in milliseconds using ANSI C?" available at
+// <https://stackoverflow.com/questions/361363/how-to-measure-time-in-milliseconds-using-ansi-c>
+// last accessed: July 17, 2019
 double now() {
     struct timespec ts;
     timespec_get(&ts, TIME_UTC);
@@ -557,7 +562,7 @@ bool transmit_via_lora(char* msg, int msg_len) {
 	 return false;
     }
 
-    put_in_neutral(); // TODO check if needed
+    put_in_neutral(); 
 	
     byte* frame = (byte*) msg;
     byte datalen = (byte)msg_len;

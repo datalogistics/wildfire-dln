@@ -1,6 +1,6 @@
 /******************************************************************************
 
-File: whisper_c.cpp
+File: lora_c.cpp
 Author: Juliette Zerick (jzerick@iu.edu)
 	for the WildfireDLN Project
 	OPeN Networks Lab at Indiana University-Bloomington
@@ -11,7 +11,7 @@ functions for interacting with the LoRa transceiver in the LoRa Hat
 manufactured by Dragino and passes the data on via sockets to Python
 counterparts for processing. 
 
-Last modified: September 10, 2018 
+Last modified: October 7, 2019
 
 *******************************************************************************/
 
