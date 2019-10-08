@@ -591,8 +591,8 @@ class vessel:
             lmsg = lora_message(s)
             if lmsg.pkt_valid: 
                 valid_messages.append(lmsg)
-            else:
 
+        print('extracted %d packets from stream' % (len(valid_messages)))
         return valid_messages
 
     # listens for messages from lora-c via socket, pushes received messages
