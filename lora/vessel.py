@@ -246,9 +246,9 @@ class vessel:
             # of me? if so, discard. note that in saturation requests it is likely
             # the sender will be independent of this device (density argument),
             # so don't use it for deduction.
-            if self.are_independent(self.my_dev_id,relaying_node) \
+            if self.cargo.are_independent(self.my_dev_id,relaying_node) \
             and not lmsg.multicast \
-            and self.are_independent(self.my_dev_id,recipient):
+            and self.cargo.are_independent(self.my_dev_id,recipient):
                 self.in_the_weeds(' %s tossing %s because no dependence on me' \
                     % (self.my_dev_id,lmsg.skey))
                 continue
@@ -569,43 +569,22 @@ class vessel:
         return reduce(lambda x,y: x+'/'+y,S) # returns a string
 
     # used by c_listener to chop up packets that got stuck together when transmitted
-    # over socket TODO
-    def chop_packet_stream(self,pkt):
-        P = pkt # copy
-        chopped = []
+    # over socket
+    def chop_packet_stream(self,glob):
+        valid_messages = []
 
-        while len(P) > 10: # absurdly low lower bound on valid packet string length
-            # base case: is this a single, valid packet?
-            lmsg = lora_message(P)
-            if not lmsg.pkt_valid: #done
-                chopped.append(lmsg) 
-                break # so stop here
-      
-            # was something else wrong in the packet? 
-            if is_plausible_RSSI_value(lmsg.RSSI_val):
-                break # at the end of the stream, stop here
+        S = []
+        if MESSAGE_TERMINATOR in glob:
+            S = glob.split(MESSAGE_TERMINATOR)
+        elif ':' in glob:
+            S = glob.split(':')
 
-            # presumably we have some slicing to do
+        for s in S:
+            if len(s) < 10: continue
+            lmsg = lora_message(s)
+            if lmsg.pkt_valid: valid_messages.append(lmsg)
 
-            # is the next message multicast?
-            if type(lmsg.RSSI_val) == str:
-                if lmsg.RSSI_val[-1] == MULTICAST:
-                    p0 = P.split(lmsg.RSSI_val)[0] + lmsg.RSSI_val[:-1]
-                else:
-                    recip_addr = lmsg.RSSI_val[-12:]
-                    p0 = P.split(lmsg.RSSI_val)[0] + lmsg.RSSI_val.replace(recip_addr,'')
-
-                lmsg = lora_message(p0)
-                if lmsg.pkt_valid:
-                    chopped.append(lmsg)
-                    # no break!
-                else: 
-                    print('BAD SLICING',pkt)
-
-                # finally, chop off the first packet
-                P = P.replace(p0,'')
-
-        return chopped
+        return valid_messages
 
     # listens for messages from lora-c via socket, pushes received messages
     # to the inbox_q
@@ -656,7 +635,6 @@ class vessel:
             for msg in msgs:
                 if msg.pkt_valid:
                     self.inbox_q.put(msg)
-                    print(msg.to_packet())
                 else:
                     log.plumbing_issues(self.add_name('PACKET INVALID'))
 

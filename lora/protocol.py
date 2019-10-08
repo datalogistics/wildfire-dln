@@ -129,6 +129,7 @@ class lora_message:
         self.recipient_addr = normalize_addr(M[i])
         self.multicast = (self.recipient_addr == MULTICAST)
         i = i + 1
+        if len(M) <= i: return
 
         if not is_plausible_bloom(M[i]): 
             log.packet_errors('packet has implausible bloom values')
@@ -140,12 +141,14 @@ class lora_message:
             self.init_sender_addr = normalize_addr(M[i].split(',')[1])
             self.init_send_time = float(M[i].split(',')[2])
         i = i + 1
+        if len(M) <= i: return
 
         if not is_plausible_MAC_addr(M[i]): 
             log.packet_errors('packet has implausible sender address')
             return
         self.sender_addr = normalize_addr(M[i])
         i = i + 1
+        if len(M) <= i: return
 
         if not is_plausible_timestamp(M[i]): 
             log.packet_errors('packet has implausible send timestamp')
@@ -153,10 +156,10 @@ class lora_message:
         self.send_time = float(M[i])
         self.receipt_time = now()
         i = i + 1
+        if len(M) <= i: return
         
         # now infer
-        self.listener_dev_id = '' # provided later by the listening Vessel
-        
+        self.listener_dev_id = '' # provided later by the listenin 
         # don't infer from echoes. can't check for circular messages, i.e.:
         if self.saturation_req: # and self.bloom_count > 1: <-- reminder: don't
         # and self.init_sender_addr != self.my_dev_id  <-- checks must be performed
@@ -202,6 +205,7 @@ class lora_message:
                     self.has_ref = True
 
         i = i + 1
+        if len(M) <= i: return
 
         self.payload = M[i]
 
@@ -272,18 +276,22 @@ class lora_message:
             self.is_harvestable = True
 
         i = i + 1
+        if len(M) <= i: return
 
         # reserved for future use
         i = i + 1
+        if len(M) <= i: return
 
+        M[i] = M[i].strip(':')
         if not is_plausible_RSSI_value(M[i]): 
-            log.packet_errors('packet RSSI value is implausible')
+            log.packet_errors('packet RSSI value=%s is implausible' % (M[i]))
             self.RSSI_val = M[i] # need this for splitting
             print(pkt)
             return
         
         self.RSSI_val = float(M[i])
         i = i + 1
+        #if len(M) <= i: return # we're at the end of the packet
 
         if self.saturation_req: 
             # to avoid noisy chaos, only track the original message
