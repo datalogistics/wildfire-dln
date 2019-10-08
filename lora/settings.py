@@ -11,7 +11,7 @@ the code, such as the logger and the *BUCKETs used to provide a smooth
 shutdown. Additionally there are utilities for checking the validity of
 input data, and tests to show the utilities are working properly. 
 
-Last modified: September 10, 2019
+Last modified: October 7, 2019
 
 ****************************************************************************'''
 
@@ -390,50 +390,25 @@ def cull_mulligans(L):
             del L[i].mulligan_counter
             del L[i]
 
-def get_node_data(node_name,node_id):
-    data = {'id':node_id,'name':node_name}
-    return data
-
 # borrowed this from the ferry code, written by Jeremy Musser and Dr. Ezra Kissel,
 # as part of the WildfireDLN project, of which Indiana University was a partner. 
 # code available online publicly: 
 # <https://github.com/datalogistics/wildfire-dln/blob/master/ferry/dln_ferry.py>
 # last accessed March 26, 2019, master branch.
-def register_or_retrieve_node(id_dict):
+def register_or_retrieve_node(node_name):
     if not bridge.HAVE_UNIS: return bridge.UNIS_FAIL
 
-    #if 'name' in id_dict:
-    if True:
-        if 'name' in id_dict:
-            node_name = id_dict['name'] 
-        else: node_name = id_dict['id']
-        n = bridge.rt.nodes.where({'name': node_name})
-        try: # allow for reuse. alternatively, throw an error.
-            n = next(n)
-            log.unis_updates('node with name=%s found' % (node_name))
-        except StopIteration:
-            log.unis_updates('node with name=%s not found, creating now' % (node_name))
-            n = Node(id_dict)
-            #n.dev_id = dev_id # note that here, this creation and assignment fails
-            bridge.rt.insert(n, commit=True) 
-            bridge.rt.flush() 
+    n = bridge.rt.nodes.where({'name':node_name})
 
-    elif 'id' in id_dict:
-        node_id = id_dict['id']
-        n = bridge.rt.nodes.where({'id': node_id})
-        print(bridge.rt.nodes)
-        try: # allow for reuse. alternatively, throw an error.
-            print(n)
-            n = next(n)
-            log.unis_updates('node with id=%s found' % (node_id))
-        except StopIteration:
-            log.unis_updates('node with id=%s not found, creating now' % (node_id))
-            n = Node(id_dict)
-            #n.dev_id = dev_id # note that here, this creation and assignment fails
-            bridge.rt.insert(n, commit=True) 
-            bridge.rt.flush() 
-
-    else: return bridge.UNIS_FAIL
+    try: # allow for reuse. alternatively, throw an error.
+        n = next(n)
+        log.unis_updates('node with name=%s found' % (node_name))
+    except StopIteration:
+        log.unis_updates('node with name=%s not found, creating now' % (node_name))
+        n = Node({'name':node_name})
+        #n.dev_id = dev_id # note that here, this creation and assignment fails
+        bridge.rt.insert(n, commit=True) 
+        bridge.rt.flush() 
 
     return n
 
@@ -463,7 +438,11 @@ def register_or_retrieve_metadata(node_id,metadata_id):
 
     return m
 
-# TODO cite the noise.py code
+# borrowed this from the DLT Analysis Engine code, written by Jeremy Musser,
+# as part of the inlocus project.
+# code available online publicly: 
+# <https://github.com/periscope-ps/analysis-engine>
+# last accessed October 7, 2019, master branch.
 def create_data_stream_poster(metadata_id):
     url = "{}/data/{}".format(bridge.UNIS_URL, metadata_id)
 
@@ -533,7 +512,6 @@ def now():
 INITIATION_TIME = now()
 
 def start_lora_c(incoming_port,outgoing_port):
-    # TODO something is wrong here, will need to check the raw call. manual works for now.
     proc_call = LORA_C_PROC_CALL % (outgoing_port,incoming_port)
 
     # at most one of these options will be added to the call
@@ -542,7 +520,7 @@ def start_lora_c(incoming_port,outgoing_port):
     
     log.info('summoning the c-handler via %s' % (proc_call))
 
-    bridge.lora_c_p = subprocess.Popen(proc_call,shell=True, #TODO remove shell
+    bridge.lora_c_p = subprocess.Popen(proc_call,shell=True, 
         stdin=subprocess.PIPE,stdout=subprocess.PIPE,
         stderr=subprocess.PIPE) # for tidiness
 
@@ -706,7 +684,6 @@ def preflight_checks():
         log.error('must run with Python 3.x')
         return False
 
-    #TODO
     # is periscoped running? redundant but leave in case needed later
     '''
     if not process_running(PERISCOPE_PN):
@@ -1171,7 +1148,7 @@ def retrieve_gps():
     longitude = bridge.DEFAULT_LONGITUDE
 
     for i in range(MAX_GPS_READ_ATTEMPTS):
-        p = subprocess.Popen(GPS_DEV_PROC_CALL,shell=True, #TODO remove shell
+        p = subprocess.Popen(GPS_DEV_PROC_CALL,shell=True, 
                 stdin=subprocess.PIPE,stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE) # for tidiness
 

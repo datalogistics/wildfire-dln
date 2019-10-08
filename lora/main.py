@@ -51,7 +51,6 @@ def handle_opts():
     Namespace(anim=False, buoy=False, defcoords='(10,10)', demo=False, receiver=False, sim=False, transmitter=True)
     '''
     
-    print(args)
     # check for invalid combinations first
     
     # can't be in receive-only/transmit-only/emcee-only modes simultaneously

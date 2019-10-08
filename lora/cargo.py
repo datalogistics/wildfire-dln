@@ -1,3 +1,22 @@
+'''**************************************************************************
+
+File: cargo.py
+Language: Python 3.6.8
+Author: Juliette Zerick (jzerick@iu.edu)
+        for the WildfireDLN Project
+        OPeN Networks Lab at Indiana University-Bloomington
+
+In this file the class cargo_hold manages transient data, that is, data that
+is not committed to the UNIS Runtime. Data gradually streams in to be passed
+on to other devices, or to create routing tables. By observing local flow
+of LoRa messages this device can estimate the position of neighbors, 
+which neighbors it needs to receive messages from elsewhere in the swarm,
+and which neighbors similarly need it.
+
+Last modified: October 7, 2019
+
+****************************************************************************'''
+
 import pandas as pd
 import threading
 
@@ -107,10 +126,10 @@ class cargo_hold:
         #self.in_the_weeds('gleaner update complete')
 
     def update_ferry_loc(self,dev_id,gps_lat,gps_long,obs_time):
-        n = register_or_retrieve_node({'id':dev_id})
+        n = register_or_retrieve_node(dev_id)
          
         # does the node have a timestamp of the last observation of its location?
-        if LAST_OBS_VAR_NAME in n.location.__dict__:
+        if node_has_var(n,'location.last_obs'):
             # if we already have a more recent (presumably better) estimate, do nothing
             if obs_time < n.location.last_obs_time:
                 return 
@@ -155,7 +174,7 @@ class cargo_hold:
     def has_responded(self,skey,dev_id):
         return dev_id in self.who_has_responded(skey)
 
-    def get_response_dataset_from_query(self,query_skey):  #TODO
+    def get_response_dataset_from_query(self,query_skey):
         # no errors thrown if no record exists with the skey given 
         rdf = self.df[self.df['ref_skey'] == query_skey]
         if len(rdf) == 0: return set()

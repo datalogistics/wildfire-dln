@@ -12,7 +12,7 @@ The class has methods to verify the validity of7 strings as legitimate
 packets handled by the protocol. The fields are defined in a long
 comment a few lines farther down.
 
-Last modified: September 10, 2019
+Last modified: October 7, 2019
 
 ****************************************************************************'''
 
@@ -45,8 +45,6 @@ if the message type is a response to a previously received request, the original
 request key will be referenced, i.e.
    
     a) message type,(original_sender,timestamp)/ 
-    OR
-    b) message type,original_sender,timestamp)/ 
 
 6) payload/
 

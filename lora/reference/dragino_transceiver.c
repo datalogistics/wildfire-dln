@@ -168,10 +168,10 @@ int dio0  = 7;
 int RST   = 0;
 
 // Set spreading factor (SF7 - SF12)
-sf_t sf = SF7;
+sf_t sf = SF12;
 
 // Set center frequency
-uint32_t  freq = 868100000; // in Mhz! (868.1)
+uint32_t  freq = 915000000; // in Mhz! (868.1)
 
 byte hello[32] = "HELLO";
 
@@ -458,7 +458,7 @@ int main (int argc, char *argv[]) {
 
         while(1) {
             txlora(hello, strlen((char *)hello));
-            delay(5000);
+            delay(500);
         }
     } else {
 

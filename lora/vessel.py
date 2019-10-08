@@ -9,7 +9,7 @@ Author: Juliette Zerick (jzerick@iu.edu)
         OPeN Networks Lab at Indiana University-Bloomington
 
 This contains the higher-level protocol and switch behaviors for a single
-device in the class minion. Each instance interfaces with a lora-c 
+device in the class vessel. Each instance interfaces with a lora-c 
 instance (compiled from lora_c.cpp), which quickly filters relevant messages
 that are passed on.
 
@@ -17,7 +17,7 @@ A number of threads were used to logically separate production and consumption
 of messages for ease of troubleshooting. The use of queues adds a cushion to
 avoid lost messages, providing some resiliency.
 
-Last modified: August 27, 2019
+Last modified: October 7, 2019
 
 ****************************************************************************'''
 
@@ -84,7 +84,7 @@ class vessel:
             if bridge.HAVE_FERRY_NODE: # are we on a ferry with a node already?
                 self.my_node = bridge.MY_FERRY_NODE 
             else: 
-                self.my_node = register_or_retrieve_node({'name':self.my_node_name,'id':self.my_node_id}) 
+                self.my_node = register_or_retrieve_node(self.my_node_name) 
             
             # messages are posted to the msg_stream in transmit() and by the postal_sorter
             self.my_msg_metadata_id = self.my_node_name+'_msg_stream'
@@ -148,7 +148,6 @@ class vessel:
         
         # left as a reminder that this action is now handled by the radio_operator
         #self.outbox_q.put(lmsg) 
-        print('put',lmsg.initial_pkt,'in queue') 
         self.operator_q.put(lmsg)
 
     def dump_outbox(self): 
@@ -190,6 +189,10 @@ class vessel:
             if lmsg.is_harvestable and bridge.HAVE_UNIS:
                 t = (lmsg.obs_time,lmsg.obs_dev_id,lmsg.obs_gps_lat,lmsg.obs_gps_long)
                 self.my_data_stream_poster(lmsg.obs_time,t)
+                # the above is equivalent to what the gleaner thread receives
+                # however, the gleaner periodically updates all location data,
+                # pushing it into the proper node variables--see cargo.py,
+                # function update_ferry_loc
 
             self.cargo.append_batch(last_batch) 
             last_batch = []
@@ -324,7 +327,7 @@ class vessel:
                     if dev_id == ANY_DEVICE or dev_id == self.my_dev_id: # valid parameter here
                         node = self.my_node
                     else:
-                        node = register_or_retrieve_node({'id':dev_id})
+                        node = register_or_retrieve_node(dev_id)
 
                     if node_has_var(node,var_name):
                         S = 'node.%s' % (var_name)
@@ -372,8 +375,6 @@ class vessel:
             lmsg = snooze_and_wait(self.inbox_q)
             if bridge.closing_time: break
 
-            print('got something!!!!!!!!!!!!!!!');
-
             if not lmsg.pkt_valid:
                 log.data_flow('received mail that was invalid, %s' % (lmsg.initial_pkt))
                 continue
@@ -384,7 +385,6 @@ class vessel:
             # discard echoes
             msg_sig = (lmsg.sender_addr,lmsg.send_time)
             if msg_sig in msgs_seen:
-                print('tossing echo',msg_sig)
                 continue
             else: msgs_seen.add(msg_sig)
             
@@ -399,12 +399,7 @@ class vessel:
             #self.in_the_weeds('shared message with gleaner')
             self.glean_q.put(lmsg)
 
-            print('put msg in glean q')
-
             my_obs_gps_lat, my_obs_gps_long = retrieve_gps()
-
-            print('DATA,%f,%f,%f,%f\n' \
-                % (lmsg.obs_time,my_obs_gps_lat,my_obs_gps_long,lmsg.RSSI_val))
 
             # a saturation request to the promoter, unless this is a message
             # sent directly to this device, or if this message was the original
@@ -458,27 +453,21 @@ class vessel:
                     self.my_status = RESETTING
                     spin_until(curr_time + RESET_DURATION, eps)
                     curr_time += RESET_DURATION
-                    print(self.my_name,'HAS RESET')
                 
-                #TODO when ready, remove the print statements entirely
-
                 if curr_phase == RECEIVING:
                     self.my_status = RECEIVING
                     spin_until(curr_time + RECEIVING_DURATION, eps)
                     curr_time += RECEIVING_DURATION
-                    print(self.my_name,'IS DONE RECEIVING')
                     continue
                 
                 if curr_phase == TRANSMITTING:
                     self.my_status = TRANSMITTING
-                    print(self.my_name,'IS TRANSMITTING')
                     
                     ts = curr_time + TRANSMITTING_DURATION
                     
                     # first toss out the mulligans
                     if ts - now() > eps: 
                         funnel_list2q(mulligan_bucket,self.outbox_q)
-                        print('funneled %d' % (len(mulligan_bucket)))
                         
                     # transmit new stuff
                     while ts - now() > eps:
@@ -490,7 +479,6 @@ class vessel:
                     cull_mulligans(mulligan_bucket)
                     
                     curr_time += TRANSMITTING
-                    print('post transmitting',curr_time,now())
                     continue
 
     # sends messages to lora-c via socket, pulling from the outbox_q
@@ -524,8 +512,6 @@ class vessel:
             # pull something from the queue here
             lmsg = snooze_and_wait(self.outbox_q)
             if bridge.closing_time: break
- 
-            #TODO repeatedly send add counter within this func only, decrement 
  
             # got something! check it.
             if not lmsg.pkt_valid:
@@ -564,78 +550,6 @@ class vessel:
             self.flood_pos_update('*')
             st = random.randint(1,3) 
             time.sleep(st)
-
-############################################################################################
-#### IN PROGRESS ###########################################################################  
-############################################################################################
-
-    # handles requests as delegated by the receptionist. 
-    # if this becomes too computationally intensive, launch a separate process that
-    # gets a streaming feed of incoming data
-    def intern(self,recipient_addr,saturation_req,msg_type,payload,timeout):
-        start_time = now()
-
-        packet_no_bloom =          '%s/0/%s/%f/%d/%s//:'
-        packet_with_bloom = '%s/%d,%s,%f/%s/%f/%d/%s//:'
-
-        # keeping variable names for the sake of clarity
-        init_send_time = now()
-        send_time = init_send_time
-
-        init_sender_addr = self.my_mac_addr
-        sender_addr = init_sender_addr
-
-        # TODO replace with prod functions
-        if saturation_req:
-            S = packet_with_bloom % (recipient_addr,
-                1,init_sender_addr,init_send_time,
-                sender_addr,
-                send_time,
-                msg_type,
-                payload)
-        else:
-            S = packet_no_bloom % (recipient_addr,
-                sender_addr,
-                send_time,
-                msg_type,
-                payload)
-
-        lmsg = lora_message(S)
-
-        # TODO want an error response here?
-        if not lmsg.pkt_valid:
-            pass
-
-        exp_recipient_addr = lmsg.sender_addr
-        exp_msg_type = get_response_msg_type(lmsg.msg_type)
-        exp_saturation_req = lmsg.saturation_req
-
-        # create filter and response
-        def F(rmsg):
-            return rmsg.recipient_addr == exp_recipient_addr \
-            and rmsg.msg_type == exp_msg_type \
-            and rmsg.saturation_req == exp_saturation_req
-
-        def G(rmsg):
-            T = '(%s,%f,%s)' % (rmsg.sender_addr,rmsg.send_time,rmsg.payload)
-            # TODO add socket transmission
-
-        # add (filter,response) tuple to self.filtered_streams
-
-        while True:
-            if now() - start_time > timeout:
-                break
-            time.sleep(SNOOZE_TIME)    
-    
-        # TODO cleanup
-
-    # TODO accepts requests via TCP connection then summons an intern to handle it
-    def receptionist(self,rt):
-        pass
-
-############################################################################################
-#### STABLE CODE ###########################################################################  
-############################################################################################
 
     def add_name(self,msg):
         return ('*%s* ' % (self.my_name)) + msg
@@ -735,9 +649,6 @@ class vessel:
             except:
                 continue
 
-            # TODO remove when no longer needed. for now, it makes debugging easier for the nearsighted.
-            print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-
             log.plumbing_issues(self.add_name('received packet: %s' % (pkt)))
 
             msgs = self.chop_packet_stream(pkt) 
@@ -822,11 +733,11 @@ class vessel:
         payload = '%f,%f,%f,%s,%s,%f' % (obs_time, obs_gps_lat, obs_gps_long, obs_dev_id, obs_var_name, obs_val)
         return payload
 
-    def temp_var_broadcast(self,recipient): #TODO fix payload
+    def temp_var_broadcast(self,recipient): 
         payload = self.prepare_temp_var_payload()
         self.prod_spurt(recipient,MSG_TYPE_NOTIF,payload)
     
-    def flood_temp_var_broadcast(self,recipient):#TODO fix payload
+    def flood_temp_var_broadcast(self,recipient):
         payload = self.prepare_temp_var_payload()
         self.prod_flood(recipient,MSG_TYPE_NOTIF,payload)
 
@@ -854,20 +765,12 @@ class vessel:
             # figured I might at some point need to observe the process more closely
             while not bridge.lora_c_is_dead:
                 line = self.attempt_read()
-                print(line) #TODO remove once stable
                 if line != '':
                     last_observed = now()
                 if now() - last_observed > PRESUMED_DEAD:
                     bridge.lora_c_is_dead = True
                     break
                 time.sleep(1)
-                print('checking for pulse again') #TODO remove as well
-
-    def summon_receptionist(self):
-        self.receptionist_t = threading.Thread(target=self.receptionist, args = [rt])
-        self.receptionist_t.daemon = True # so it does with the host process
-        THREAD_BUCKET.append(self.receptionist_t) # for easier cleanup
-        self.receptionist_t.start()
 
     def summon_emcee(self):
         self.emcee_t = threading.Thread(target=self.emcee, args = [])
@@ -910,7 +813,7 @@ class vessel:
         self.glean_t.daemon = True # so it does with the host process
         THREAD_BUCKET.append(self.glean_t) # for easier cleanup
         self.glean_t.start()
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+
         self.request_t = threading.Thread(target=self.request_handler)
         self.request_t.daemon = True # so it does with the host process
         THREAD_BUCKET.append(self.request_t) # for easier cleanup

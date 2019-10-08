@@ -11,7 +11,7 @@ for which the global reserved word proved insufficient. Global locks and flags,
 including closing_time, hwich is used to synchronize across many files to
 perform a smooth shutdown. 
 
-Last modified: September 29, 2019
+Last modified: October 7, 2019
 
 ****************************************************************************'''
 
@@ -54,7 +54,6 @@ try:
     from unis.models import Node, schemaLoader
     from unis.models import Metadata
     rt = Runtime(UNIS_URL)
-    print('able to import everything!')
 except: # possible alternative, depending on the environment
     try: # in this case, Ubuntu 16.04 via Windows Subsystem for Linux
         # once more with less fail?
@@ -64,7 +63,6 @@ except: # possible alternative, depending on the environment
         from unis.models import Node, schemaLoader
         from unis.models import Metadata
         rt = Runtime(UNIS_URL)
-        print('able to import everything!')
     except:
         pass
 
