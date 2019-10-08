@@ -238,8 +238,8 @@ class vessel:
             # if not multicast, are sender and recipient already dependent?  
             # if so, the recipient probably got the message. discard.
             if not lmsg.multicast and self.are_dependent(init_sender,recipient): 
-                self.in_the_weeds('%s tossing %s because sender/recipient dependent' \
-                    % (self.my_dev_id,lmsg.skey))
+                #self.in_the_weeds('%s tossing %s because sender/recipient dependent' \
+                #    % (self.my_dev_id,lmsg.skey))
                 continue
 
             # is the relaying node and recipient (if not multicast) independent
@@ -249,15 +249,15 @@ class vessel:
             if self.cargo.are_independent(self.my_dev_id,relaying_node) \
             and not lmsg.multicast \
             and self.cargo.are_independent(self.my_dev_id,recipient):
-                self.in_the_weeds(' %s tossing %s because no dependence on me' \
-                    % (self.my_dev_id,lmsg.skey))
+                #self.in_the_weeds(' %s tossing %s because no dependence on me' \
+                #    % (self.my_dev_id,lmsg.skey))
                 continue
 
             # has the (non-multicast) recipient already responded? discard.
             if not lmsg.multicast and lmsg.response_requested \
                 and self.cargo.has_responded(lmsg.skey,recipient):
-                self.in_the_weeds(' %s tossing %s because recipient already responded' \
-                    % (self.my_dev_id,lmsg.skey))
+                #self.in_the_weeds(' %s tossing %s because recipient already responded' \
+                #    % (self.my_dev_id,lmsg.skey))
                 continue
 
             # have all the nodes that depend on me already broadcasted? discard. 
@@ -267,8 +267,8 @@ class vessel:
             dependents = self.cargo.who_needs_me
             promoters = self.cargo.who_has_promoted(lmsg.skey)
             if len(dependents) > 0 and dependents - promoters == set():
-                self.in_the_weeds(' %s tossing %s because dependents broadcasted' \
-                    % (self.my_dev_id,lmsg.key))
+                #self.in_the_weeds(' %s tossing %s because dependents broadcasted' \
+                #    % (self.my_dev_id,lmsg.key))
                 continue
 
             # no reason not to broadcast!
@@ -579,10 +579,19 @@ class vessel:
         elif ':' in glob:
             S = glob.split(':')
 
-        for s in S:
+        for i in reversed(range(len(S))):
+            s = S[i]
+
+            # not a packet?
             if len(s) < 10: continue
+
+            # lost the RSSI value? reattach
+            if s[-1] == '/': S += str(FAKE_RSSI_VAL)
+
             lmsg = lora_message(s)
-            if lmsg.pkt_valid: valid_messages.append(lmsg)
+            if lmsg.pkt_valid: 
+                valid_messages.append(lmsg)
+            else:
 
         return valid_messages
 
