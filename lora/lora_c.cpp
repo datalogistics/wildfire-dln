@@ -59,10 +59,6 @@ using namespace std;
 #define MACHINE_RPI             "armv7l"
 #define MACHINE_UP_BOARD        "x86_64"
 
-#define CONFIRMED_RPI           31 // because
-#define CONFIRMED_UP_BOARD      41 // prime 
-#define BOARD_UNKNOWN           53 // numbers
-
 int discern_board(){
     struct utsname details;
     int ret = uname(&details);
@@ -77,25 +73,22 @@ int discern_board(){
         
         if (strncmp(details.machine,MACHINE_RPI,6) == 0){
 	    printf("comfirmed ARM architecture => RPi\n");
-            return CONFIRMED_RPI;
+            #define CONFIRMED_RPI i
 	}
     
         if (strncmp(details.machine,MACHINE_UP_BOARD,6) == 0) {
 	    printf("comfirmed x86M architecture => UpB\n");
-            return CONFIRMED_UP_BOARD;
+            #define CONFIRMED_UP_BOARD 
 	}
     }
-    return BOARD_UNKNOWN;
+    #define BOARD_UNKNOWN 
+    return 0;
 }
 
 int board_type = discern_board();
 
-// by default, assume we're on an RPi Board
-#if board_type == CONFIRMED_UP_BOARD
-    #include "lora_up.h"
-#else
-    #include "lora_rpi.h" 
-#endif
+// can't do this directly. need a buffer file, i.e. 
+#include "lora_ss.h"
 
 // Command-line option parsing solution based off an example in the GNU Documentation,
 // section "25.2.4 Example of Parsing Long Options with getopt_long" available at
