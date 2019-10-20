@@ -75,24 +75,26 @@ int discern_board(){
         //printf("version: %s\n", details.version);
         //printf("machine: %s\n", details.machine);
         
-        if (strncmp(details.machine,MACHINE_RPI,20) == 0)
+        if (strncmp(details.machine,MACHINE_RPI,6) == 0){
+	    printf("comfirmed ARM architecture => RPi\n");
             return CONFIRMED_RPI;
+	}
     
-        if (strncmp(details.machine,MACHINE_UP_BOARD,20) == 0) 
+        if (strncmp(details.machine,MACHINE_UP_BOARD,6) == 0) {
+	    printf("comfirmed x86M architecture => UpB\n");
             return CONFIRMED_UP_BOARD;
+	}
     }
-    //return BOARD_UNKNOWN;
-    return CONFIRMED_UP_BOARD;
-
+    return BOARD_UNKNOWN;
 }
 
 int board_type = discern_board();
 
-// by default, assume we're on an Up Board
-#if board_type == CONFIRMED_RPI
-    #include "lora_rpi.h"
+// by default, assume we're on an RPi Board
+#if board_type == CONFIRMED_UP_BOARD
+    #include "lora_up.h"
 #else
-    #include "lora_up.h" 
+    #include "lora_rpi.h" 
 #endif
 
 // Command-line option parsing solution based off an example in the GNU Documentation,
