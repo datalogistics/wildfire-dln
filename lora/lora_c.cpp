@@ -77,20 +77,22 @@ int discern_board(){
         
         if (strncmp(details.machine,MACHINE_RPI,20) == 0)
             return CONFIRMED_RPI;
-            
+    
         if (strncmp(details.machine,MACHINE_UP_BOARD,20) == 0) 
             return CONFIRMED_UP_BOARD;
     }
-    return BOARD_UNKNOWN;
+    //return BOARD_UNKNOWN;
+    return CONFIRMED_UP_BOARD;
+
 }
 
 int board_type = discern_board();
 
 // by default, assume we're on an Up Board
 #if board_type == CONFIRMED_RPI
-    #include "lora_up.h"
+    #include "lora_rpi.h"
 #else
-    #include "lora_rpi.h" 
+    #include "lora_up.h" 
 #endif
 
 // Command-line option parsing solution based off an example in the GNU Documentation,

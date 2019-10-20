@@ -24,7 +24,7 @@ Last modified: August 12, 2019
 
  *******************************************************************************/
 
-#include <string> // TODO still need?
+#include <string>  
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
