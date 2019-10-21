@@ -833,7 +833,8 @@ class vessel:
             if bridge.USING_lora_c_HANDLER:
                 self.summon_handler()
             else: # notify the user they need to run lora-c manually
-                proc_call = bridge.lora_c_proc_call % (outgoing_port,incoming_port)
+                while self.incoming_port == 0 or self.outgoing_port == 0: pass
+                proc_call = bridge.lora_c_proc_call % (self.outgoing_port,self.incoming_port)
                 log.warning( \
                 '''
 

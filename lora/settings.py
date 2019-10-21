@@ -648,7 +648,7 @@ def process_running(pn):
 # they are shown here for reference.
 LORA_C_FN = bridge.CURRENT_PATH + 'lora_c' # need full path if running this process at boot
 LORA_C_SRC_FN = bridge.CURRENT_PATH + 'lora_c.cpp'
-MAKE_CLEAN = 'rm -rf __pycache__ edit %s *.o a.out *.pyc' % (LORA_C_FN)
+MAKE_CLEAN = 'rm -rf __pycache__ edit %s *.o a.out *.pyc lora_c' % (LORA_C_FN)
 
 MACHINA_CODE_RPI = 828073 # RPI in ASCII
 MACHINA_CODE_UPB = 858066 # UPB in ASCII
@@ -700,6 +700,7 @@ def preflight_checks():
         if not file_exists(LORA_C_FN): # try compiling
             log.error('lora-c executable not found, attempting compilation')
             os.system(MAKE_CLEAN)
+            print(MAKE_LORA)
             os.system(MAKE_LORA)
         
         # if compilation failed, bail

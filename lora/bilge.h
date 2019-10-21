@@ -156,7 +156,6 @@ Last modified: October 21, 2019
 
 #define MESSAGE_LEN      512
 
-/*
 typedef bool boolean;
 typedef unsigned char byte;
 
@@ -165,11 +164,11 @@ volatile sig_atomic_t transmitting = false;
 volatile sig_atomic_t resetting = true;
 
 bool sx1272 = false; // the LoRa GPS Hat has sx1276
-*/
+
 enum sf_t { SF7=7, SF8, SF9, SF10, SF11, SF12 };
 
 // Set spreading factor (SF7 - SF12)
-//sf_t sf = SF12;
+sf_t sf = SF12;
 
 // Set center frequency
 uint32_t freq = 915000000; // in Mhz! (EU=868.1, US=915.0)
@@ -211,10 +210,10 @@ void get_mac_addr_from_eth0(char* mac_str){
 // "How to get MAC address of your machine using a C program?" available at
 // <https://stackoverflow.com/questions/1779715/how-to-get-mac-address-of-your-machine-using-a-c-program>
 // last accessed: October 21, 2019
-int get_mac_addr(unsigned char* mac_str){
+int get_mac_addr(char* mac_str){
     struct ifreq ifr;
     struct ifconf ifc;
-    unsigned char buf[1024];
+    char buf[1024]; // this must be char*
     int success = 0;
 
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);

@@ -484,7 +484,7 @@ int main (int argc, char *argv[]) {
         }
     }
 
-    get_mac_eth0(MY_MAC_ADDR);
+    get_mac_addr(MY_MAC_ADDR);
     for(int i=0; i<12; i++){
 	    printf("%c", MY_MAC_ADDR[i]);
     }

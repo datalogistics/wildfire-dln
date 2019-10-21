@@ -30,8 +30,6 @@ Last modified: October 21, 2019
 
 static const int CHANNEL = 0;
 
-enum sf_t { SF7=7, SF8, SF9, SF10, SF11, SF12 };
-
 // physical pin mapping
 int ssPin = 6;
 int dio0  = 7;
@@ -393,7 +391,7 @@ void clear_buf(byte* buf,int L){
 
 static void write_buf_to_lora_reg(byte addr, byte *value, byte len) { 
     unsigned char spibuf[MESSAGE_LEN];  
-    memset(buf,0,MESSAGE_LEN);
+    memset(spibuf,0,MESSAGE_LEN);
 
     spibuf[0] = addr | 0x80;   
     for (int i = 0; i < len; i++) {  
