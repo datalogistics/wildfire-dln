@@ -144,7 +144,7 @@ class vessel:
     def transmit(self,lmsg): 
         self.glean_q.put(lmsg) # always
         
-        self.my_msg_stream_poster(now(),lmsg.initial_pkt)
+        if bridge.HAVE_UNIS: self.my_msg_stream_poster(now(),lmsg.initial_pkt)
         
         # left as a reminder that this action is now handled by the radio_operator
         #self.outbox_q.put(lmsg) 
@@ -389,7 +389,7 @@ class vessel:
             else: msgs_seen.add(msg_sig)
             
             # push data to UNIS
-            self.my_msg_stream_poster(now(),lmsg.initial_pkt)
+            if bridge.HAVE_UNIS: self.my_msg_stream_poster(now(),lmsg.initial_pkt)
             
             if lmsg.saturation_req and lmsg.init_sender_addr == self.my_dev_id \
             or lmsg.sender_addr == self.my_dev_id or self.cargo.seen_msg(lmsg): 

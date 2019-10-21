@@ -296,6 +296,7 @@ void* lora_listener(void* arg){
     int* msg_len = new int;
     int* rssi_val = new int;
     bool got_something;
+    memset(msg,0,MESSAGE_LEN);
 
     printf("lora_listener: active\n");
     
