@@ -51,44 +51,15 @@ using namespace std;
 #define RECEIVING_DURATION      1
 #define TRANSMITTING_DURATION   1
 
-// Method of determining board type came from Yaakov H. via "Hello, I'm Yaakov!"
-// in the post "Finding your Operating System version programmatically"
-// available at <https://blog.yaakov.online/finding-operating-system-version/>
-// last accessed: August 5, 2019
+// something snarky using leet-speak wasn't feasible here. so stick to ASCII.
+// 82 80 73 = R P I
+// 85 80 66 = U P B
 
-#define MACHINE_RPI             "armv7l"
-#define MACHINE_UP_BOARD        "x86_64"
-
-int discern_board(){
-    struct utsname details;
-    int ret = uname(&details);
-    
-    if (ret == 0){
-        // left for reference
-        //printf("sysname: %s\n", details.sysname);
-        //printf("nodename: %s\n", details.nodename);
-        //printf("release: %s\n", details.release);
-        //printf("version: %s\n", details.version);
-        //printf("machine: %s\n", details.machine);
-        
-        if (strncmp(details.machine,MACHINE_RPI,6) == 0){
-	    printf("comfirmed ARM architecture => RPi\n");
-            #define CONFIRMED_RPI i
-	}
-    
-        if (strncmp(details.machine,MACHINE_UP_BOARD,6) == 0) {
-	    printf("comfirmed x86M architecture => UpB\n");
-            #define CONFIRMED_UP_BOARD 
-	}
-    }
-    #define BOARD_UNKNOWN 
-    return 0;
-}
-
-int board_type = discern_board();
-
-// can't do this directly. need a buffer file, i.e. 
-#include "lora_ss.h"
+#if MACHINA == 828073
+	#include "lora_rpi.h"
+#elif MACHINA == 858066 
+	#include "lora_up.h"
+#endif
 
 // Command-line option parsing solution based off an example in the GNU Documentation,
 // section "25.2.4 Example of Parsing Long Options with getopt_long" available at
