@@ -564,6 +564,7 @@ long int switch_to_transmit(){
     long int switch_time = -1;
 
     if (!transmitting){
+        printf("heading into TRANSMIT mode\n");
         ReSetupLoRa();
 
         // keep this in the conditional, like above

@@ -167,10 +167,11 @@ void get_ordering(int* ord_vec){
         }
         return;
     } */
-
+ 
+    printf("should be getting here\n");
     for (i=0; i<48; i=i+4){
         c = tolower(MY_MAC_ADDR[i/4]);
-
+        printf("%c\n",c);
         switch(c){
             case '0': MY_ORDERING[i]=0; MY_ORDERING[i+1]=0; MY_ORDERING[i+2]=0; MY_ORDERING[i+3]=0; break;
             case '1': MY_ORDERING[i]=0; MY_ORDERING[i+1]=0; MY_ORDERING[i+2]=0; MY_ORDERING[i+3]=1; break;
@@ -346,7 +347,9 @@ void* lora_speaker(void* arg){
 	        if(!success){
                 printf("lora_speaker: TRANSMIT FAILURE\n"); 
 		        lock_push(outbox_q,msg,outbox_q_lock);
-	        }
+	        }else{
+                printf("lora_speaker: transmit success!\n"); 
+                }
         }
 
         //delay_in_ms(SNOOZE_TIME); // in milliseconds // TODO check if necessary
@@ -395,7 +398,7 @@ void* py_listener(void* arg){
             continue;
         }
 
-        printf("py_listener: data received is %s \n",msg);
+        //printf("py_listener: data received is %s \n",msg);
 
         // insert into outbox queue here
         lock_push(outbox_q,msg,outbox_q_lock);
@@ -546,7 +549,16 @@ int main (int argc, char *argv[]) {
     printf("%d %d\n", transmitter_flag,receiver_flag);
 
     get_mac_eth0(MY_MAC_ADDR);
+    for(int i=0; i<12; i++){
+	printf("%c", MY_MAC_ADDR[i]);
+}
     get_ordering(MY_ORDERING);
+    printf("\n");
+
+    for(int i=0; i<48; i++){
+	printf("%d", MY_ORDERING[i]);
+}
+    printf("\n");
 
     setup_hw_interface();
     SetupLoRa();
