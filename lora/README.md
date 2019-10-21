@@ -1,26 +1,13 @@
 ## Instructions
 
-Assuming stuart is broadcasting and bob is roaming:   
+on the RPi:
 
-Login to `bob` as `pi`   
-Then `cd /home/pi/repos/minionfest/whisper`   
-Run `make`   
-open `whisper.py` and  make sure these parameters are set this way:      
-	`BROADCASTING = False`     
-	`RUNNING_BODILESS = False`     
-	`USING_C_HANDLER = True`    
-	`USING_UNIS = False`          
-Run `nohup ./run_whisper.sh`   
-close terminal without interrupting the running process   
+Log in as `wdln` with same password for user `pi`
+Then `cd /home/wdln/wildfire-dln/lora`   
+Run `python3 main.py -e`   
 
-Login to `stuart` as `pi`   
-Then `cd /home/pi/minionfest/whisper`   
-Run `make`   
-Open `whisper.py` and make sure the parameters are set this way:      
-	`BROADCASTING = True`   
-	`RUNNING_BODILESS = False`   
-	`USING_C_HANDLER = True`   
-	`USING_UNIS = False`      
-Run `python3 whisper.py`   
+on the Up Board:
 
-Observe.
+Log in as `wildfiredln` with the obvious password, minus `dln`
+Then `cd /home/wildfiredln/wildfire-dln/lora`   
+Run `python3 main.py -e`   
