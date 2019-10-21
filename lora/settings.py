@@ -662,7 +662,7 @@ LORA_C_SRC_FN = bridge.CURRENT_PATH + 'lora_c.cpp'
 MAKE_CLEAN = 'rm -rf __pycache__ edit %s *.o a.out *.pyc' % (LORA_C_FN)
 
 MACHINA_CODE_RPI = 828073 # RPI in ASCII
-MACHINE_CODE_UPB = 858066 # UPB in ASCII
+MACHINA_CODE_UPB = 858066 # UPB in ASCII
 
 if bridge.DEVICE_ARCH_IS_RPI: # assume by default we are on an Up Board
     MAKE_LORA = 'g++ -Wall -o %s -D MACHINA=%d -lwiringPi -pthread %s' \
