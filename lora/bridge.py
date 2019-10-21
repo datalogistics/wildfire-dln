@@ -11,7 +11,7 @@ for which the global reserved word proved insufficient. Global locks and flags,
 including closing_time, hwich is used to synchronize across many files to
 perform a smooth shutdown. 
 
-Last modified: October 7, 2019
+Last modified: October 21, 2019
 
 ****************************************************************************'''
 
@@ -131,4 +131,22 @@ DEFAULT_LONGITUDE += INTENTIONAL_SMUDGE
 CURRENT_PATH = os.getcwd()
 if CURRENT_PATH[-1] != '/':
     CURRENT_PATH += '/'
+
+# if running this process at boot, need the full path
+LORA_C_FN = CURRENT_PATH + 'lora_c' 
+LORA_C_RECEIVER_OPT = ' --receiver'
+LORA_C_TRANSMITTER_OPT = ' --transmitter'
+LORA_C_PROC_CALL = 'sudo ' + LORA_C_FN + ' -i %d -o %d'
+lora_c_proc_call = LORA_C_PROC_CALL 
+
+# at most one of these options will be added to the call
+# update after argument parsing
+def update_proc_call():
+    global lora_c_proc_call
+    lora_c_proc_call = LORA_C_PROC_CALL 
+    if RECEIVE_ONLY: 
+        lora_c_proc_call += LORA_C_RECEIVER_OPT
+    if TRANSMIT_ONLY: 
+        lora_c_proc_call += LORA_C_TRANSMITTER_OPT
+
 

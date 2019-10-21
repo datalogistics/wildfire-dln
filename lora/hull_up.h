@@ -23,41 +23,22 @@ Last modified: October 21, 2019
 
  *******************************************************************************/
 
+#include "bilge.h"
+
 #include </usr/include/mraa.h>
 #include </usr/include/mraa/gpio.h>
 #include </usr/include/mraa/spi.h>
 
-volatile sig_atomic_t receiving = false;
-volatile sig_atomic_t transmitting = false;
-volatile sig_atomic_t resetting = true;
-
-typedef bool boolean;
-typedef unsigned char byte;
-
 static const int SPI_BUS = 0;
 static const int SPI_FREQ = 500000; 
 
-bool sx1272 = false; // the LoRa GPS Hat has sx1276
-
-// physical pins 
-int dio0  = 7; // WiringPi pin 7, physical pin 7
-int ssPin = 22; // WiringPi pin 6, physical pin 22
-int RST   = 11; // WiringPi pin 0, physical pin 11
+// physical pin mapping
+int ssPin = 22; // WiringPi pin 6 => physical pin 22
+int dio0  = 7; // WiringPi pin 7 => physical pin 7
+int RST   = 11; // WiringPi pin 0 => physical pin 11
 
 mraa_gpio_context gpio_ssPin, gpio_dio0, gpio_RST;
 mraa_spi_context spi;
-
-char message[MESSAGE_LEN];
-
-enum sf_t { SF7=7, SF8, SF9, SF10, SF11, SF12 };
-
-// Set spreading factor (SF7 - SF12)
-sf_t sf = SF12;
-
-// Set center frequency
-uint32_t  freq = 915000000; // in Mhz! (EU=868.1, US=915.0)
-
-byte hello[32] = "hello\0";
 
 //*******************************************************************************
 
@@ -154,18 +135,6 @@ int cleanup_hw_interface(){
     mraa_deinit();
 
     return EXIT_SUCCESS;
-}
-
-// Solution from Ciro Santilli (2016) at StackOverflow
-// in response to the following posted question:
-// "How to measure time in milliseconds using ANSI C?" available at
-// <https://stackoverflow.com/questions/361363/how-to-measure-time-in-milliseconds-using-ansi-c>
-// last accessed: July 17, 2019
-double now() {
-    struct timespec ts;
-    timespec_get(&ts, TIME_UTC);
-    double as_frac = ts.tv_sec + ts.tv_nsec/1000000000.;
-    return as_frac;
 }
 
 void selectreceiver(){
@@ -579,7 +548,7 @@ bool transmit_via_lora(char* msg, int msg_len) {
 	 return false;
     }
 
-    put_in_neutral(); // TODO check if needed
+    put_in_neutral(); 
 	
     byte* frame = (byte*) msg;
     byte datalen = (byte)msg_len;

@@ -11,7 +11,7 @@ the code, such as the logger and the *BUCKETs used to provide a smooth
 shutdown. Additionally there are utilities for checking the validity of
 input data, and tests to show the utilities are working properly. 
 
-Last modified: October 20, 2019
+Last modified: October 21, 2019
 
 ****************************************************************************'''
 
@@ -492,12 +492,6 @@ def update_var(node,var_name,val):
 #  cleanly disposing of them when the time comes.
 ###############################################################################    
 
-LORA_PATH = bridge.CURRENT_PATH # full path needed
-LORA_C_FN = LORA_PATH + 'lora_c' # if running this process at boot
-LORA_C_PROC_CALL = 'sudo ' + LORA_C_FN + ' -i %d -o %d'
-LORA_C_RECEIVER_OPT = '--receiver'
-LORA_C_TRANSMITTER_OPT = '--transmitter'
-
 # buckets that will contain all threads, processes, and sockets used for easier mopup() 
 THREAD_BUCKET = [] # one day I'll come up with better names
 PROCESS_BUCKET = [] # but buckets are so versatile!
@@ -512,12 +506,7 @@ def now():
 INITIATION_TIME = now()
 
 def start_lora_c(incoming_port,outgoing_port):
-    proc_call = LORA_C_PROC_CALL % (outgoing_port,incoming_port)
-
-    # at most one of these options will be added to the call
-    if bridge.RECEIVE_ONLY: proc_call += ' %s' % (LORA_C_RECEIVER_OPT)
-    if bridge.TRANSMIT_ONLY: proc_call += ' %s' % (LORA_C_TRANSMITTER_OPT)
-    
+    proc_call = bridge.lora_c_proc_call % (outgoing_port,incoming_port)
     log.info('summoning the c-handler via %s' % (proc_call))
 
     bridge.lora_c_p = subprocess.Popen(proc_call,shell=True, 

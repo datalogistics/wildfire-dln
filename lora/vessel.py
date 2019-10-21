@@ -17,7 +17,7 @@ A number of threads were used to logically separate production and consumption
 of messages for ease of troubleshooting. The use of queues adds a cushion to
 avoid lost messages, providing some resiliency.
 
-Last modified: October 20, 2019
+Last modified: October 21, 2019
 
 ****************************************************************************'''
 
@@ -129,8 +129,6 @@ class vessel:
         self.cargo = cargo_hold(self.my_name,self.my_dev_id,self.my_lora_id,self.transmit)
         
         self.my_ordering = self.get_my_ordering()
-
-
         self.my_status = RESETTING
 
     def get_my_ordering(self):
@@ -835,17 +833,16 @@ class vessel:
             if bridge.USING_lora_c_HANDLER:
                 self.summon_handler()
             else: # notify the user they need to run lora-c manually
+                proc_call = bridge.lora_c_proc_call % (outgoing_port,incoming_port)
                 log.warning( \
                 '''
 
                 The lora-c handler has not been selected for use. Please manually execute
                 the lora-c module with ports being used, i.e. run the following:
 
-                sudo ./lora_c -i %d -o %d
+                %s 
 
-                ''' % (self.outgoing_port,self.incoming_port))
-                #''' % (self.incoming_port,self.outgoing_port))
-                # TODO write suitable reminder here
+                ''' % (proc_call)) # ^ to ensure clean printing
 
         if bridge.USE_EMCEE: 
             self.summon_emcee()

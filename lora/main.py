@@ -16,7 +16,7 @@ A number of threads were used to logically separate production and consumption
 of messages for ease of troubleshooting. The use of queues adds a cushion to
 avoid lost messages, providing some resiliency.
 
-Last modified: October 7, 2019
+Last modified: October 21, 2019
 
 ****************************************************************************'''
 
@@ -85,6 +85,7 @@ def handle_opts():
     bridge.USE_EMCEE = args.emcee
     bridge.USE_BUOY_EFFECT = args.buoy
     bridge.USING_lora_c_HANDLER = not args.manual
+    bridge.update_proc_call()
 
     return True
 

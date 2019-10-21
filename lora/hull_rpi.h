@@ -23,33 +23,19 @@ Last modified: October 21, 2019
 
  *******************************************************************************/
 
+#include "bilge.h"
 
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
-volatile sig_atomic_t receiving = false;
-volatile sig_atomic_t transmitting = false;
-volatile sig_atomic_t resetting = true;
-
-typedef bool boolean;
-typedef unsigned char byte;
-
 static const int CHANNEL = 0;
-
-bool sx1272 = false; // the LoRa GPS Hat has sx1276
 
 enum sf_t { SF7=7, SF8, SF9, SF10, SF11, SF12 };
 
-// SX1272 - Raspberry connections
+// physical pin mapping
 int ssPin = 6;
 int dio0  = 7;
 int RST   = 0;
-
-// Set spreading factor (SF7 - SF12)
-enum sf_t sf = SF12;
-
-// Set center frequency
-uint32_t  freq = 915000000; // in Mhz! (EU=868.1, US=915.0)
 
 //*******************************************************************************
 
@@ -67,21 +53,9 @@ int setup_hw_interface(){
     return 0;
 }
 
+// nothing to do on the RPi, but something to do on the Up Board
 int cleanup_hw_interface(){
-    return 0;
-}
-
-
-// Solution from Ciro Santilli (2016) at StackOverflow
-// in response to the following posted question:
-// "How to measure time in milliseconds using ANSI C?" available at
-// <https://stackoverflow.com/questions/361363/how-to-measure-time-in-milliseconds-using-ansi-c>
-// last accessed: July 17, 2019
-double now() {
-    struct timespec ts;
-    timespec_get(&ts, TIME_UTC);
-    double as_frac = ts.tv_sec + ts.tv_nsec/1000000000.;
-    return as_frac;
+    return 0; 
 }
 
 void selectreceiver(){
@@ -127,6 +101,7 @@ static void opmodeLora() {
 }
 
 void SetupLoRa(){
+    // if so desired, timers to measure time to reset
     //double start,end;
     //start = now();
 
@@ -272,6 +247,7 @@ long int switch_to_receive(){
         // otherwise we won't receive
         put_in_neutral();
         opmode(OPMODE_RX);
+        
         printf(">> now in RECEIVE mode <<\n");
     }
 
@@ -294,7 +270,6 @@ long int switch_to_transmit(){
         
         printf("<< now in TRANSMIT mode >>\n");
     }
-
     return switch_time;
 }
 
@@ -412,8 +387,13 @@ static void configPower (int8_t pw) {
     }
 }
 
+void clear_buf(byte* buf,int L){
+    memset(buf,0,L);
+}
+
 static void write_buf_to_lora_reg(byte addr, byte *value, byte len) { 
     unsigned char spibuf[MESSAGE_LEN];  
+    memset(buf,0,MESSAGE_LEN);
 
     spibuf[0] = addr | 0x80;   
     for (int i = 0; i < len; i++) {  

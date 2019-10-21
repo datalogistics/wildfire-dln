@@ -32,7 +32,9 @@ Last modified: October 21, 2019
 #include <pthread.h>
 
 #include <sys/ioctl.h>
+#include <net/if.h> 
 #include <unistd.h>
+#include <netinet/in.h>
 
 #define REG_FIFO                    0x00
 #define REG_OPMODE                  0x01
@@ -153,5 +155,94 @@ Last modified: October 21, 2019
 #define HIGH             1
 
 #define MESSAGE_LEN      512
+
+/*
+typedef bool boolean;
+typedef unsigned char byte;
+
+volatile sig_atomic_t receiving = false;
+volatile sig_atomic_t transmitting = false;
+volatile sig_atomic_t resetting = true;
+
+bool sx1272 = false; // the LoRa GPS Hat has sx1276
+*/
+enum sf_t { SF7=7, SF8, SF9, SF10, SF11, SF12 };
+
+// Set spreading factor (SF7 - SF12)
+//sf_t sf = SF12;
+
+// Set center frequency
+uint32_t freq = 915000000; // in Mhz! (EU=868.1, US=915.0)
+
+// Solution from Ciro Santilli (2016) at StackOverflow
+// in response to the following posted question:
+// "How to measure time in milliseconds using ANSI C?" available at
+// <https://stackoverflow.com/questions/361363/how-to-measure-time-in-milliseconds-using-ansi-c>
+// last accessed: July 17, 2019
+double now() {
+    struct timespec ts;
+    timespec_get(&ts, TIME_UTC);
+    double as_frac = ts.tv_sec + ts.tv_nsec/1000000000.;
+    return as_frac;
+}
+
+// Solution from Friek (2011) at StackOverflow
+// in response to the following posted question:
+// "How to get local IP and MAC address C [duplicate]" available at
+// <https://stackoverflow.com/questions/6767296/how-to-get-local-ip-and-mac-address-c>
+// last accessed: November 27, 2018
+void get_mac_addr_from_eth0(char* mac_str){
+    #define HWADDR_len 6
+    int s,i;
+    struct ifreq ifr;
+    
+    s = socket(AF_INET, SOCK_DGRAM, 0);
+    strcpy(ifr.ifr_name, "eth0");
+    ioctl(s, SIOCGIFHWADDR, &ifr);
+
+    for (i=0; i<HWADDR_len; i++)
+        sprintf(&mac_str[i*2],"%02X",((unsigned char*)ifr.ifr_hwaddr.sa_data)[i]);
+
+    mac_str[12]='\0';
+}
+
+// Solution from Charles Salvia (2009) and edited by Jamesprite (2012) at StackOverflow
+// in response to the following posted question:
+// "How to get MAC address of your machine using a C program?" available at
+// <https://stackoverflow.com/questions/1779715/how-to-get-mac-address-of-your-machine-using-a-c-program>
+// last accessed: October 21, 2019
+int get_mac_addr(unsigned char* mac_str){
+    struct ifreq ifr;
+    struct ifconf ifc;
+    unsigned char buf[1024];
+    int success = 0;
+
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    if (sock == -1) { /* handle error*/ };
+
+    ifc.ifc_len = sizeof(buf);
+    ifc.ifc_buf = buf;
+    if (ioctl(sock, SIOCGIFCONF, &ifc) == -1) { /* handle error */ }
+
+    struct ifreq* it = ifc.ifc_req;
+    const struct ifreq* const end = it + (ifc.ifc_len / sizeof(struct ifreq));
+
+    for (; it != end; ++it) {
+        strcpy(ifr.ifr_name, it->ifr_name);
+        if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0) {
+            if (! (ifr.ifr_flags & IFF_LOOPBACK)) { // don't count loopback
+                if (ioctl(sock, SIOCGIFHWADDR, &ifr) == 0) {
+                    success = 1;
+                    break;
+                }
+            }
+        }
+        else { /* handle error */ }
+    }
+
+    if (success) memcpy(mac_str, ifr.ifr_hwaddr.sa_data, 6);
+    mac_str[6] = 0;
+    return success;
+}
 
 

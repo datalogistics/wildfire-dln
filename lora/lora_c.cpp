@@ -11,7 +11,7 @@ functions for interacting with the LoRa transceiver in the LoRa Hat
 manufactured by Dragino and passes the data on via sockets to Python
 counterparts for processing. 
 
-Last modified: October 20, 2019
+Last modified: October 21, 2019
 
 *******************************************************************************/
 
@@ -43,7 +43,7 @@ using namespace std;
 
 #define USING_MONITOR           false
 
-#define EPS                     0.0001 // 10e-6
+#define EPS                     0.0001 // 10e-4
 #define RESETTING               -1
 #define RECEIVING               0
 #define TRANSMITTING            1
@@ -54,11 +54,12 @@ using namespace std;
 // something snarky using leet-speak wasn't feasible here. so stick to ASCII.
 // 82 80 73 = R P I
 // 85 80 66 = U P B
-
+// passed in at compilation. other attempts at inferring architecture in the code
+// to perform this conditional compilation failed.
 #if MACHINA == 828073
-	#include "lora_rpi.h"
+	#include "hull_rpi.h"
 #elif MACHINA == 858066 
-	#include "lora_up.h"
+	#include "hull_up.h"
 #endif
 
 // Command-line option parsing solution based off an example in the GNU Documentation,
@@ -85,9 +86,6 @@ queue<char*> outbox_q;
 
 void mopup();
 
-// for broadcasting, optional predefined packets to send out
-char notif_pkt[] = "hello";
-
 char* MY_MAC_ADDR = new char[13]; // 12-character string + termination character
 int* MY_ORDERING = new int[48]; 
 
@@ -95,26 +93,6 @@ int* MY_ORDERING = new int[48];
 
 void spin_until(double ts,double eps){
     while(ts - now() > eps && !closing_time);
-}
-
-// Solution from Friek (2011) at StackOverflow
-// in response to the following posted question:
-// "How to get local IP and MAC address C [duplicate]" available at
-// <https://stackoverflow.com/questions/6767296/how-to-get-local-ip-and-mac-address-c>
-// last accessed: November 27, 2018
-void get_mac_eth0(char* mac_str){
-    #define HWADDR_len 6
-    int s,i;
-    struct ifreq ifr;
-    
-    s = socket(AF_INET, SOCK_DGRAM, 0);
-    strcpy(ifr.ifr_name, "eth0");
-    ioctl(s, SIOCGIFHWADDR, &ifr);
-
-    for (i=0; i<HWADDR_len; i++)
-        sprintf(&mac_str[i*2],"%02X",((unsigned char*)ifr.ifr_hwaddr.sa_data)[i]);
-
-    mac_str[12]='\0';
 }
 
 void get_ordering(int* ord_vec){
@@ -151,6 +129,22 @@ void get_ordering(int* ord_vec){
             case 'f': MY_ORDERING[i]=1; MY_ORDERING[i+1]=1; MY_ORDERING[i+2]=1; MY_ORDERING[i+3]=1; break;
         }
     }
+}
+
+void mopup(){ 
+    // this is insufficient. code left as a reminder.
+    //pthread_join(port_listener_t, NULL); 
+
+    pthread_kill(py_listener_t, SIGTERM);
+    pthread_kill(lora_listener_t, SIGTERM);
+    pthread_kill(py_speaker_t, SIGTERM);
+    pthread_kill(lora_speaker_t, SIGTERM);
+    pthread_kill(radio_operator_t, SIGTERM);
+    printf("mopping up\n");
+
+    writeReg(RegPaRamp, 0x00);
+    opmode(OPMODE_SLEEP);
+    exit(0);
 }
 
 // Initially the RadioHead libraries were used but were found to be unstable. This
@@ -423,22 +417,6 @@ void* py_speaker(void* arg){
     }
     shutdown(socket_desc,2);
     return (void*) NULL;
-}
-
-void mopup(){ 
-    // this is insufficient. code left as a reminder.
-    //pthread_join(port_listener_t, NULL); 
-
-    pthread_kill(py_listener_t, SIGTERM);
-    pthread_kill(lora_listener_t, SIGTERM);
-    pthread_kill(py_speaker_t, SIGTERM);
-    pthread_kill(lora_speaker_t, SIGTERM);
-    pthread_kill(radio_operator_t, SIGTERM);
-    printf("mopping up\n");
-
-    writeReg(RegPaRamp, 0x00);
-    opmode(OPMODE_SLEEP);
-    exit(0);
 }
 
 int main (int argc, char *argv[]) {
