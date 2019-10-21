@@ -121,8 +121,6 @@ void get_ordering(int* ord_vec){
     int i;
     char c;
 
-    printf("%d %d\n",transmitter_flag,receiver_flag);
-
     // for debugging: only transmit or only receive messages
     if (transmitter_flag || receiver_flag){
         for (i=0; i<48; i=i+1){
@@ -131,44 +129,6 @@ void get_ordering(int* ord_vec){
         return;
     }
 
-    // alternative: assign roles to each minion by checking against the device hostname
-    //      or the current user's name. code left if ever needed.
-
-    // Solution from pezy (January 13, 2015), et al. at StackOverflow
-    // in response to the following posted question:
-    // "Get Computer Name and logged user name" available at
-    // <https://stackoverflow.com/questions/27914311/get-computer-name-and-logged-user-name>
-    // last accessed: June 29, 2019   
-    
-    /*char hostname[HOST_NAME_MAX];
-    gethostname(hostname, HOST_NAME_MAX);
-    //char username[LOGIN_NAME_MAX]; // if ever needed
-    //getlogin_r(username, LOGIN_NAME_MAX);
-
-    string s_dave = "dave"; 
-    string s_bob = "bob";
-    string s_stuart = "stuart";
-    string s_jerry = "jerry";
-
-    if (s_stuart.compare(hostname) == 0){ // leader/listener
-        for (i=0; i<48; i=i+4){
-            MY_ORDERING[i]=0;
-            MY_ORDERING[i+1]=0;
-            MY_ORDERING[i+2]=0;
-            MY_ORDERING[i+3]=0;
-        }
-        return;
-    } else { //if (s_stuart.compare(hostname) == 0){
-        for (i=0; i<48; i=i+4){
-            MY_ORDERING[i]=1;
-            MY_ORDERING[i+1]=1;
-            MY_ORDERING[i+2]=1;
-            MY_ORDERING[i+3]=1;
-        }
-        return;
-    } */
- 
-    printf("should be getting here\n");
     for (i=0; i<48; i=i+4){
         c = tolower(MY_MAC_ADDR[i/4]);
         printf("%c\n",c);
@@ -434,7 +394,6 @@ void* py_speaker(void* arg){
         printf("py_speaker: attempting to establish socket\n");
     }
 
-    //ip address of www.msn.com (get by doing a ping www.msn.com at terminal)
     server.sin_addr.s_addr = inet_addr(OUTGOING_ADDR);
     server.sin_family = AF_INET;
     server.sin_port = htons(OUTGOING_PORT);
@@ -447,7 +406,7 @@ void* py_speaker(void* arg){
     printf("py_speaker: active and connected\n");
 
     while(!closing_time){
-        // try to pull from inbox qeuue
+        // try to pull from inbox queue
         if(inbox_q.size() > 0){
             msg = lock_pop(inbox_q,inbox_q_lock);
 
@@ -467,7 +426,8 @@ void* py_speaker(void* arg){
 }
 
 void mopup(){ 
-    //pthread_join(port_listener_t, NULL); // insufficient
+    // this is insufficient. code left as a reminder.
+    //pthread_join(port_listener_t, NULL); 
 
     pthread_kill(py_listener_t, SIGTERM);
     pthread_kill(lora_listener_t, SIGTERM);
@@ -546,12 +506,11 @@ int main (int argc, char *argv[]) {
         }
     }
 
-    printf("%d %d\n", transmitter_flag,receiver_flag);
-
     get_mac_eth0(MY_MAC_ADDR);
     for(int i=0; i<12; i++){
-	printf("%c", MY_MAC_ADDR[i]);
-}
+	    printf("%c", MY_MAC_ADDR[i]);
+    }
+    
     get_ordering(MY_ORDERING);
     printf("\n");
 
