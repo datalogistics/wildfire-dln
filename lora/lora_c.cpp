@@ -11,7 +11,7 @@ functions for interacting with the LoRa transceiver in the LoRa Hat
 manufactured by Dragino and passes the data on via sockets to Python
 counterparts for processing. 
 
-Last modified: October 7, 2019
+Last modified: October 20, 2019
 
 *******************************************************************************/
 

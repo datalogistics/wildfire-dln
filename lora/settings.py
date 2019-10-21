@@ -11,7 +11,7 @@ the code, such as the logger and the *BUCKETs used to provide a smooth
 shutdown. Additionally there are utilities for checking the validity of
 input data, and tests to show the utilities are working properly. 
 
-Last modified: October 7, 2019
+Last modified: October 20, 2019
 
 ****************************************************************************'''
 
@@ -661,10 +661,15 @@ LORA_C_FN = bridge.CURRENT_PATH + 'lora_c' # need full path if running this proc
 LORA_C_SRC_FN = bridge.CURRENT_PATH + 'lora_c.cpp'
 MAKE_CLEAN = 'rm -rf __pycache__ edit %s *.o a.out *.pyc' % (LORA_C_FN)
 
+MACHINA_CODE_RPI = 828073 # RPI in ASCII
+MACHINE_CODE_UPB = 858066 # UPB in ASCII
+
 if bridge.DEVICE_ARCH_IS_RPI: # assume by default we are on an Up Board
-    MAKE_LORA = 'g++ -Wall -o %s -lwiringPi -pthread %s' % (LORA_C_FN, LORA_C_SRC_FN)
+    MAKE_LORA = 'g++ -Wall -o %s -D MACHINA=%d -lwiringPi -pthread %s' \
+        % (LORA_C_FN, MACHINA_CODE_RPI, LORA_C_SRC_FN)
 else:
-    MAKE_LORA = 'g++ -Wall -o %s -pthread %s' % (LORA_C_FN, LORA_C_SRC_FN)
+    MAKE_LORA = 'g++ -Wall -o %s -D MACHINA=%d -pthread %s' \
+        % (LORA_C_FN, MACHINA_CODE_UPB, LORA_C_SRC_FN)
 
 # Solution from Jeremy Grifski of The Renegade Coder.
 # "How to Check if a File Exists in Python," posted February 17, 2018, available at:
