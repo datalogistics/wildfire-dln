@@ -754,9 +754,8 @@ class vessel:
                 line = self.attempt_read()
                 if line != '':
                     last_observed = now()
-                else: 
-                    print('lora_c might be dead?')
                 if now() - last_observed > PRESUMED_DEAD:
+                    print('lora-c is dead')
                     bridge.lora_c_is_dead = True
                     break
                 time.sleep(1)
