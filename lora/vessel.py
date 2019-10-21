@@ -138,7 +138,6 @@ class vessel:
 
         return get_ordering(S)
 
-
     def transmit(self,lmsg): 
         self.glean_q.put(lmsg) # always
         
@@ -732,7 +731,10 @@ class vessel:
     # <https://eli.thegreenplace.net/2017/interacting-with-a-long-running-child-process-in-python/>
     # last accessed: August 22, 2019
     def attempt_read(self): 
-        return bridge.lora_c_p.stdout.readline().decode('utf-8')
+        try: 
+            return bridge.lora_c_p.stdout.readline().decode('utf-8')
+        except:
+            return ''
 
     # a handler for lora-c when stable enough to run unsupervised
     def c_handler(self):
@@ -752,6 +754,8 @@ class vessel:
                 line = self.attempt_read()
                 if line != '':
                     last_observed = now()
+                else: 
+                    print('lora_c might be dead?')
                 if now() - last_observed > PRESUMED_DEAD:
                     bridge.lora_c_is_dead = True
                     break
