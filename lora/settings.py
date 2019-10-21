@@ -668,7 +668,7 @@ if bridge.DEVICE_ARCH_IS_RPI: # assume by default we are on an Up Board
     MAKE_LORA = 'g++ -Wall -o %s -D MACHINA=%d -lwiringPi -pthread %s' \
         % (LORA_C_FN, MACHINA_CODE_RPI, LORA_C_SRC_FN)
 else:
-    MAKE_LORA = 'g++ -Wall -o %s -D MACHINA=%d -pthread %s' \
+    MAKE_LORA = 'g++ -Wall -o %s -D MACHINA=%d -pthread %s -lmraa' \
         % (LORA_C_FN, MACHINA_CODE_UPB, LORA_C_SRC_FN)
 
 # Solution from Jeremy Grifski of The Renegade Coder.
