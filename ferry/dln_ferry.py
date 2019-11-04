@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import bottle
 import os
 import time
 import argparse
@@ -104,7 +105,30 @@ def register(rt, name, fqdn):
         args=(rt, name, fqdn, gps),
     )
     th.start()
-   
+
+def run_uploader(d):
+    @bottle.route('/flist')
+    def _list():
+        return repr(os.listdir(d))
+    @bottle.route('/upload', method='POST')
+    def _files():
+        for f in bottle.request.files.keys():
+            dat = bottle.request.files.get(f)
+            path = os.path.join(d, dat.filename)
+            dat.save(path, overwrite=True)
+            LOCAL_DEPOT={s.accessPoint: { "enabled": True}}
+            try:
+                with libdlt.Session(s.unis_url, bs="5m", depots=LOCAL_DEPOT, threads=1) as sess:
+                    res = sess.upload(path)
+                if not hasattr(s, 'uploaded_exnodes'): s.extendSchema('uploaded_exnodes', [])
+                s.uploaded_exnodes.append(res.exnode)
+            except ValueError as e:
+                log.warn(e)
+
+    th = threading.Thread(name='uploader', target=bottle.run, daemon=True,
+                          kwargs={'host': '0.0.0.0', 'port': 8080, 'debug': True})
+    th.start()
+    
 def init_runtime(remote, local, local_only):
     while True:
         try:
@@ -230,7 +254,7 @@ def main():
     
     # get our initial UNIS-RT and libdlt sessions
     rt = init_runtime(args.host, LOCAL_UNIS, args.local)
-    sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)    
+    sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)
     
     # Start the registration loop
     register(rt, name, fqdn)
@@ -240,14 +264,17 @@ def main():
         IBPWatcher()
 
     # Start the upload dir watcher
-    UploadWatcher(s, LOCAL_UNIS)
-        
+    #UploadWatcher(s, LOCAL_UNIS)
+
+    # Start uploader thread
+    run_uploader(args.upload)
+    
     # run our main loop
     if args.local:
         run_local(sess, rt)
     else:
         run_remote(sess, rt)
-    
+
 if __name__ == "__main__":
     main()
     
