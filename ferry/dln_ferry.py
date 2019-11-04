@@ -18,7 +18,7 @@ from unis.runtime import Runtime
 from unis.exceptions import ConnectionError
 from ferry.gps import GPS
 from ferry.ibp_iface import IBPWatcher
-from ferry.watcher import UploadWatcher
+#from ferry.watcher import UploadWatcher
 from ferry.log import log
 
 # globals

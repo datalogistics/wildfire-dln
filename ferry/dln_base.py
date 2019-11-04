@@ -122,7 +122,7 @@ def run_base(rt):
         (i%5) or log.info("Waiting for something to do...")
         i+=1
         time.sleep(1)
-                
+
 def main():
     parser = argparse.ArgumentParser(description="DLN Base Station Agent")
     parser.add_argument('-H', '--host', type=str, default=UNIS_URL,

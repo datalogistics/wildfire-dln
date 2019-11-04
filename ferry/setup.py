@@ -41,7 +41,8 @@ setup(
         "gps3",
         "shapely",
         "netifaces",
-        "bottle"
+        "bottle",
+        "watchdog"
     ],
     dependency_links=[
         "git+https://github.com/periscope-ps/lace.git/@master#egg=lace",
