@@ -10,16 +10,19 @@ import subprocess
 
 import ferry.settings as settings
 from asyncio import TimeoutError
-from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
+from ferry.settings import DEFAULT_BASE_CONFIG
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from unis.exceptions import ConnectionError
 from ferry.gps import GPS
 from ferry.base_sync import BaseFerrySync
 from ferry.log import log
+from ferry.config import MultiConfig
 
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
 GeoLoc = schemaLoader.get_class(settings.GEOLOC)
+
+LOCAL_UNIS_PORT=settings.LOCAL_UNIS_PORT
 
 # Global node and service objects
 # so they can be refreshed if UNIS resets
@@ -124,36 +127,35 @@ def run_base(rt):
         time.sleep(1)
 
 def main():
-    parser = argparse.ArgumentParser(description="DLN Base Station Agent")
-    parser.add_argument('-H', '--host', type=str, default=UNIS_URL,
-                        help='UNIS instance for registration and metadata')
-    parser.add_argument('-n', '--name', type=str, default=None,
-                        help='Set base node name (ignore system hostname)')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='Produce verbose output from the script')
-    parser.add_argument('-q', '--quiet', action='store_true',
-                        help='Quiet mode, no logging output')
-
-    args = parser.parse_args()
-
-    # configure logging level
-    level = logging.DEBUG if args.verbose else logging.INFO
-    level = logging.CRITICAL if args.quiet else level
-    log.setLevel(level)
+    global LOCAL_UNIS_PORT
     
+    logging.basicConfig(format='[%(asctime)-15s] [%(levelname)s] %(message)s')
+    conf = MultiConfig(DEFAULT_BASE_CONFIG, "DLN basestation agent keeps the basestation record alive",
+                       filevar="$WDLN_BASE_CONFIG")
+    parser = argparse.ArgumentParser(description="DLN Base Station Agent")
+    parser.add_argument('-H', '--remote.host', type=str, metavar="HOST",
+                        help='UNIS instance host for registration and metadata')
+    parser.add_argument('-P', '--remote.port', type=str, metavar="PORT",
+                        help='UNIS instance port for registration and metadata')
+    parser.add_argument('-n', '--name', type=str,
+                        help='Set base node name (ignore system hostname)')
+    conf = conf.from_parser(parser, include_logging=True)
+
     name = socket.gethostname()
     fqdn = socket.getfqdn()
+    LOCAL_UNIS_PORT = conf['remote']['port']
     log.info("Base Station \"{}\" reporting for duty".format(name))
-    if args.name:
-        name = args.name
+    if conf['name']:
+        name = conf['name']
         log.info("Setting base name to \"{}\"".format(name))
 
     # use fqdn to determine local endpoints
-    LOCAL_DEPOT={"ibp://{}:6714".format(fqdn): { "enabled": True}}
+    LOCAL_DEPOT={"ibp://{}:6714".format(fqdn): {"enabled": True}}
 
     # allow an alternative UNIS instance (non-ferry) in local mode
-    if (args.host != UNIS_URL):
-        LOCAL_UNIS=args.host
+    authority, default = [":".join([d['remote']['host'], d['remote']['port']]) for d in [conf, DEFAULT_BASE_CONFIG]]
+    if (authority != default):
+        LOCAL_UNIS=authority
     else:
         LOCAL_UNIS = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
     

@@ -11,19 +11,19 @@ import subprocess
 
 import libdlt
 import ferry.settings as settings
-from ferry.settings import UNIS_URL, LOCAL_UNIS_HOST, LOCAL_UNIS_PORT
+from ferry.config import MultiConfig
 from asyncio import TimeoutError
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from unis.exceptions import ConnectionError
 from ferry.gps import GPS
 from ferry.ibp_iface import IBPWatcher
-#from ferry.watcher import UploadWatcher
 from ferry.log import log
 
 # globals
 DOWNLOAD_DIR=settings.DOWNLOAD_DIR
 UPLOAD_DIR=settings.UPLOAD_DIR
+LOCAL_UNIS_PORT=settings.LOCAL_UNIS_PORT
 sess = None
 
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
@@ -106,7 +106,7 @@ def register(rt, name, fqdn):
     )
     th.start()
 
-def run_uploader(d):
+def run_uploader(d, port):
     @bottle.route('/flist')
     def _list():
         return repr(os.listdir(d))
@@ -126,7 +126,7 @@ def run_uploader(d):
                 log.warn(e)
 
     th = threading.Thread(name='uploader', target=bottle.run, daemon=True,
-                          kwargs={'host': '0.0.0.0', 'port': 8080, 'debug': True})
+                          kwargs={'host': '0.0.0.0', 'port': port, 'debug': True})
     th.start()
     
 def init_runtime(remote, local, local_only):
@@ -200,42 +200,42 @@ def run_remote(sess, rt):
         time.sleep(1)
         
 def main():
+    global LOCAL_UNIS_PORT
     global DOWNLOAD_DIR
     global sess
-    
-    parser = argparse.ArgumentParser(description="DLN Mobile Ferry Agent")
-    parser.add_argument('-H', '--host', type=str, default=UNIS_URL,
-                        help='UNIS instance for registration and metadata')
-    parser.add_argument('-n', '--name', type=str, default=None,
+
+    logging.basicConfig(format='[%(asctime)-15s] [%(levelname)s] %(message)s')
+    conf = MultiConfig(settings.DEFAULT_FERRY_CONFIG, "DLN ferry agent manages files hosted on the WDLN ferry",
+                       filevar="$WDLN_FERRY_CONFIG")
+    parser = argparse.ArgumentParser(description='')
+    parser.add_argument('-H', '--remote.host', type=str, metavar="HOST",
+                        help='Remote UNIS instance host for registration and metadata')
+    parser.add_argument('-P', '--remote.port', type=str, metavar="PORT",
+                        help='Remote UNIS instance port for registration and metadata')
+    parser.add_argument('-p', '--local.port', type=str, metavar="PORT",
+                        help='Local UNIS port')
+    parser.add_argument('-n', '--name', type=str,
                         help='Set ferry node name (ignore system hostname)')
-    parser.add_argument('-d', '--download', type=str, default=DOWNLOAD_DIR,
+    parser.add_argument('-d', '--file.download', type=str, metavar="DOWNLOAD",
                         help='Set local download directory')
-    parser.add_argument('-u', '--upload', type=str, default=UPLOAD_DIR,
+    parser.add_argument('-u', '--file.upload', type=str, metavar="UPLOAD",
                         help='Set local upload directory')
-    parser.add_argument('-l', '--local', action='store_true',
+    parser.add_argument('-l', '--localonly', action='store_true',
                         help='Run using only local UNIS instance (on-ferry)')
     parser.add_argument('-i', '--ibp', action='store_true',
                         help='Update IBP config to reflect interface changes on system')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='Produce verbose output from the script')
-    parser.add_argument('-q', '--quiet', action='store_true',
-                        help='Quiet mode, no logging output')
+    conf = conf.from_parser(parser, include_logging=True)
 
-    args = parser.parse_args()
-
-    # configure logging level
-    level = logging.DEBUG if args.verbose else logging.INFO
-    level = logging.CRITICAL if args.quiet else level
-    log.setLevel(level)
-    
     name = socket.gethostname()
     fqdn = socket.getfqdn()
+    LOCAL_UNIS_PORT = conf['local']['port']
+
     log.info("Ferry \"{}\" reporting for duty".format(name))
-    if args.name:
-        name = args.name
+    if conf['name']:
+        name = conf['name']
         log.info("Setting ferry name to \"{}\"".format(name))
 
-    DOWNLOAD_DIR = args.download
+    DOWNLOAD_DIR = conf['file']['download']
     try:
         os.makedirs(DOWNLOAD_DIR)
     except FileExistsError:
@@ -247,30 +247,28 @@ def main():
     LOCAL_DEPOT={"ibp://{}:6714".format(fqdn): { "enabled": True}}
 
     # allow an alternative UNIS instance (non-ferry) in local mode
-    if (args.local and args.host != UNIS_URL):
-        LOCAL_UNIS=args.host
+    remote, default_auth = [":".join([d['remote']['host'], d['remote']['port']]) for d in [conf, settings.DEFAULT_FERRY_CONFIG]]
+    if (conf['localonly'] and remote != default_authority):
+        LOCAL_UNIS = remote
     else:
         LOCAL_UNIS = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
-    
+
     # get our initial UNIS-RT and libdlt sessions
-    rt = init_runtime(args.host, LOCAL_UNIS, args.local)
+    rt = init_runtime(remote, LOCAL_UNIS, conf['localonly'])
     sess = libdlt.Session(rt, bs="5m", depots=LOCAL_DEPOT, threads=1)
-    
+
     # Start the registration loop
     register(rt, name, fqdn)
 
     # Start the iface watcher for IBP config
-    if args.ibp:
+    if conf['ibp']:
         IBPWatcher()
 
-    # Start the upload dir watcher
-    #UploadWatcher(s, LOCAL_UNIS)
-
     # Start uploader thread
-    run_uploader(args.upload)
+    run_uploader(conf['file']['upload'], conf['file']['port'])
     
     # run our main loop
-    if args.local:
+    if conf['localonly']:
         run_local(sess, rt)
     else:
         run_remote(sess, rt)

@@ -1,7 +1,5 @@
-UNIS_URL="http://localhost:8888"
-
 LOCAL_UNIS_HOST="localhost"
-LOCAL_UNIS_PORT=9000
+LOCAL_UNIS_PORT="9000"
 
 GPS_DEFAULT = [39.16533, -86.52639] # Bloomington, IN
 GPS_BOX = [32.702719, -117.170799,
@@ -22,7 +20,33 @@ IBP_CONFIG="/usr/local/etc/ibp/ibp.cfg"
 
 # File handling
 DOWNLOAD_DIR="/depot/web"
-UPLOAD_DIR="/depot/upload"
+UPLOAD_DIR="/depot/web"
 
 # File HTTP endpoint
 UPLOAD_PORT=8080
+
+DEFAULT_BASE_CONFIG={
+    "remote": {
+        "host": "localhost",
+        "port": LOCAL_UNIS_PORT
+    },
+    "name": None
+}
+
+DEFAULT_FERRY_CONFIG={
+    "name": None,
+    "localonly": False,
+    "ibp": False,
+    "remote": {
+        "host": "localhost",
+        "port": "8888"
+    },
+    "local": {
+        "port": LOCAL_UNIS_PORT
+    },
+    "file": {
+        "download": DONWLOAD_DIR,
+        "upload": UPLOAD_DIR,
+        "port": UPLOAD_PORT
+    }
+}
