@@ -1,8 +1,8 @@
 import io
 import random
-from ferry.settings import GPS_DEFAULT, GPS_BOX
+from wdln.settings import GPS_DEFAULT, GPS_BOX
 from gps3 import gps3
-from ferry.log import log
+from wdln.ferry.log import log
 from shapely.geometry import box, Point
 from contextlib import redirect_stderr
 

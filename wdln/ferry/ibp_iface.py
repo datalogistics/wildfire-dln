@@ -3,8 +3,8 @@ import shlex
 import subprocess
 import threading
 import netifaces
-from ferry.settings import IBP_CONFIG
-from ferry.log import log
+from wdln.settings import IBP_CONFIG
+from wdln.ferry.log import log
 
 class IBPWatcher:    
     def __init__(self, cfg=IBP_CONFIG):

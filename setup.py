@@ -15,7 +15,7 @@
 import sys
 from setuptools import setup
 
-version = "0.1"
+version = "0.2"
 
 sys.path.append(".")
 if sys.version_info[0] < 3: 
@@ -32,7 +32,7 @@ setup(
     author = "Ezra Kissel",
     author_email="ezkissel@indiana.edu",
     license="http://www.apache.org/licenses/LICENSE-2.0",
-    packages = ["ferry"],
+    packages = ["wdln", "wdln.ferry"],
     install_requires=[
         "setuptools",
         "lace",
@@ -51,8 +51,8 @@ setup(
     ],
     entry_points = {
         'console_scripts': [
-            'dln_ferry = dln_ferry:main',
-            'dln_base = dln_base:main'
+            'dln_ferry = wdln.dln_ferry:main',
+            'dln_base = wdln.dln_base:main'
         ]
     },
 )

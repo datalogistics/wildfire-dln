@@ -3,7 +3,7 @@ import json
 import threading
 import requests
 from unis.models import Node
-from ferry.log import log
+from wdln.ferry.log import log
 
 SYNC_INTERVAL=2
 SERVICE_THRESH=10

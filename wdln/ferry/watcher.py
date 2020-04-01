@@ -1,8 +1,8 @@
 import time, libdlt, socket, os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from ferry.log import log
-from ferry.settings import UPLOAD_DIR, DOWNLOAD_DIR
+from wdln.ferry.log import log
+from wdln.settings import UPLOAD_DIR, DOWNLOAD_DIR
 
 class UploadWatcher:
     def __init__(self, service, local_unis, wdir=UPLOAD_DIR):

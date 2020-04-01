@@ -10,15 +10,15 @@ import logging
 import subprocess
 
 import libdlt
-import ferry.settings as settings
-from ferry.config import MultiConfig
+import wdln.settings as settings
+from wdln.config import MultiConfig
 from asyncio import TimeoutError
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from unis.exceptions import ConnectionError
-from ferry.gps import GPS
-from ferry.ibp_iface import IBPWatcher
-from ferry.log import log
+from wdln.ferry.gps import GPS
+from wdln.ferry.ibp_iface import IBPWatcher
+from wdln.ferry.log import log
 
 # globals
 DOWNLOAD_DIR=settings.DOWNLOAD_DIR

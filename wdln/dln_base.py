@@ -8,16 +8,16 @@ import threading
 import logging
 import subprocess
 
-import ferry.settings as settings
+import wdln.settings as settings
 from asyncio import TimeoutError
-from ferry.settings import DEFAULT_BASE_CONFIG
+from wdln.settings import DEFAULT_BASE_CONFIG
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from unis.exceptions import ConnectionError
-from ferry.gps import GPS
-from ferry.base_sync import BaseFerrySync
-from ferry.log import log
-from ferry.config import MultiConfig
+from wdln.ferry.gps import GPS
+from wdln.ferry.base_sync import BaseFerrySync
+from wdln.ferry.log import log
+from wdln.config import MultiConfig
 
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
 GeoLoc = schemaLoader.get_class(settings.GEOLOC)
