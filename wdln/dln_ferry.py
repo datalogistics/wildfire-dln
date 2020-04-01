@@ -247,7 +247,7 @@ def main():
     LOCAL_DEPOT={"ibp://{}:6714".format(fqdn): { "enabled": True}}
 
     # allow an alternative UNIS instance (non-ferry) in local mode
-    remote, default_auth = [":".join([d['remote']['host'], d['remote']['port']]) for d in [conf, settings.DEFAULT_FERRY_CONFIG]]
+    remote, default_auth = [("http://" + ":".join([d['remote']['host'], d['remote']['port']])) for d in [conf, settings.DEFAULT_FERRY_CONFIG]]
     if (conf['localonly'] and remote != default_authority):
         LOCAL_UNIS = remote
     else:
