@@ -151,11 +151,11 @@ def main():
 
     # use fqdn to determine local endpoints
     LOCAL_DEPOT={"ibp://{}:6714".format(fqdn): {"enabled": True}}
-
+ 
     # allow an alternative UNIS instance (non-ferry) in local mode
-    authority, default = [":".join([d['remote']['host'], d['remote']['port']]) for d in [conf, DEFAULT_BASE_CONFIG]]
-    if (authority != default):
-        LOCAL_UNIS=authority
+    remote, default_auth = [("http://" + ":".join([d['remote']['host'], d['remote']['port']])) for d in [conf, settings.DEFAULT_BASE_CONFIG]]
+    if (conf['localonly'] and remote != default_auth):
+        LOCAL_UNIS = remote
     else:
         LOCAL_UNIS = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
     

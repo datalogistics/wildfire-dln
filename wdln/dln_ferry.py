@@ -248,7 +248,7 @@ def main():
 
     # allow an alternative UNIS instance (non-ferry) in local mode
     remote, default_auth = [("http://" + ":".join([d['remote']['host'], d['remote']['port']])) for d in [conf, settings.DEFAULT_FERRY_CONFIG]]
-    if (conf['localonly'] and remote != default_authority):
+    if (conf['localonly'] and remote != default_auth):
         LOCAL_UNIS = remote
     else:
         LOCAL_UNIS = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
