@@ -26,6 +26,7 @@ UPLOAD_DIR="/depot/web"
 UPLOAD_PORT=8080
 
 DEFAULT_BASE_CONFIG={
+    "localonly": True,
     "remote": {
         "host": "localhost",
         "port": LOCAL_UNIS_PORT
