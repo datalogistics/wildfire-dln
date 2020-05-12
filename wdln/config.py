@@ -1,4 +1,4 @@
-import argparse, configparser, copy, os, logging
+import argparse, configparser, copy, os, logging, logging.config
 
 
 def _expandvar(x, default):
