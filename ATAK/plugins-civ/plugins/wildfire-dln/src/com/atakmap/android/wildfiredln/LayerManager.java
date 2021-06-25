@@ -29,7 +29,7 @@ public class LayerManager
         RasterLookup = new HashMap<String, DatasetRasterLayer2>();
 
         //layer test
-        layerDirectory = new File(filepath+"/ATAK_WDLN_Layers");
+        layerDirectory = new File(filepath+"/WDLN/ATAK_Layers");
         if(!layerDirectory.exists())
         {
             layerDirectory.mkdir();

@@ -7,22 +7,11 @@
 -renamesourcefileattribute SourceFile
 -keepattributes SourceFile,LineNumberTable
 
-
-#-libraryjars ../../ATAK/bin/classes.jar
-#-libraryjars ../../ATAKMapEngine/bin/classes.jar
-#-libraryjars ../../MapCoreInterfaces/bin/classes.jar
-#-libraryjars ../../CoTService/bin/classes.jar
-
-# thirdparty jars
-#-libraryjars ../../ATAK/libs/simple-xml-2.7.1.jar
-#-libraryjars ../../ATAK/libs/android-support-v4.jar
-#-libraryjars ../../MapCoreInterfaces/libs/commons.mapi.core.jar
-#-libraryjars ../../MapCoreInterfaces/libs/ExtensionPoints.jar
-
 -applymapping <atak.proguard.mapping>
+-repackageclasses atakplugin.wildfiredln
 
 -keepattributes *Annotation*
--keepattributes Signature
+-keepattributes Signature, InnerClasses
 
 
 -keep class * implements android.os.Parcelable {
@@ -59,7 +48,7 @@
 
 
 
--keep class * implements transapps.maps.plugin.tool.Tool {
+-keep class * extends transapps.maps.plugin.tool.Tool {
 }
 -keep class * implements transapps.maps.plugin.lifecycle.Lifecycle {
 }
@@ -67,3 +56,4 @@
 -keep class org.simpleframework.** {*;}
 -keep class com.atak.maps.daco.xml.** {*;}
 
+-dontwarn android.support.v4.**

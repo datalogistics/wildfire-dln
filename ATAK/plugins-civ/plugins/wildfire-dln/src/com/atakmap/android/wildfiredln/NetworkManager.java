@@ -252,6 +252,8 @@ public class NetworkManager implements Runnable
                         directory.mkdirs();
                     }
 
+                    Log.d(TAG, "Searching Directory " +path);
+
                     File[] internalFiles = directory.listFiles();
 
                     Log.d(TAG, "Files Found: " + internalFiles.length);

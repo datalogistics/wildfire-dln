@@ -48,6 +48,7 @@ public class UploadChooserActivity extends Activity
 
     Button imageButton;
     Button videoButton;
+    Button fileButton;
     Button cancelButton;
     Button closeButton;
     AsyncTask uploadTask = null;
@@ -83,6 +84,16 @@ public class UploadChooserActivity extends Activity
                 Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 that.startActivityForResult(intent, 2);
+            }
+        });
+
+        fileButton = (Button) findViewById(R.id.dialog_file_upload);
+        fileButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+                chooseFile.setType("*/*");
+                chooseFile = Intent.createChooser(chooseFile, "Choose a file");
+                startActivityForResult(chooseFile, 3);
             }
         });
 
@@ -153,6 +164,13 @@ public class UploadChooserActivity extends Activity
         {
             Uri uri = data.getData();
             Log.d(TAG, "video selected: " + uri);
+            uploadTask = new UploadFileTask().execute(new ContentWrappper(target,uri));
+            setButtonsState(false);
+        }
+        else if(requestCode == 3 && resultCode == Activity.RESULT_OK)//video upload
+        {
+            Uri uri = data.getData();
+            Log.d(TAG, "file selected: " + uri);
             uploadTask = new UploadFileTask().execute(new ContentWrappper(target,uri));
             setButtonsState(false);
         }

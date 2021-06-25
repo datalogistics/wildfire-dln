@@ -1,80 +1,165 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// PLUGIN_VERSION is the common version name when describing the plugin.
+// ATAK_VERSION   is for the version of ATAK this plugin should be compatible
+//                with some examples include 3.11.0, 3.11.0.civ 3.11.1.fvey
+//
+////////////////////////////////////////////////////////////////////////////////
+
+def PLUGIN_VERSION = "1.0";
+def ATAK_VERSION = "4.0.0.CIV";
+
+
  buildscript {
     repositories {
-        mavenCentral()
-        maven {
-           url 'https://maven.google.com'
-        }
         jcenter()
         google()
+        mavenCentral()
+        maven {
+            url "https://jitpack.io"
+        }
+
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:3.3.2'
         classpath 'com.android.volley:volley:1.1.0'
-        // https://mvnrepository.com/artifact/org.apache.commons/commons-io
         classpath 'org.apache.commons:commons-io:1.3.2'
-        classpath 'com.android.support:support-compat:28.0.0'
-        classpath 'com.android.support:support-core-utils:28.0.0'
-
-
     }
  }
+
+allprojects {
+    repositories {
+        google() 
+        mavenCentral()
+        maven {
+            url "https://jitpack.io"
+        }
+        jcenter()
+
+    }
+}
 
 apply plugin: 'com.android.application'
 apply plugin: 'idea'
 
 dependencies {
-    /*provided files('../../ATAK/libs/android-support-v4-slim.jar')
-    provided files('../../ATAK/libs/core-14.0.2.1.jar')
-    provided files('../../ATAK/libs/host-14.0.2.1.jar')
-    provided files('../../MapCoreInterfaces/libs/commons.geom.jar')
-    provided files('../../MapCoreInterfaces/libs/commons.mapi.core.jar')
-    provided files('../../MapCoreInterfaces/libs/ExtensionPoints.jar')
-    provided files('../../MapCoreInterfaces/build/libs/classes.jar')
-    provided files('../../ATAKMapEngine/build/libs/classes.jar')
-    provided files('../../ATAK/build/libs/classes.jar')*/
 
+    if (new File("$project.projectDir/../../ATAK/build/libs/main.jar").exists()) { 
+        println("using the autobuilder version of main.jar");
+        compileOnly fileTree(dir: '../../ATAK/build/libs', include: '*.jar')
+    } else if (new File("$project.projectDir/../../main.jar").exists()) { 
+        println("using the sdk version of main.jar");
+       compileOnly fileTree(dir: '../..', include: '*.jar')
+    } else if (new File("sdk/main.jar").exists()) {
+        println("using the local version of main.jar");
+        compileOnly fileTree(dir: 'sdk/main.jar', include: '*.jar')
+    } else { 
+        def props = new Properties()
+        props.load(project.rootProject.file("local.properties").newDataInputStream())
+        def sdkdir = props.getProperty("sdk.path").toString()
+        if (sdkdir == null) { 
+            println("error reading sdk.path from the local.properties file, this should point to the main.jar file");
+        }
+        if (new File(sdkdir).exists()) {
+           println("using the local version of ${sdkdir}");
+           compileOnly fileTree(dir: "${sdkdir}", include: '*.jar')
+        }
+    }
 
-    // strictly for the plugin sdk do not remove 
-    // (does not get used in the regular tree)
-    compileOnly files('../../main.jar')
 
     implementation fileTree(dir: 'libs', include: '*.jar')
+    implementation 'com.android.support:recyclerview-v7:22.0.0'
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'org.apache.commons:commons-io:1.3.2'
 }
 
-def getSvnRevision() {
-    new ByteArrayOutputStream().withStream { os ->
-        def result = exec {
-            executable = 'svn'
-            args = ['info']
-            standardOutput = os
-            ignoreExitValue = true
+// Attempt to get a suitable version name for the plugin based on
+// either a git or svn repository
+def getVersionName() { 
+    try {
+        def gitFile = new File("$project.projectDir/.git")
+        if (gitFile.exists()) {
+            def stdout = new ByteArrayOutputStream()
+            exec {
+                commandLine 'git', 'rev-parse', '--short', 'HEAD'
+                standardOutput = stdout
+            }
+            def describe = stdout.toString().trim()
+            println("versionName[git]: $describe")
+            return describe
+        } else { 
+            def describe = getVersionCode()
+            println("versionName[svn]: $describe")
+            return describe
         }
-        def outputAsString = os.toString()
-        def matchLastChangedRev = outputAsString =~ /Revision: (\d+)/
-        def length = matchLastChangedRev.size()
-        if (length > 0)
-            ext.svnRev = "${matchLastChangedRev[0][1]}".toInteger()
-        else 
-            ext.svnRev = 1
+    } catch (Exception e) {
+       println("error occured, using revision of 1");
+       return 1;
     }
- 
-    return svnRev
+}
+
+
+// Attempt to get a suitable version code for the plugin based on
+// either a git or svn repository
+def getVersionCode() {
+    try {
+        def gitFile = new File("$project.projectDir/.git")
+        new ByteArrayOutputStream().withStream { os ->
+            if (gitFile.exists()) {
+                def result = exec {
+                    executable = 'git'
+                    args = ['show', '-s', '--format=%ct']
+                    standardOutput = os
+                    ignoreExitValue = true
+                }
+             } else {
+                def result = exec {
+                    executable = 'svn'
+                    args = ['info']
+                    standardOutput = os
+                    ignoreExitValue = true
+                }
+            }
+            def outputAsString = os.toString()
+            if (gitFile.exists()) {
+                ext.revision = "$outputAsString".toInteger()
+            } else {     
+                def matchLastChangedRev = outputAsString =~ /Revision: (\d+)/
+                def length = matchLastChangedRev.size()
+                if (length > 0)
+                   ext.revision = "${matchLastChangedRev[0][1]}".toInteger()
+                else
+                    ext.revision = 1
+            }
+
+            if (gitFile.exists())
+                 println("version[git]: $revision");
+            else
+                 println("version[svn]: $revision");
+        }
+    } catch (Exception e) {
+       println("error occured, using revision of 1");
+       ext.revision = 1;
+    }
+
+    return revision
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 21
+    buildToolsVersion "28.0.3"
 
    dexOptions {
         jumboMode = true
     }
 
-    defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 19
-    }
+    lintOptions {
+          checkReleaseBuilds true
+          // Or, if you prefer, you can continue to check for errors in release builds,
+          // but continue the build even when errors are found:
+          abortOnError false
+      }
+
 
     signingConfigs {
         debug {
@@ -94,21 +179,38 @@ android {
 
 
     buildTypes {
+        debug {
+            debuggable true
+            manifestPlaceholders = [atakApiVersion: "com.atakmap.app@" + ATAK_VERSION ];
+        }
+
         release {
-            System.setProperty("atak.proguard.mapping", "../../ATAK/build/outputs/mapping/release/mapping.txt")
+            manifestPlaceholders = [atakApiVersion: "com.atakmap.app@" + ATAK_VERSION ];
+            def f = new File("$project.projectDir/../../ATAK/build/outputs/mapping/release/mapping.txt");
+            if (f.exists()) {
+                System.setProperty("atak.proguard.mapping", "../../ATAK/build/outputs/mapping/release/mapping.txt")
+            } else {
+                println("no mapping file exists");
+                file("$project.projectDir/build").mkdir()
+                file("$project.projectDir/build/blank-mapping.txt").text="";
+                System.setProperty("atak.proguard.mapping", "./build/blank-mapping.txt")
+            }
+
             minifyEnabled true
             proguardFile 'proguard-gradle.txt'
             signingConfig signingConfigs.release
         }
     }
+
     packagingOptions {
         exclude 'META-INF/INDEX.LIST'
     }
 
     sourceSets {
         main {
-            defaultConfig.versionCode = getSvnRevision()
-            defaultConfig.versionName = "3.6.1." + getSvnRevision()
+            setProperty("archivesBaseName", "ATAK-Plugin-" + project.name + "-" + ATAK_VERSION + "-" + getVersionName())
+            defaultConfig.versionCode = getVersionCode()
+            defaultConfig.versionName = PLUGIN_VERSION + " (" + getVersionName() + ") - [" + ATAK_VERSION + "]"
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src']
             resources.srcDirs = ['src']
@@ -122,7 +224,7 @@ android {
         }
 
         // Move the tests to tests/java, tests/res, etc...
-        androidTest.setRoot('tests')
+        //instrumentTest.setRoot('tests')
 
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
@@ -135,9 +237,12 @@ android {
 
     }
 
-}
+    defaultConfig {
+        minSdkVersion 21
+        ndk {
+            abiFilters "armeabi-v7a", "x86"
+        }
+    }
 
- repositories {
-     google()
-     jcenter()
- }
+
+}

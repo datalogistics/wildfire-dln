@@ -1,15 +1,13 @@
 package com.atakmap.android.wildfiredln;
-import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DownloadManager;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -21,18 +19,35 @@ import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.media.MediaMetadataRetriever;
 
+import com.atakmap.android.image.ExifHelper;
+import com.atakmap.android.ipc.AtakBroadcast;
+import com.atakmap.android.ipc.DocumentedExtra;
 import com.atakmap.android.maps.MapGroup;
 import com.atakmap.android.maps.Marker;
+import com.atakmap.android.missionpackage.file.MissionPackageManifest;
 import com.atakmap.android.wildfiredln.plugin.R;
+import com.atakmap.android.wildfiredln.WDLNReceiver;
+import com.atakmap.coremap.filesystem.FileSystemUtils;
+import com.atakmap.coremap.maps.coords.GeoPoint;
 import com.atakmap.map.layer.raster.DatasetRasterLayer2;
+import com.atakmap.coremap.maps.assets.Icon;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
+import static android.media.MediaMetadataRetriever.METADATA_KEY_LOCATION;
 import static com.atakmap.android.maps.MapView.getMapView;
+import com.atakmap.android.maps.DefaultMapGroup;
+
+import org.apache.sanselan.formats.tiff.TiffImageMetadata;
 
 /**
  * WildfireDLN class
@@ -43,7 +58,7 @@ public class WildfireDLN
     //NOTE: the prevalence of static variables here is due to the plugin GUI being destroyed/created by ATAK periodically.
     //Probably makes more sense to split some of this into a separate static class but this works for now.
 
-    public static final String TAG = PluginTemplateDropDownReceiver.class.getSimpleName();
+    public static final String TAG = "WildfireDLN";
 
     public static final String SHOW_PLUGIN_TEMPLATE = "com.atakmap.android.wildfiredln.SHOW_PLUGIN_TEMPLATE";
     private View templateView;
@@ -55,8 +70,12 @@ public class WildfireDLN
     private static NetworkManager nManager = null;
     private static Thread nManagerThread = null;
     private static Vector<Marker> nodeMarkers = null;
+    private static Vector<Marker> mediaMarkers = null;
     private static LayerManager lManager;
     private static Vector<String> validIPs = null;
+    private static MapGroup wdlngroup = null;
+    private WDLNReceiver wdlnreceiver = null;
+    private Icon cameraIcon;
     DatasetRasterLayer2 drl = null;
 
     /**************************** CONSTRUCTOR *****************************/
@@ -73,6 +92,46 @@ public class WildfireDLN
             fileDirectory.mkdir();
         }
 
+        File wdlnDirectory = new File(filepath+"/WDLN");
+        if(!wdlnDirectory.exists())
+        {
+            wdlnDirectory.mkdir();
+        }
+
+        File resourcesDirectory = new File(filepath+"/WDLN/Resources");
+        if(!resourcesDirectory.exists())
+        {
+            resourcesDirectory.mkdir();
+        }
+
+        File cameraIconF = new File(resourcesDirectory,"wdlnCamera.png");
+
+        if(!cameraIconF.exists())
+        {
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.wdln_48x48);
+            try {
+                FileOutputStream outStream;
+
+                outStream = new FileOutputStream(cameraIconF);
+
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+
+                outStream.flush();
+
+                outStream.close();
+
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+
+        cameraIcon = new Icon(cameraIconF.getAbsolutePath());
+
         if(dmanager == null)
         {
             dmanager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
@@ -82,6 +141,25 @@ public class WildfireDLN
         {
             nodeMarkers = new Vector<Marker>();
         }
+
+        if(mediaMarkers == null)
+        {
+            mediaMarkers = new Vector<Marker>();
+        }
+
+        if(wdlngroup == null)
+        {
+            wdlngroup = new DefaultMapGroup("WDLN");
+            MapGroup _mapGroup = getMapView().getRootGroup();
+            _mapGroup.addGroup(wdlngroup);
+        }
+
+        wdlnreceiver = new WDLNReceiver(this);
+        AtakBroadcast.DocumentedIntentFilter f = new AtakBroadcast.DocumentedIntentFilter();
+        f.addAction(wdlnreceiver.WDLN_TEST, "TEST");
+        f.addAction("com.atakmap.maps.images.DISPLAY","Intercept Display Intent");
+        f.addAction(wdlnreceiver.WDLN_VIEW, "Fired after the quick-pic has been received by the image drop-down", new DocumentedExtra[]{new DocumentedExtra("SenderCallsign", "The callsign of the sender", false, String.class), new DocumentedExtra("MissionPackageManifest", "Mission package manifest containing quick-pic", false, MissionPackageManifest.class), new DocumentedExtra("NotificationId", "ID of MP received notification", false, Integer.class)});
+        AtakBroadcast.getInstance().registerReceiver(wdlnreceiver,f);
 
         Button refreshButton = (Button) templateView.findViewById(R.id.refreshButton);
         refreshButton.setOnClickListener(new View.OnClickListener()
@@ -181,9 +259,60 @@ public class WildfireDLN
         final TableLayout tableLayout = (TableLayout) templateView.findViewById(R.id.resourcesTable);
         tableLayout.removeAllViews();
 
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        Vector<DownloadReference> mediareferences = new Vector<DownloadReference>();
+
         for(int i=0;i<downloadReferences.size();i++)
         {
             DownloadReference dr = downloadReferences.get(i);
+
+            if(dr.GetIsLocal())
+            {
+                //check for geotagging
+                FileInputStream inputStream = null;
+                boolean alreadyupdated = false;
+                try
+                {
+                    inputStream = new FileInputStream(dr.GetURL());
+
+                    try
+                    {
+                        Log.d(TAG, "Checking Metadata for: " + dr.GetURL() + " :: " + inputStream.getFD());
+                        retriever.setDataSource(inputStream.getFD());
+
+                        if(retriever.extractMetadata(METADATA_KEY_LOCATION)!=null)
+                        {
+                            dr.SetLocation(retriever.extractMetadata(METADATA_KEY_LOCATION));
+                            Log.d(TAG, "Location :: " + dr.GetLocation());
+                            mediareferences.add(dr);
+                            alreadyupdated = true;
+                        }
+
+                    } catch (Exception e)
+                    {
+                        Log.d(TAG, "Exception : " + e.getMessage());
+                    }
+
+                    inputStream.close();
+                } catch (FileNotFoundException e) {
+                    Log.d(TAG, "Exception : " + e.getMessage());
+                } catch (IOException e) {
+                    Log.d(TAG, "Exception : " + e.getMessage());
+                }
+
+                if(!alreadyupdated)
+                {
+                    TiffImageMetadata exif = ExifHelper.getExifMetadata(new File(FileSystemUtils.sanitizeWithSpacesAndSlashes(dr.GetURL())));
+                    GeoPoint gp = exif != null ? ExifHelper.getLocation(exif) : null;
+                    if (gp != null) {
+                        Log.d(TAG, "Location 2: " + gp);
+                        dr.SetLocation(gp);
+                        Log.d(TAG, "Location :: " + dr.GetLocation());
+                        mediareferences.add(dr);
+                    }
+                }
+            }
+
             newTableRow(dr.GetName(), i,downloadReferences.get(i));
 
             if(dr.IsLayer())
@@ -192,14 +321,176 @@ public class WildfireDLN
             }
         }
 
+        retriever.release();
+
         tableLayout.invalidate();
+
+        UpdateMediaLocations(mediareferences);
+    }
+
+    public void UpdateMediaLocations(Vector<DownloadReference> nodes)
+    {
+        MapGroup _mapGroup = getMapView().getRootGroup()
+                .findMapGroup("WDLN");
+
+        Vector<Marker> toRemove = new Vector<Marker>();
+
+        Log.d(TAG, "HERE: "+mediaMarkers.size());
+
+        //remove markers that didn't get updated
+        for(int i=0; i<mediaMarkers.size();i++)
+        {
+            boolean found = false;
+            Marker m = mediaMarkers.get(i);
+
+            Log.d(TAG, "Considering: " + m.getMetaString("ID","") +" "+ m.getTitle());
+
+            for(int j=0;j<nodes.size();j++)
+            {
+                DownloadReference n = nodes.get(j);
+                if(m.getMetaString("ID","").equals(n.GetURL()) && m.getTitle().equals(n.GetName()))
+                {
+                    found = true;
+                    Log.d(TAG, "Found Marker: " + m.getMetaString("ID","") +" "+ m.getTitle());
+                }
+            }
+            if(!found)
+            {
+                Log.d(TAG, "Did Not Find Marker: " + m.getMetaString("ID","") +" "+ m.getTitle());
+                _mapGroup.removeItem(m);
+                toRemove.add(m);
+            }
+
+        }
+
+        while(!toRemove.isEmpty())
+        {
+            Log.d(TAG, "Removing Marker");
+            mediaMarkers.remove(toRemove.firstElement());
+            toRemove.remove(0);
+        }
+
+        for(int i=0; i<nodes.size();i++)
+        {
+            DownloadReference n = nodes.get(i);
+
+            //check if marker exists
+            boolean exists = false;
+            for (int j = 0; j < mediaMarkers.size() && !exists; j++)
+            {
+                Marker m = mediaMarkers.get(j);
+
+                if (m.getMetaString("ID", "").equals(n.GetURL()) && m.getTitle().equals(n.GetName()))
+                {
+                    if (!n.HasLocation())
+                    {
+                        _mapGroup.removeItem(m);
+                    }
+                    else
+                    {
+                        if(n.LocationChanged(m.getPoint()))
+                        {
+                            m.setPoint(n.GetLocation());
+                        }
+                        exists = true;
+                    }
+                }
+            }
+
+            if (!exists && n.GetLocation() != null) {
+                Log.d(TAG, "Creating Marker: " + n.GetName());
+                //make a marker
+                Marker m = new Marker(n.GetLocation(), n.GetName());
+                //m.setVisible(true);
+                //m.setTitle("testm");
+                //getMapView().getRootGroup().addItem(testm);;
+                //Marker m = new Marker(getMapView().getPointWithElevation(), UUID
+                //        .randomUUID().toString());
+                Log.d(TAG, "creating a new unit marker for: " + m.getUID());
+                m.setType("b-i-x-i");
+                //m.setType("a-f-G-E");
+                m.getUID();
+                //m.setMetaBoolean("readiness", true);
+                //m.setMetaBoolean("archive", true);
+                //m.setMetaString("how", "h-g-i-g-o");
+                //m.setMetaBoolean("editable", true);
+                m.setMetaBoolean("movable", false);
+                //m.setMetaBoolean("removable", true);
+                //m.setMetaString("entry", "user");
+                //m.setMetaString("callsign", "Test Marker");
+                m.setMetaString("remarks","This marker represents a geolocated "+n.HumanReadableFileDescription()+" on your device.\n\nClicking the camera icon will attempt to open the file with an appropriate application.\n\nAutogenerated by WildfireDLN");
+                //Log.d(TAG, "Icon Before: " + m.getIcon());
+                m.setIcon(cameraIcon);
+                //Log.d(TAG, "Icon After: " + m.getIcon());
+                m.setMetaString("ID", n.GetURL());
+                m.setTitle(n.GetName());
+
+                //m.setSummary("This marker was autogenerated by the Wildfire DLN plugin.");
+                _mapGroup.addItem(m);
+
+                /*Intent intent = new Intent("com.atakmap.android.images.NEW_IMAGE");
+                intent.putExtra("path", n.GetLocation());
+                intent.putExtra("uid", m.getUID());
+                AtakBroadcast.getInstance().sendBroadcast(intent);*/
+
+                /*Log.d(TAG, "Testing Broadcast " + wdlnreceiver.WDLN_TEST);
+                intent = new Intent(wdlnreceiver.WDLN_TEST);
+                AtakBroadcast.getInstance().sendBroadcast(intent);*/
+
+
+                /*intent = (new Intent("com.atakmap.maps.images.DISPLAY")).putExtra("uid", m.getUID()).putExtra("UseMissionPackageToSend", false).putExtra("onReceiveAction", "com.atakmap.android.wildfiredln.WDLN_VIEW");
+                AtakBroadcast.getInstance().sendBroadcast(intent);
+                intent = new Intent("com.atakmap.android.maps.COT_RECENTLYPLACED");
+                intent.putExtra("uid", m.getUID());
+                AtakBroadcast.getInstance().sendBroadcast(intent);*/
+
+
+                /*m.persist(getMapView().getMapEventDispatcher(), null,
+                        this.getClass());*/ //Not Needed???
+
+                mediaMarkers.add(m);
+
+                //VideoMapComponent vid = new VideoMapComponent();
+
+                /*Intent new_cot_intent = new Intent();
+                new_cot_intent.setAction("com.atakmap.android.maps.COT_PLACED");
+                new_cot_intent.putExtra("uid", m.getUID());
+                com.atakmap.android.ipc.AtakBroadcast.getInstance().sendBroadcast(
+                        new_cot_intent);*/
+            }
+        }
+    }
+
+    public void DisplayByUID(String uid)
+    {
+        for(int i=0; i<mediaMarkers.size();i++)
+        {
+            Marker m = mediaMarkers.get(i);
+            if(m.getUID().equals(uid))
+            {
+                Log.d(TAG,"Found marker With UID "+m.getUID());
+
+                for(int j=0;j<downloadReferences.size();j++) {
+                    DownloadReference dr = downloadReferences.get(j);
+
+                    if (m.getMetaString("ID", "").equals(dr.GetURL()) && m.getTitle().equals(dr.GetName()))
+                    {
+                        Log.d(TAG,"Found markers Download Reference "+dr.GetName());
+
+                        dr.SetParent(this);
+                        dr.StartDownload(dmanager,null);
+                        break;
+                    }
+                }
+                break;
+            }
+        }
     }
 
     public void UpdateLocations(Vector<NodeReference> nodes)
     {
         MapGroup _mapGroup = getMapView().getRootGroup()
-                .findMapGroup("Cursor on Target")
-                .findMapGroup("Friendly");
+                .findMapGroup("WDLN");
 
         Vector<Marker> toRemove = new Vector<Marker>();
 
@@ -333,6 +624,18 @@ public class WildfireDLN
             else
             {
                 dlButton.setImageResource(R.drawable.open_48_48);
+
+                if(dr.HasLocation())
+                {
+                    final GeoPoint gp = dr.GetLocation();
+                    centerButton.setOnClickListener(new View.OnClickListener()
+                    {
+                        public void onClick(View v)
+                        {
+                            getMapView().updateView(gp.getLatitude(),gp.getLongitude(),getMapView().getMapScale(),0,0,true);
+                        }
+                    });
+                }
             }
         }
         else
@@ -396,7 +699,7 @@ public class WildfireDLN
 
         if(dr.GetIsLocal())
         {
-            if (dr.IsLayer())
+            if (dr.IsLayer() || (!dr.IsLayer() && dr.HasLocation()))
             {
                 row.addView(centerButton);
             }

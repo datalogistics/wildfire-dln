@@ -39,6 +39,13 @@
                 android:text="Video" />
 
             <Button
+                android:id="@+id/dialog_file_upload"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="File" />
+
+            <Button
                 android:id="@+id/dialog_cancel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

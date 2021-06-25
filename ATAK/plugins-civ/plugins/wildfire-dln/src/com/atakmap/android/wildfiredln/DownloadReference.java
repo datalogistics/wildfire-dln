@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ImageButton;
 import com.atakmap.android.wildfiredln.plugin.R;
+import com.atakmap.coremap.maps.coords.GeoPoint;
 
 import java.io.File;
 import java.util.Date;
@@ -25,6 +26,7 @@ public class DownloadReference
 {
     private String url;
     private String name;
+    private GeoPoint location = null;
     private long size;
     private Date timestamp;
     private WildfireDLN parent = null;
@@ -218,6 +220,52 @@ public class DownloadReference
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
             parent.GetContext().startActivity(intent);
         }
+    }
+
+    public String HumanReadableFileDescription()
+    {
+        String mtype = "file";
+
+        //images
+        if(url.endsWith("jpg"))
+        {
+            mtype = "image";
+        }
+        else if(url.endsWith("png"))
+        {
+            mtype = "image";
+        }
+        else if(url.endsWith("gif"))
+        {
+            mtype = "image";
+        }
+        else if(url.endsWith("bmp"))
+        {
+            mtype = "image";
+        }
+        else if(url.endsWith("webp"))
+        {
+            mtype = "image";
+        }
+        //videos
+        else if(url.endsWith("3gp"))
+        {
+            mtype = "video";
+        }
+        else if(url.endsWith("mp4"))
+        {
+            mtype = "video";
+        }
+        else if(url.endsWith("ts"))
+        {
+            mtype = "video";
+        }
+        else if(url.endsWith("webm"))
+        {
+            mtype = "video";
+        }
+
+        return mtype;
     }
 
     public boolean IsLayer()
@@ -472,5 +520,36 @@ public class DownloadReference
         }
 
         return newlist;
+    }
+
+    public boolean HasLocation()
+    {
+        return location != null;
+    }
+
+    public void SetLocation(String l)
+    {
+        int splitid = Math.max(l.lastIndexOf('+'),l.lastIndexOf('-'));
+        double lat = Double.parseDouble(l.substring(0,splitid));
+        double lon = Double.parseDouble(l.substring(splitid));
+
+        Log.d(TAG,"Reference Lat/Lon is "+lat+','+lon);
+
+        location = new GeoPoint(lat,lon);
+    }
+
+    public void SetLocation(GeoPoint l)
+    {
+        location = l;
+    }
+
+    public GeoPoint GetLocation()
+    {
+        return location;
+    }
+
+    public boolean LocationChanged(GeoPoint p)
+    {
+        return p.getLatitude() != location.getLatitude() || p.getLongitude() != location.getLongitude();
     }
 }
