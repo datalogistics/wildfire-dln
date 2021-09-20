@@ -16,6 +16,7 @@ from asyncio import TimeoutError
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from unis.exceptions import ConnectionError
+from unis.utils import asynchronous
 from wdln.ferry.gps import GPS
 from wdln.ferry.ibp_iface import IBPWatcher
 from wdln.ferry.log import log
@@ -55,13 +56,13 @@ def register(rt, name, fqdn):
         try:
             s = next(s)
         except (StopIteration, AttributeError):
-            rt.insert(DLNFerry({"runningOn": n,
-                                "serviceType": "datalogistics:wdln:ferry",
-                                "name": name,
-                                "accessPoint": f"ibp://{fqdn}:6714",
-                                "unis_url": f"http://{fqdn}:{LOCAL_UNIS_PORT}",
-                                "status": "READY",
-                                "ttl": 600}), commit=True)
+            s = rt.insert(DLNFerry({"runningOn": n,
+                                    "serviceType": "datalogistics:wdln:ferry",
+                                    "name": name,
+                                    "accessPoint": f"ibp://{fqdn}:6714",
+                                    "unis_url": f"http://{fqdn}:{LOCAL_UNIS_PORT}",
+                                    "status": "READY",
+                                    "ttl": 600}), commit=True)
             rt.flush()
 
     # simply update the timestamps on our node and service resources
