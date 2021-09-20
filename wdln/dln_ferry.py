@@ -55,15 +55,13 @@ def register(rt, name, fqdn):
         try:
             s = next(s)
         except (StopIteration, AttributeError):
-            s = DLNFerry()
-            s.runningOn = n
-            s.serviceType="datalogistics:wdln:ferry"
-            s.name = name
-            s.accessPoint = "ibp://{}:6714".format(fqdn)
-            s.unis_url = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
-            s.status = "READY"
-            s.ttl = 600 # 10m
-            rt.insert(s, commit=True)
+            rt.insert(DLNFerry({"runningOn": n,
+                                "serviceType": "datalogistics:wdln:ferry",
+                                "name": name,
+                                "accessPoint": f"ibp://{fqdn}:6714",
+                                "unis_url": f"http://{fqdn}:{LOCAL_UNIS_PORT}",
+                                "status": "READY",
+                                "ttl": 600}), commit=True)
             rt.flush()
 
     # simply update the timestamps on our node and service resources
