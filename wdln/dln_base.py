@@ -14,6 +14,7 @@ from wdln.settings import DEFAULT_BASE_CONFIG
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
 from unis.exceptions import ConnectionError
+from unis.utils import asynchronous
 from wdln.ferry.gps import GPS
 from wdln.ferry.base_sync import BaseFerrySync
 from wdln.ferry.log import log
@@ -67,9 +68,8 @@ def register(rt, name, fqdn):
             try:
                 (lat, lon) = gps.query()
                 if lat and lon:
-                    n.location.latitude = lat
-                    n.location.longitude = lon
-                    rt.flush()
+                    cid, rid = n.getSource(), n.id
+                    asynchronous.make_async(rt.nodes._unis.put, cid, rid, {'id': rid, 'location': {'latitude': lat, 'longitude': lon}})
                 s.touch()
 
             except (ConnectionError, TimeoutError) as exp:

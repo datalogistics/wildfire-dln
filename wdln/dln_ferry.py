@@ -72,9 +72,8 @@ def register(rt, name, fqdn):
             try:
                 (lat, lon) = gps.query()
                 if lat and lon:
-                    n.location.latitude = lat
-                    n.location.longitude = lon
-                    rt.flush()
+                    cid, rid = n.getSource(), n.id
+                    asynchronous.make_async(rt.nodes._unis.put, cid, rid, {'id': rid, 'location': {'latitude': lat, 'longitude': lon}})
                 s.touch()
 
             except (ConnectionError, TimeoutError) as exp:
