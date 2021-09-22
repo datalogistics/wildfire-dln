@@ -1,174 +1,160 @@
 #!/usr/bin/env python3
 
-import os
-import time
-import argparse
-import socket
-import threading
-import logging
-import subprocess
+import bottle, socket, threading, subprocess
+import argparse, os, time, logging
 
+import libdlt
 import wdln.settings as settings
+from wdln.config import MultiConfig
 from asyncio import TimeoutError
-from wdln.settings import DEFAULT_BASE_CONFIG
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime
-from unis.exceptions import ConnectionError
+from unis.exceptions import ConnectionError, UnisReferenceError
 from unis.utils import asynchronous
 from wdln.ferry.gps import GPS
-from wdln.ferry.base_sync import BaseFerrySync
+from wdln.ferry.ibp_iface import IBPWatcher
 from wdln.ferry.log import log
-from wdln.config import MultiConfig
 
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
-GeoLoc = schemaLoader.get_class(settings.GEOLOC)
+class Agent(object):
+    def __init__(self, cfg):
+        self.local = f"http://{cfg['local']['host'] or socket.getfqdn()}:{cfg['local']['port']}"
+        self.rt, self._n, self._s = None, None, None
+        self.cfg = cfg
+        self.name = cfg['name'] or socket.gethostname()
+        self.gps = GPS()
+        hosts = [{"url": self.local}]
+        if cfg["localonly"]:
+            hosts[0]["default"] = True
+            self.auth = hosts[0]['url']
+        else:
+            hosts.append({"url": f"http://{cfg['remote']['host']}:{cfg['remote']['port']}",
+                          "default": True})
+            self.auth = hosts[1]['url']
+        self.connect(hosts)
 
-LOCAL_UNIS_PORT=settings.LOCAL_UNIS_PORT
-
-# Global node and service objects
-# so they can be refreshed if UNIS resets
-n = None
-s = None
-slock = threading.Lock()
-
-def register(rt, name, fqdn):
-    def do_register(rt, name, fqdn):
-        global n
-        global s
-
-        log.info("Registering Ferry Node")
-        
-        n = rt.nodes.where({"name": name})
-        try:
-            n = next(n)
-        except StopIteration:
-            n = Node()
-            n.name = name
-            rt.insert(n, commit=True)
-            rt.flush()
-        
-        s = rt.services.where({"runningOn": n})
-        try:
-            s = next(s)
-        except (StopIteration, AttributeError):
-            s = rt.insert(DLNFerry({"runningOn": n,
-                                    "serviceType": "datalogistics:wdln:base",
-                                    "name": name,
-                                    "accessPoint": f"ibp://{fqdn}:6714",
-                                    "unis_url": f"http://{fqdn}:{LOCAL_UNIS_PORT}",
-                                    "status": "READY",
-                                    "ttl": 600}), commit=True)
-            rt.flush()
-
-    # simply update the timestamps on our node and service resources
-    def touch(rt, name, fqdn, gps):
-        rcount = 0
-        while True:
-            time.sleep(settings.UPDATE_INTERVAL)
+    def connect(self, hosts):
+        opts = {"cache": { "preload": ["nodes", "services"] },
+                "proxy": { "subscribe": False, "defer_update": True }}
+        log.debug(f"Connecting to UNIS instance(s): {', '.join([v['url'] for v in hosts])}")
+        while not self.rt:
             try:
-                (lat, lon) = gps.query()
-                if lat and lon:
-                    cid, rid = n.getSource(), n.id
-                    asynchronous.make_async(rt.nodes._unis.put, cid, rid, {'id': rid, 'location': {'latitude': lat, 'longitude': lon}})
-                s.touch()
+                self.rt = Runtime(hosts, **opts)
+            except (ConnectionError, TimeoutError, UnisReferenceError) as e:
+                log.warn(f"Could not contact UNIS servers {', '.join(r_urls)}, retrying...")
+                log.debug(f"-- {e}")
+                time.sleep(self.cfg['engine']['interval'])
 
-            except (ConnectionError, TimeoutError) as exp:
-                #import traceback
-                #traceback.print_exc()
-                log.error("Could not update node/service resources: {}".format(exp))
-                if rcount >= settings.RETRY_COUNT:
-                    slock.acquire()
-                    rt.delete(s)
-                    do_register(rt, name, fqdn)
-                    slock.release()
-                    rcount = 0
-                else:
-                    rcount = rcount + 1
+    def register(self):
+        self.rt._update(self.node)
+        self.rt._update(self.service)
+        self.rt.flush()
 
-    # make sure we get an initial node and service object
-    while not n or not s:
-        do_register(rt, name, fqdn)
-        time.sleep(settings.UPDATE_INTERVAL)
+    @property
+    def node(self):
+        if self._n is None:
+            self._n = self.rt.nodes.first_where(lambda x: x.name == self.name) or \
+                self.rt.insert(Node({'name': self.name}), track=True, publish_to=self.auth)
+        return self._n
     
-    gps = GPS()
-    th = threading.Thread(
-        name='toucher',
-        target=touch,
-        daemon=True,
-        args=(rt, name, fqdn, gps),
-    )
-    th.start()
+    @property
+    def service(self):
+        if self._s is None:
+            self._s = self.rt.services.first_where(lambda x: x.runningOn == self.node) or \
+                self.rt.insert(DLNFerry({
+                    "runningOn": self.node,
+                    "serviceType": "datalogistics:wdln:base",
+                    "name": self.name,
+                    "accessPoint": f"ibp://{socket.getfqdn()}:6714",
+                    "unis_url": self.local,
+                    "status": "READY",
+                    "ttl": 600
+                }), track=True, publish_to=self.auth)
+        return self._s
 
-def node_cb(node, event):
-    #nstr = "http://"+node.name+":9000"
-    #log.info("Updating {}/nodes".format(nstr))
-    pass
-    
-def init_runtime(local):
+    def set_pos(self):
+        lat, lon = self.gps.query()
+        if lat and lon:
+            res = {'id': self.node.id, 'location': {'latitude': lat, 'longitude': lon}}
+            asynchronous.make_async(self.rt.nodes._unis.put,
+                                    self.node.getSource(),
+                                    self.node.id, res)
+    def set_status(self, status, clear=False):
+        msg = {"status": status}
+        if clear: msg["new_exnodes"] = []
+        asynchronous.make_async(self.rt.nodes._unis.put,
+                                self.service.getSource(),
+                                self.service.id, msg)
+
+def agentloop(agent):
+    def touch():
+        err = 0
+        agent.register()
+        while err < agent.cfg['engine']['maxfail']:
+            time.sleep(agent.cfg['engine']['interval'])
+            try:
+                agent.set_pos()
+                agent.service.touch()
+            except (ConnectionError, TimeoutError, UnisReferenceError) as e:
+                log.warn("Could not update node/service resources")
+                log.debug(f"-- {e}")
+                err += 1
+
     while True:
         try:
-            opts = {"cache": { "preload": ["nodes", "services"] }, "proxy": { "defer_update": True }}
-            urls = [{"default": True, "url": local}]
-            log.debug("Connecting to UNIS instance(s): {}".format(local))
-            rt = Runtime(urls, **opts)
-            rt.nodes.addCallback(node_cb)
-            return rt
-        except (ConnectionError, TimeoutError) as exp:
-            log.warn("Could not contact UNIS servers {}, retrying...".format(urls))
-        time.sleep(5)
+            touch()
+        except (ConnectionError, TimeoutError, UnisReferenceError) as e:
+            time.sleep(agent.cfg['engine']['interval'])
+            log.warn("Re-registering agent...")
+            log.debug(f"-- {e}")
+            
 
-def run_base(rt):
-    i=0
+def mainloop(agent):
     while True:
-        (i%5) or log.info("Waiting for something to do...")
-        i+=1
-        time.sleep(1)
+        log.info("Waiting for something to do...")
+        for _ in range(10):
+            time.sleep(1)
 
 def main():
-    global LOCAL_UNIS_PORT
-    
-    logging.basicConfig(format='[%(asctime)-15s] [%(levelname)s] %(message)s')
-    conf = MultiConfig(DEFAULT_BASE_CONFIG, "DLN basestation agent keeps the basestation record alive",
-                       filevar="$WDLN_BASE_CONFIG")
-    parser = argparse.ArgumentParser(description="DLN Base Station Agent")
+    conf = MultiConfig(settings.DEFAULT_FERRY_CONFIG, "DLN ferry agent manages files hosted on the WDLN ferry",
+                       filevar="$WDLN_FERRY_CONFIG")
+    parser = argparse.ArgumentParser(description='')
     parser.add_argument('-H', '--remote.host', type=str, metavar="HOST",
-                        help='UNIS instance host for registration and metadata')
+                        help='Remote UNIS instance host for registration and metadata')
     parser.add_argument('-P', '--remote.port', type=str, metavar="PORT",
-                        help='UNIS instance port for registration and metadata')
+                        help='Remote UNIS instance port for registration and metadata')
+    parser.add_argument('-p', '--local.port', type=str, metavar="PORT",
+                        help='Local UNIS port')
     parser.add_argument('-n', '--name', type=str,
-                        help='Set base node name (ignore system hostname)')
+                        help='Set ferry node name (ignore system hostname)')
+    parser.add_argument('-d', '--file.download', type=str, metavar="DOWNLOAD",
+                        help='Set local download directory')
+    parser.add_argument('-u', '--file.upload', type=str, metavar="UPLOAD",
+                        help='Set local upload directory')
+    parser.add_argument('-l', '--localonly', action='store_true',
+                        help='Run using only local UNIS instance (on-ferry)')
+    parser.add_argument('-i', '--ibp', action='store_true',
+                        help='Update IBP config to reflect interface changes on system')
     conf = conf.from_parser(parser, include_logging=True)
+    if conf['ibp']: IBPWatcher()
 
-    name = socket.gethostname()
-    fqdn = socket.getfqdn()
-    LOCAL_UNIS_PORT = conf['remote']['port']
-    log.info("Base Station \"{}\" reporting for duty".format(name))
-    if conf['name']:
-        name = conf['name']
-        log.info("Setting base name to \"{}\"".format(name))
+    try: os.makedirs(conf['file']['download'])
+    except FileExistsError: pass
+    except OSError as exp: raise exp
 
-    # use fqdn to determine local endpoints
-    LOCAL_DEPOT={"ibp://{}:6714".format(fqdn): {"enabled": True}}
- 
-    # allow an alternative UNIS instance (non-ferry) in local mode
-    remote, default_auth = [("http://" + ":".join([d['remote']['host'], d['remote']['port']])) for d in [conf, settings.DEFAULT_BASE_CONFIG]]
-    if (conf['localonly'] and remote != default_auth):
-        LOCAL_UNIS = remote
-    else:
-        LOCAL_UNIS = "http://{}:{}".format(fqdn, LOCAL_UNIS_PORT)
+    try: os.makedirs(conf['file']['upload'])
+    except FileExistsError: pass
+    except OSError as exp: raise exp
     
-    # get our initial UNIS-RT and libdlt sessions
-    rt = init_runtime(LOCAL_UNIS)
+    agent = Agent(conf)
+    threading.Thread(
+        name='dlnagent.mainloop',
+        target=agentloop,
+        daemon=True,
+        args=(agent,),
+    ).start()
 
-    # Start the registration loop
-    # returns handles to the node and service objects
-    register(rt, name, fqdn)
+    mainloop(agent)
 
-    # start base-ferry sync
-    BaseFerrySync(rt, name)
-    
-    run_base(rt)
-    
 if __name__ == "__main__":
     main()
-    

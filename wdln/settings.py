@@ -5,9 +5,6 @@ GPS_DEFAULT = [39.16533, -86.52639] # Bloomington, IN
 GPS_BOX = [32.702719, -117.170799,
            32.712358, -117.156406]  # San Diego CC
 
-# seconds between service/node updates
-UPDATE_INTERVAL = 5
-
 # number of retries before re-registering to UNIS
 RETRY_COUNT = 2
 
@@ -43,11 +40,16 @@ DEFAULT_FERRY_CONFIG={
         "port": "8888"
     },
     "local": {
+        "host": None,
         "port": LOCAL_UNIS_PORT
     },
     "file": {
         "download": DOWNLOAD_DIR,
         "upload": UPLOAD_DIR,
         "port": UPLOAD_PORT
+    },
+    "engine": {
+        "interval": 5,
+        "maxfail": 2
     }
 }
