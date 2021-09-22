@@ -41,7 +41,7 @@ class Agent(object):
             try:
                 self.rt = Runtime(hosts, **opts)
             except (ConnectionError, TimeoutError, UnisReferenceError) as e:
-                log.warn(f"Could not contact UNIS servers {', '.join(r_urls)}, retrying...")
+                log.warn(f"Could not contact UNIS servers {', '.join([v['url'] for v in hosts])}, retrying...")
                 log.debug(f"-- {e}")
                 time.sleep(self.cfg['engine']['interval'])
 
@@ -187,7 +187,7 @@ def main():
     try: os.makedirs(conf['file']['upload'])
     except FileExistsError: pass
     except OSError as exp: raise exp
-    
+
     agent = Agent(conf)
     threading.Thread(
         name='dlnagent.mainloop',
