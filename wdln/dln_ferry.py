@@ -41,7 +41,7 @@ class Agent(object):
             try:
                 self.rt = Runtime(hosts, **opts)
             except (ConnectionError, TimeoutError, UnisReferenceError) as e:
-                log.warn(f"Could not contact UNIS servers {', '.join([v['url'] for v in hosts])}, retrying...")
+                log.warning(f"Could not contact UNIS servers {', '.join([v['url'] for v in hosts])}, retrying...")
                 log.debug(f"-- {e}")
                 time.sleep(self.cfg['engine']['interval'])
 
@@ -96,7 +96,7 @@ def agentloop(agent):
                 agent.set_pos()
                 agent.service.touch()
             except (ConnectionError, TimeoutError, UnisReferenceError) as e:
-                log.warn("Could not update node/service resources")
+                log.warning("Could not update node/service resources")
                 log.debug(f"-- {e}")
                 err += 1
 
@@ -105,7 +105,7 @@ def agentloop(agent):
             touch()
         except (ConnectionError, TimeoutError, UnisReferenceError) as e:
             time.sleep(agent.cfg['engine']['interval'])
-            log.warn("Re-registering agent...")
+            log.warning("Re-registering agent...")
             log.debug(f"-- {e}")
             
 
@@ -126,7 +126,7 @@ def configure_upload_server(agent):
                         agent.service.extendSchema('uploaded_exnodes', [])
                     agent.service.uploaded_exnodes.append(res.exnode)
                 except ValueError as e:
-                    log.warn(e)
+                    log.warning(e)
 
 def downloop(agent):
     def download_file(path, f, sess):
@@ -134,11 +134,11 @@ def downloop(agent):
         try:
             result, t, dsize = sess.download(f.selfRef, path)
             if dsize != result.size:
-                log.warn(f"Incorrect file size {result.name}: Transferred {dsize} of {result.size}")
+                log.warning(f"Incorrect file size {result.name}: Transferred {dsize} of {result.size}")
             else:
                 log.info("{result.name} ({result.size} {result.size/1e6/t} MB/s) {result.selfRef}")
         except (ConnectionError, TimeoutError, AllocationError) as e:
-            log.warn(f"Could not download file: {e}")
+            log.warning(f"Could not download file: {e}")
 
     with libdlt.Session(agent.rt, bs="5m", depots={agent.service.accessPoint: {"enabled": True}}, threads=1) as sess:
         while True:
@@ -213,7 +213,7 @@ def main():
         try:
             downloop(agent)
         except (ConnectionError, TimeoutError, UnisReferenceError) as e:
-            log.warn("Connection failure in main loop")
+            log.warning("Connection failure in main loop")
             log.debug(f"--{e}")
             tim.sleep(conf['engine']['interval'])
 
