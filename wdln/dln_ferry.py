@@ -82,7 +82,7 @@ class Agent(object):
     def set_status(self, status, clear=False):
         msg = {"status": status}
         if clear: msg["new_exnodes"] = []
-        asynchronous.make_async(self.rt.nodes._unis.put,
+        asynchronous.make_async(self.rt.services._unis.put,
                                 self.service.getSource(),
                                 self.service.id, msg)
 
@@ -177,7 +177,12 @@ def main():
                         help='Run using only local UNIS instance (on-ferry)')
     parser.add_argument('-i', '--ibp', action='store_true',
                         help='Update IBP config to reflect interface changes on system')
+    parser.add_argument('-V', '--version', action='store_true',
+                        help='Display the current program version')
     conf = conf.from_parser(parser, include_logging=True)
+    if conf['version']:
+        print(f"v{settings.MAJOR_VERSION}.{settings.MINOR_VERSION}.{settings.INC_VERSION}")
+        exit(0)
     if conf['ibp']: IBPWatcher()
 
     try: os.makedirs(conf['file']['download'])
