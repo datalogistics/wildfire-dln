@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 import bottle, socket, threading, subprocess
 import argparse, os, time, logging
 
@@ -14,6 +15,7 @@ from unis.utils import asynchronous
 from wdln.ferry.gps import GPS
 from wdln.ferry.ibp_iface import IBPWatcher
 from wdln.ferry.log import log
+from libdlt.protocol.exceptions import AllocationError
 
 DLNFerry = schemaLoader.get_class(settings.FERRY_SERVICE)
 class Agent(object):
@@ -36,7 +38,7 @@ class Agent(object):
     def connect(self, hosts):
         opts = {"cache": { "preload": ["nodes", "services"] },
                 "proxy": { "subscribe": False, "defer_update": True }}
-        log.debug(f"Connecting to UNIs instance(s): {', '.join([v['url'] for v in hosts])}")
+        log.debug(f"Connecting to UNIS instance(s): {', '.join([v['url'] for v in hosts])}")
         while not self.rt:
             try:
                 self.rt = Runtime(hosts, **opts)
@@ -79,12 +81,6 @@ class Agent(object):
             asynchronous.make_async(self.rt.nodes._unis.put,
                                     self.node.getSource(),
                                     self.node.id, res)
-    def set_status(self, status, clear=False):
-        msg = {"status": status}
-        if clear: msg["new_exnodes"] = []
-        asynchronous.make_async(self.rt.services._unis.put,
-                                self.service.getSource(),
-                                self.service.id, msg)
 
 def agentloop(agent):
     def touch():
@@ -132,13 +128,15 @@ def downloop(agent):
     def download_file(path, f, sess):
         log.info(f"Downloading: {f.name} ({f.size} bytes)")
         try:
-            result, t, dsize = sess.download(f.selfRef, path)
+            result = sess.download(f.selfRef, path)
+            result, t, dsize = result.exnode, result.time, result.t_size
             if dsize != result.size:
                 log.warning(f"Incorrect file size {result.name}: Transferred {dsize} of {result.size}")
             else:
-                log.info("{result.name} ({result.size} {result.size/1e6/t} MB/s) {result.selfRef}")
+                log.info(f"{result.name} ({result.size} {result.size/1e6/t} MB/s) {result.selfRef}")
         except (ConnectionError, TimeoutError, AllocationError) as e:
             log.warning(f"Could not download file: {e}")
+            
 
     with libdlt.Session(agent.rt, bs="5m", depots={agent.service.accessPoint: {"enabled": True}}, threads=1) as sess:
         while True:
@@ -146,15 +144,22 @@ def downloop(agent):
             for _ in range(10):
                 agent.service.reload()
                 if agent.service.status == "UPDATE":
+                    agent.rt.exnodes.load()
+                    agent.rt.extents.load()
                     dl_list = [f for f in getattr(agent.service, 'new_exnodes', [])]
                     log.info(f"Caught UPDATE status with {len(dl_list)} new exnodes")
                     for f in dl_list:
                         path = os.path.join(agent.cfg['file']['download'], f.name)
-                        if os.path.exists(path) and os.path.getsize(fpath) == f.size:
+                        log.debug(f"Attempting download of {f.id} -> {path}")
+                        if os.path.exists(path) and os.path.getsize(path) == f.size:
                             log.debug(f"File exists: {f.name}, skipping")
+                            try: agent.service.new_exnodes.remove(f)
+                            except (KeyError, AttributeError) as e: pass
                         else:
                             download_file(path, f, sess)
-                    agent.set_status("READY", clear=True)
+                    if not dl_list:
+                        agent.service.status = "READY"
+                    agent.rt.flush()
                 time.sleep(1)
 
 def main():
@@ -215,7 +220,7 @@ def main():
         except (ConnectionError, TimeoutError, UnisReferenceError) as e:
             log.warning("Connection failure in main loop")
             log.debug(f"--{e}")
-            tim.sleep(conf['engine']['interval'])
+            time.sleep(conf['engine']['interval'])
 
 if __name__ == "__main__":
     main()
