@@ -1,7 +1,3 @@
-MAJOR_VERSION=1
-MINOR_VERSION=0
-INC_VERSION=  3
-
 LOCAL_UNIS_HOST="localhost"
 LOCAL_UNIS_PORT="9000"
 
@@ -39,6 +35,7 @@ DEFAULT_FERRY_CONFIG={
     "name": None,
     "localonly": False,
     "ibp": False,
+    "servicetype": "base",
     "remote": {
         "host": "localhost",
         "port": "8888"

@@ -12,10 +12,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sys
+import sys, os
 from setuptools import setup
 
-version = "0.2"
+PACKAGE="wdln"
+
+with open(os.path.join(f"{PACKAGE}", "version.py")) as f:
+    code = compile(f.read(), f"version.py", 'exec')
+    exec(code)
 
 sys.path.append(".")
 if sys.version_info[0] < 3: 
@@ -28,9 +32,9 @@ if sys.version_info[0] < 3:
 
 setup(
     name = "dln-ferry",
-    version = version,
-    author = "Ezra Kissel",
-    author_email="ezkissel@indiana.edu",
+    version = __version__,
+    author = "Jeremy Musser",
+    author_email="jemusser@iu.edu",
     license="http://www.apache.org/licenses/LICENSE-2.0",
     packages = ["wdln", "wdln.ferry"],
     install_requires=[
@@ -52,7 +56,8 @@ setup(
     entry_points = {
         'console_scripts': [
             'dln_ferry = wdln.dln_ferry:main',
-            'dln_base = wdln.dln_base:main'
+            'dln_base = wdln.dln_base:main',
+            'dln_agent = wdln.agent:main'
         ]
     },
 )
