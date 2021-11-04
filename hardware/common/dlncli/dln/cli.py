@@ -96,7 +96,7 @@ class DLNApp(nps.NPSAppManaged):
                 f.write(environment)
                 f.write("\n")
         else:
-            with open(settings.ENVFILE, 'a') as f:
+            with open(settings.ENVFILE, 'w') as f:
                 f.write(environment)
 
         manage.write_config(self.dryrun, self.env['DLNMODE'],
@@ -104,13 +104,21 @@ class DLNApp(nps.NPSAppManaged):
                             self.env['DLN_MESHIF'],
                             self.env['DLNNAME'])
 
-def run_config(dryrun, mode, host):
+def start_config(dryrun): 
         if dryrun:
             with open(dryrun, 'a') as f:
-                f.write(f"RUN - /opt/dlt/bin/dlnconfig {mode} {host}")
+                f.write(f"RUN - /opt/dlt/bin/dlnconfig stop")
         else:
-            with subprocess.Popen(['/opt/dlt/bin/dlnconfig', mode, host]) as proc:
-                print(proc.stdout.read())
+            with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'stop']) as proc:
+                if proc.stdout: print(proc.stdout.read())
+        
+def end_config(dryrun, mode, host):
+        if dryrun:
+            with open(dryrun, 'a') as f:
+                f.write(f"RUN - /opt/dlt/bin/dlnconfig start {mode} {host}")
+        else:
+            with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'start', mode, host]) as proc:
+                if proc.stdout: print(proc.stdout.read())
 
 def main():
     parser = argparse.ArgumentParser(description="CLI for the Wildfire Data Logistics Network")
@@ -122,12 +130,16 @@ def main():
         with open(args.dryrun, 'w') as f: pass
 
     if args.operation == 'init':
+        start_config(args.dryrun)
         app = DLNApp(args.dryrun)
         app.run()
-        run_config(args.dryrun, app.env['DLNMODE'], app.env['DLNNAME'])
+        end_config(args.dryrun, app.env['DLNMODE'], app.env['DLNNAME'])
     elif args.operation == 'reset':
+        start_config(args.dryrun)
         env = DLNApp.read_env()
-        run_config(args.dryrun, env.get('DLNMODE', 'base'), env.get('DLNNAME', 'base00'))
+        end_config(args.dryrun, env.get('DLNMODE', 'base'), env.get('DLNNAME', 'base00'))
     elif args.operation == 'hardreset':
+        with open(settings.ENVFILE, 'w') as f: pass
+        start_config(args.dryrun)
         manage.write_config(args.dryrun, 'base', ['eth0'], ['wlan0'], 'base00')
-        run_config(args.dryrun, 'base', 'base00')
+        end_config(args.dryrun, 'base', 'base00')
