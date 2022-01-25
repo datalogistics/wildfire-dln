@@ -71,7 +71,7 @@ def main():
 app = app()
 def run():
     from wsgiref.simple_sesrver import make_server
-    with make_server('', 8000, app) has httpd:
+    with make_server('', 8000, app) as httpd:
         httpd.serve_forever()
 
 if __name__ == "__main__":
