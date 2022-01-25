@@ -68,7 +68,7 @@ def main():
     app.add_route("/files/{fileid}", GetFile())
     return app
 
-app = app()
+app = main()
 def run():
     from wsgiref.simple_sesrver import make_server
     with make_server('', 8000, app) as httpd:
