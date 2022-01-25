@@ -1,5 +1,5 @@
 from unis import Runtime
-from libdlt.utils.files import ExnodeInfo
+from libdlt.util.files import ExnodeInfo
 from libdlt.file import DLTFile
 import falcon, datetime
 

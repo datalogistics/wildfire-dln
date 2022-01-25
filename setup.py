@@ -47,7 +47,8 @@ setup(
         "shapely",
         "netifaces",
         "bottle",
-        "watchdog"
+        "watchdog",
+        "falcon"
     ],
     dependency_links=[
         "git+https://github.com/periscope-ps/lace.git/@master#egg=lace",
