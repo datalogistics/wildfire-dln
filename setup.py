@@ -17,6 +17,7 @@ from setuptools import setup
 
 PACKAGE="wdln"
 
+import sys, os
 with open(os.path.join(f"{PACKAGE}", "version.py")) as f:
     code = compile(f.read(), f"version.py", 'exec')
     exec(code)
@@ -57,7 +58,8 @@ setup(
         'console_scripts': [
             'dln_ferry = wdln.dln_ferry:main',
             'dln_base = wdln.dln_base:main',
-            'dln_agent = wdln.agent:main'
+            'dln_agent = wdln.agent:main',
+            'dln_loader = wdln.loader:main'
         ]
     },
 )
