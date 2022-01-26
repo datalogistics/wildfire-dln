@@ -45,7 +45,6 @@ DEFAULT_FERRY_CONFIG={
         "port": LOCAL_UNIS_PORT
     },
     "file": {
-        "download": DOWNLOAD_DIR,
         "upload": UPLOAD_DIR,
         "port": UPLOAD_PORT
     },

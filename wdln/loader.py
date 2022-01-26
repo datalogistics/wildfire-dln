@@ -1,7 +1,10 @@
 from unis import Runtime
 from libdlt.util.files import ExnodeInfo
 from libdlt.file import DLTFile
-import falcon, datetime
+from lace import logging
+
+import falcon, datetime, bottle, os
+import libdlt
 
 DB_HOST = "http://locahost:9000"
 
@@ -21,6 +24,28 @@ TEMPLATE = """
   </body>
 </html>
 """
+
+#TODO
+# Convert this entire block to a falcon server
+log = logging.getLogger("wdln.uploader")
+def configure_upload_server(agent):
+    @bottle.route('/flist')
+    def _list():
+        return repr(os.listdir(agent.cfg['file']['upload']))
+    @bottle.route('/upload', method='POST')
+    def _files():
+        with libdlt.Session(agent.rt, bs="5m", depots={agent.service.accessPoint: { "enabled": True}}, threads=1) as sess:
+            for f in bottle.request.files.keys():
+                try:
+                    dat = bottle.request.files.get(f)
+                    path = os.path.join(agent.cfg['file']['upload'], dat.filename)
+                    dat.save(path, overwrite=True)
+                    res = sess.upload(path)
+                    if not hasattr(agent.service, 'uploaded_exnodes'):
+                        agent.service.extendSchema('uploaded_exnodes', [])
+                    agent.service.uploaded_exnodes.append(res.exnode)
+                except ValueError as e:
+                    log.warning(e)
 
 class ListFiles(object):
     def _filelist(self):
