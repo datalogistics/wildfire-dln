@@ -111,7 +111,7 @@ def start_config(dryrun):
         else:
             with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'stop']) as proc:
                 if proc.stdout: print(proc.stdout.read())
-        
+
 def end_config(dryrun, mode, host):
         if dryrun:
             with open(dryrun, 'a') as f:

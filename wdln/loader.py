@@ -9,7 +9,7 @@ from unis.models import Exnode
 from wdln.config import MultiConfig
 from wdln.settings import LOADER_CONFPATH
 
-import falcon, datetime, os, time
+import falcon, datetime, os, time, socket
 import libdlt
 
 TEMPLATE = """
@@ -49,7 +49,7 @@ class ListFiles(object):
     def _dispatch_block(self, block, offset, exnode):
         if not exnode: return
         try: alloc = self._proxy.allocate(self._d, offset, len(block))
-        except: pass
+        except: alloc - None
         if not alloc: raise Exception("Failed to connect to staging block store")
 
         alloc.parent, alloc.offset = exnode, offset
@@ -231,7 +231,7 @@ class Uploader(object):
         self._proxy = factory.makeProxy(getattr(self._d, "$schema", None))
 
 
-conf = MultiConfig({"port": "8000", "uri": "http://localhost:9000", "bs": 1024 * 1024 * 20, "stage": "ferry00"},
+conf = MultiConfig({"port": "8000", "uri": "http://localhost:9000", "bs": 1024 * 1024 * 20, "stage": socket.gethostname()},
                    "File loader for WDLN remote agents",
                    filepath="/etc/dlt/loader.cfg", filevar=LOADER_CONFPATH)
 conf = conf.from_file()
