@@ -8,8 +8,9 @@ def _expandvar(x, default):
 class MultiConfig(object):
     CONFIG_FILE_VAR = "$PYTHON_CONFIG_FILENAME"
 
-    def __init__(self, defaults, desc=None, *, filevar=None):
+    def __init__(self, defaults, desc=None, *, filepath=None, filevar=None):
         self.CONFIG_FILE_VAR = filevar or self.CONFIG_FILE_VAR
+        self.defaultpath = filepath
         self.defaults, self._desc = defaults, (desc or "")
         self.loglevels = {'NOTSET': logging.NOTSET, 'ERROR': logging.ERROR,
                           'WARN': logging.WARNING, 'INFO': logging.INFO,
@@ -35,7 +36,7 @@ class MultiConfig(object):
 
     def from_file(self, general_tag="general"):
         result = copy.deepcopy(self.defaults)
-        filepath = _expandvar(self.CONFIG_FILE_VAR, "")
+        filepath = _expandvar(self.CONFIG_FILE_VAR, self.defaultpath)
         for section,body in self._from_file(filepath).items():
             if section not in result: result[section] = {}
             if section == general_tag: [result.__setitem__(k,v) for k,v in body.items()]

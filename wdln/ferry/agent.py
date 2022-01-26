@@ -1,6 +1,7 @@
 import socket, time
 
 from asyncio import TimeoutError
+from lace import logging
 from unis.exceptions import ConnectionError, UnisReferenceError
 from unis.models import Node, schemaLoader
 from unis.runtime import Runtime

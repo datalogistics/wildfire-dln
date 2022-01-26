@@ -7,7 +7,6 @@ from asyncio import TimeoutError
 from unis.exceptions import ConnectionError, UnisReferenceError
 from wdln.ferry.ibp_iface import IBPWatcher
 from wdln.ferry.agent import Agent
-from wdln.loader import configure_upload_server
 from lace import logging
 
 log = logging.getLogger("wdln.app")
@@ -37,7 +36,7 @@ def agentloop(agent):
 
 def main():
     conf = MultiConfig(settings.DEFAULT_FERRY_CONFIG, "DLN ferry agent manages files hosted on the WDLN ferry",
-                       filevar="$WDLN_FERRY_CONFIG")
+                       filevar=settings.AGENT_CONFPATH)
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-T', '--servicetype', type=str, choices=["base", "ferry"], metavar="SERVICE",
                         help="Set service type for feature selection")
@@ -49,8 +48,6 @@ def main():
                         help='Local UNIS port')
     parser.add_argument('-n', '--name', type=str,
                         help='Set ferry node name (ignore system hostname)')
-    parser.add_argument('-u', '--file.upload', type=str, metavar="UPLOAD",
-                        help='Set local upload directory')
     parser.add_argument('-l', '--localonly', action='store_true',
                         help='Run using only local UNIS instance (on-ferry)')
     parser.add_argument('-i', '--ibp', action='store_true',
@@ -64,21 +61,8 @@ def main():
         exit(0)
     if conf['ibp']: IBPWatcher()
 
-    try: os.makedirs(conf['file']['upload'])
-    except FileExistsError: pass
-    except OSError as exp: raise exp
-
     agent = Agent(conf)
-    if conf['servicetype'] == "ferry":
-        configure_upload_server(agent)
-        threading.Thread(
-            name='dlnagent.upload',
-            target=bottle.run,
-            daemon=True,
-            kwargs={'host': '0.0.0.0', 'port': conf['file']['port'], 'debug': True}
-        ).start()
-
-    agentloop()
+    agentloop(agent)
 
 if __name__ == "__main__":
     main()

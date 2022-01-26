@@ -48,7 +48,8 @@ setup(
         "netifaces",
         "bottle",
         "watchdog",
-        "falcon"
+        "falcon",
+        "gunicorn"
     ],
     dependency_links=[
         "git+https://github.com/periscope-ps/lace.git/@master#egg=lace",
@@ -60,7 +61,7 @@ setup(
             'dln_ferry = wdln.dln_ferry:main',
             'dln_base = wdln.dln_base:main',
             'dln_agent = wdln.agent:main',
-            'dln_loader = wdln.loader:main'
+            'dln_loader = wdln.loader:run'
         ]
     },
 )
