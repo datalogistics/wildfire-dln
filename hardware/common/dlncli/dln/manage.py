@@ -90,7 +90,7 @@ def _setup_intern(dryrun, iface, mode, host):
     d = {
         "if": iface,
         "m": "static" if mode == "base" else "dhcp",
-        "a": "allow_hotplug"
+        "a": "allow-hotplug"
     }
     d['b'] = ""
     if mode == "base":
