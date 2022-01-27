@@ -77,8 +77,13 @@ class DLNApp(nps.NPSAppManaged):
     def __init__(self, dryrun):
         self.dryrun = dryrun
         self.ifaces = netifaces.interfaces()
+        r_if = [v for v in self.ifaces]
         try: self.ifaces.remove('lo')
         except: pass
+        for f in r_if:
+            if f.startswith('br'):
+                try: self.ifaces.remove(f)
+                except: pass
         self.env = DLNApp.read_env()
         super().__init__()
 
@@ -135,6 +140,8 @@ def main():
         start_config(args.dryrun)
         app = DLNApp(args.dryrun)
         app.run()
+        if not dryrun:
+            subprocess.Popen(['rm ', '-rf', '/depot/unis/*'])
         end_config(args.dryrun, app.env['DLNMODE'], app.env['DLNNAME'])
     elif args.operation == 'reset':
         start_config(args.dryrun)
@@ -144,5 +151,6 @@ def main():
         with open(settings.ENVFILE, 'w') as f: pass
         start_config(args.dryrun)
         manage.write_config(args.dryrun, 'base', ['eth0'], ['wlan0'], 'base00')
-        subprocess.Popen(['rm ', '-rf', '/depot/unis/*'])
+        if no dryrun:
+            subprocess.Popen(['rm ', '-rf', '/depot/unis/*'])
         end_config(args.dryrun, 'base', 'base00')
