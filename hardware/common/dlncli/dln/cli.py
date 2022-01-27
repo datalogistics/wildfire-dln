@@ -140,7 +140,7 @@ def main():
         start_config(args.dryrun)
         app = DLNApp(args.dryrun)
         app.run()
-        end_config(args.dryrun, app.env['DLNMODE'], app.env['DLNNAME'], app.env['DLN_MESHIF'])
+        end_config(args.dryrun, app.env['DLNMODE'], app.env['DLNNAME'], app.env['DLN_MESHIF'][0])
     elif args.operation == 'reset':
         start_config(args.dryrun)
         env = DLNApp.read_env()
