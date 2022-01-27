@@ -23,20 +23,20 @@ country_code=US
 
 ssid={ssid}
 
-logger_syslog=0
-logger_syslog_level=4
+logger_syslog=1
+logger_syslog_level=2
 logger_stdout=-1
-logger_stdout_level=0
+logger_stdout_level=2
 
-hw_mode=a
+hw_mode=g
 ieee80211n=1
-require_ht=1
-ieee80211ac=1
-require_vht=1
+#require_ht=1
+#ieee80211ac=1
+#require_vht=1
 
-vht_oper_chwidth=1
+#vht_oper_chwidth=1
 channel={ch}
-vht_oper_cent_freq_seg0_idx={ch}
+#vht_oper_centr_freq_seg0_idx={ch}
 """
 
 T_WPA = """
@@ -48,7 +48,7 @@ T_WPA = """
 def _write_file(dryrun, path, text):
     if dryrun:
         with open(dryrun, 'a') as f:
-            f.write(f"FILE - {path}")
+            f.write(f"FILE - {path}\n")
             f.write(text)
             f.write("\n")
     else:
@@ -69,7 +69,7 @@ def _setup_extern(dryrun, iface):
         path.join(IFILE_PATH, "br-extern"): T_BRIDGE.format(iface=d['br']),
         path.join(IFILE_PATH, iface): T_IF.format(iface=iface, mode=d['m'], body=d['b']),
         path.join(IFILE_PATH, "eth0"): T_IF.format(iface="eth0", mode=d['m'], body=""),
-        hapd_p: T_HOSTAPD.format(iface=iface, br="bridge=br-extern", ssid="WDLN", ch=58)
+        hapd_p: T_HOSTAPD.format(iface=iface, br="bridge=br-extern", ssid="WDLN", ch=1)
     }
     for fpath, text in files.items():
         _write_file(dryrun, fpath, text)
@@ -91,7 +91,7 @@ def _setup_intern(dryrun, iface, mode, host):
 
     files = {
         path.join(IFILE_PATH, iface): T_IF.format(iface=iface, mode=d['m'], body=d['b']),
-        hapd_p: T_HOSTAPD.format(iface=iface, br="", ssid="WDLNMESH", ch=122)
+        hapd_p: T_HOSTAPD.format(iface=iface, br="", ssid="WDLNMESH", ch=11)
     }
     for fpath, text in files.items():
         _write_file(dryrun, fpath, text)
@@ -99,7 +99,4 @@ def _setup_intern(dryrun, iface, mode, host):
 def write_config(dryrun, mode, client, mesh, host):
     _setup_extern(dryrun, client[0])
     _setup_intern(dryrun, mesh[0], mode, host)
-    _write_file(dryrun, path.join(DNS_PATH, "ifaces.conf"), f"""
-    interface={mesh[0]}
-    """)
     _write_file(dryrun, "/etc/hostname", host)

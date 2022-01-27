@@ -93,7 +93,7 @@ class DLNApp(nps.NPSAppManaged):
             os.makedirs(os.path.dirname(settings.ENVFILE), exist_ok=True)
         environment = "\n".join([f"{k}={v}" for k,v in self.env.items()])
         if self.dryrun:
-            with open(self.dryrun, 'w') as f:
+            with open(self.dryrun, 'a') as f:
                 f.write("FILE - envfile\n")
                 f.write(environment)
                 f.write("\n")
@@ -144,5 +144,5 @@ def main():
         with open(settings.ENVFILE, 'w') as f: pass
         start_config(args.dryrun)
         manage.write_config(args.dryrun, 'base', ['eth0'], ['wlan0'], 'base00')
-        subproces.Popen(['rm ', '-rf', '/depot/unis/*'])
+        subprocess.Popen(['rm ', '-rf', '/depot/unis/*'])
         end_config(args.dryrun, 'base', 'base00')
