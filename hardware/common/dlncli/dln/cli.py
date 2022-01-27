@@ -1,7 +1,7 @@
 import warnings
 warnings.filterwarnings("ignore")
 import npyscreen as nps
-import netifaces, os, socket, subprocess
+import netifaces, os, socket, subprocess, glob
 import argparse, datetime
 
 from dln import manage, settings
@@ -118,6 +118,10 @@ def start_config(dryrun):
         else:
             with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'stop']) as proc:
                 if proc.stdout: print(proc.stdout.read())
+            files = glob.glob('/etc/network/interfaces.d/*')
+            for f in files:
+                try: os.remove(f)
+                except: pass
 
 def end_config(dryrun, mode, host, meshif):
         if dryrun:
