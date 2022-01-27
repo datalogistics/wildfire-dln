@@ -151,6 +151,6 @@ def main():
         with open(settings.ENVFILE, 'w') as f: pass
         start_config(args.dryrun)
         manage.write_config(args.dryrun, 'base', ['eth0'], ['wlan0'], 'base00')
-        if no dryrun:
+        if not dryrun:
             subprocess.Popen(['rm ', '-rf', '/depot/unis/*'])
         end_config(args.dryrun, 'base', 'base00')
