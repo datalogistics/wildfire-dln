@@ -1,4 +1,4 @@
-from dln.settings import HAPD_PATH, IFILE_PATH, DNS_PATH
+from dln.settings import HAPD_PATH, IFILE_PATH, DNS_PATH, DHCP_PATH
 from os import path
 
 T_BRIDGE = """
@@ -39,6 +39,15 @@ channel={ch}
 #vht_oper_centr_freq_seg0_idx={ch}
 """
 
+T_DHCPCD = """
+option rapid_commit
+option interface_mtu
+require dhcp_server_identifier
+slaac private
+
+denyinterfaces {iface}
+"""
+
 T_WPA = """
 \twpa-ssid WDLNMESH
 \tpre-up wpa_supplicant -B -Dnl80211,wext -i {iface} -c /etc/wpa_supplicant/wpa_supplicant.conf -f /var/log/wpa_supplicant.log
@@ -69,6 +78,7 @@ def _setup_extern(dryrun, iface):
         path.join(IFILE_PATH, "br-extern"): T_BRIDGE.format(iface=d['br']),
         path.join(IFILE_PATH, iface): T_IF.format(iface=iface, mode=d['m'], body=d['b']),
         path.join(IFILE_PATH, "eth0"): T_IF.format(iface="eth0", mode=d['m'], body=""),
+        DHCP_PATH: T_DHCPCD.format(iface=iface),
         hapd_p: T_HOSTAPD.format(iface=iface, br="bridge=br-extern", ssid="WDLN", ch=1)
     }
     for fpath, text in files.items():
