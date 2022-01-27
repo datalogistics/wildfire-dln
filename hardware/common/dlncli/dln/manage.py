@@ -10,7 +10,7 @@ iface br-extern inet static
 """
 
 T_IF = """
-allow-hotplug {iface}
+{ac} {iface}
 iface {iface} inet {mode}
   {body}
 """
@@ -72,12 +72,13 @@ def _setup_extern(dryrun, iface):
     d = {
         "br": "" if iface == "eth0" or iface.startswith("w") else iface,
         "m": "manual",
-        "b": f"hostapd {hapd_p}" if iface.startswith("w") else ""
+        "b": f"hostapd {hapd_p}" if iface.startswith("w") else "",
+        "a": "auto"
     }
     files = {
         path.join(IFILE_PATH, "br-extern"): T_BRIDGE.format(iface=d['br']),
-        path.join(IFILE_PATH, iface): T_IF.format(iface=iface, mode=d['m'], body=d['b']),
-        path.join(IFILE_PATH, "eth0"): T_IF.format(iface="eth0", mode=d['m'], body=""),
+        path.join(IFILE_PATH, iface): T_IF.format(ac=d['a'], iface=iface, mode=d['m'], body=d['b']),
+        path.join(IFILE_PATH, "eth0"): T_IF.format(ac=d['a'], iface="eth0", mode=d['m'], body=""),
         DHCP_PATH: T_DHCPCD.format(iface=iface),
         hapd_p: T_HOSTAPD.format(iface=iface, br="bridge=br-extern", ssid="WDLN", ch=1)
     }
@@ -89,6 +90,7 @@ def _setup_intern(dryrun, iface, mode, host):
     d = {
         "if": iface,
         "m": "static" if mode == "base" else "dhcp",
+        "a": "allow_hotplug"
     }
     d['b'] = ""
     if mode == "base":
@@ -100,7 +102,7 @@ def _setup_intern(dryrun, iface, mode, host):
             d['b'] += T_WPA.format(iface=iface)
 
     files = {
-        path.join(IFILE_PATH, iface): T_IF.format(iface=iface, mode=d['m'], body=d['b']),
+        path.join(IFILE_PATH, iface): T_IF.format(ac=d['a'], iface=iface, mode=d['m'], body=d['b']),
         hapd_p: T_HOSTAPD.format(iface=iface, br="", ssid="WDLNMESH", ch=11)
     }
     for fpath, text in files.items():
