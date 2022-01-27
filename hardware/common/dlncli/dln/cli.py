@@ -119,12 +119,12 @@ def start_config(dryrun):
             with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'stop']) as proc:
                 if proc.stdout: print(proc.stdout.read())
 
-def end_config(dryrun, mode, host):
+def end_config(dryrun, mode, host, meshif):
         if dryrun:
             with open(dryrun, 'a') as f:
                 f.write(f"RUN - /opt/dlt/bin/dlnconfig start {mode} {host}")
         else:
-            with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'start', mode, host]) as proc:
+            with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'start', mode, host, meshif]) as proc:
                 if proc.stdout: print(proc.stdout.read())
 
 def main():
@@ -140,13 +140,13 @@ def main():
         start_config(args.dryrun)
         app = DLNApp(args.dryrun)
         app.run()
-        end_config(args.dryrun, app.env['DLNMODE'], app.env['DLNNAME'])
+        end_config(args.dryrun, app.env['DLNMODE'], app.env['DLNNAME'], app.env['DLN_MESHIF'])
     elif args.operation == 'reset':
         start_config(args.dryrun)
         env = DLNApp.read_env()
-        end_config(args.dryrun, env.get('DLNMODE', 'base'), env.get('DLNNAME', 'base00'))
+        end_config(args.dryrun, env.get('DLNMODE', 'base'), env.get('DLNNAME', 'base00'), env.get('DLN_MESHIF', 'wlan0'))
     elif args.operation == 'hardreset':
         with open(settings.ENVFILE, 'w') as f: pass
         start_config(args.dryrun)
         manage.write_config(args.dryrun, 'base', ['eth0'], ['wlan0'], 'base00')
-        end_config(args.dryrun, 'base', 'base00')
+        end_config(args.dryrun, 'base', 'base00', 'wlan0')
