@@ -237,8 +237,8 @@ conf = MultiConfig({"port": "8000", "uri": "http://localhost:9000", "bs": 1024 *
 conf = conf.from_file()
 def main():
     app = falcon.App()
-    app.add_route("/files/", ListFiles(**conf))
-    app.add_route("/files/{fileid}", GetFile(conf['uri']))
+    app.add_route("/web/", ListFiles(**conf))
+    app.add_route("/web/{fileid}", GetFile(conf['uri']))
     return app
 
 app = main()
