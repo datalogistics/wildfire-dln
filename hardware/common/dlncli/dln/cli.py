@@ -140,7 +140,7 @@ def main():
         start_config(args.dryrun)
         app = DLNApp(args.dryrun)
         app.run()
-        if not dryrun:
+        if not args.dryrun:
             subprocess.Popen(['rm ', '-rf', '/depot/unis/*'])
         end_config(args.dryrun, app.env['DLNMODE'], app.env['DLNNAME'])
     elif args.operation == 'reset':
@@ -151,6 +151,6 @@ def main():
         with open(settings.ENVFILE, 'w') as f: pass
         start_config(args.dryrun)
         manage.write_config(args.dryrun, 'base', ['eth0'], ['wlan0'], 'base00')
-        if not dryrun:
+        if not args.dryrun:
             subprocess.Popen(['rm ', '-rf', '/depot/unis/*'])
         end_config(args.dryrun, 'base', 'base00')
