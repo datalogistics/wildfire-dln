@@ -10,7 +10,7 @@ iface br-extern inet static
 """
 
 T_IF = """
-auto {iface}
+allow-hotplug {iface}
 iface {iface} inet {mode}
   {body}
 """
