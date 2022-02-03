@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <!-- description -->
+    <string name="app_desc">"WildfireDLN Plugin enables delay tolerant connectivity via pi ferry nodes"</string>
+    <string name="app_name">"WildfireDLN"</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="preference_file_key">WDLN_PREFERENCES.txt</string>
+    <string name="shared_data_folder">WDLN_DATA_FOLDER</string>
+
+
+</resources>
