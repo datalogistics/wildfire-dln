@@ -61,7 +61,8 @@ setup(
             'dln_ferry = wdln.dln_ferry:main',
             'dln_base = wdln.dln_base:main',
             'dln_agent = wdln.agent:main',
-            'dln_loader = wdln.loader:run'
+            'dln_loader = wdln.loader:run',
+            'dln_prune = wdln.prune:main'
         ]
     },
 )

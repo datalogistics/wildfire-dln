@@ -44,6 +44,8 @@ option rapid_commit
 option interface_mtu
 require dhcp_server_identifier
 slaac private
+hostname {host}
+hostname_short
 
 denyinterfaces {iface}
 """
@@ -67,7 +69,7 @@ def _write_file(dryrun, path, text):
         except OSError as e:
             print(f"File error - {e}")
 
-def _setup_extern(dryrun, iface):
+def _setup_extern(dryrun, iface, host):
     hapd_p = path.join(HAPD_PATH, f"{iface}.conf")
     d = {
         "br": "" if iface == "eth0" or iface.startswith("w") else iface,
@@ -78,8 +80,8 @@ def _setup_extern(dryrun, iface):
     files = {
         path.join(IFILE_PATH, "br-extern"): T_BRIDGE.format(iface=d['br']),
         path.join(IFILE_PATH, iface): T_IF.format(ac=d['a'], iface=iface, mode=d['m'], body=d['b']),
-        path.join(IFILE_PATH, "eth0"): T_IF.format(ac=d['a'], iface="eth0", mode=d['m'], body=""),
-        DHCP_PATH: T_DHCPCD.format(iface=iface),
+        path.join(IFILE_PATH, "eth0"): T_IF.format(ac="allow-hotplug", iface="eth0", mode=d['m'], body=""),
+        DHCP_PATH: T_DHCPCD.format(iface=iface, host=host),
         hapd_p: T_HOSTAPD.format(iface=iface, br="bridge=br-extern", ssid="WDLN", ch=1)
     }
     for fpath, text in files.items():
@@ -109,6 +111,6 @@ def _setup_intern(dryrun, iface, mode, host):
         _write_file(dryrun, fpath, text)
 
 def write_config(dryrun, mode, client, mesh, host):
-    _setup_extern(dryrun, client[0])
+    _setup_extern(dryrun, client[0], host)
     _setup_intern(dryrun, mesh[0], mode, host)
     _write_file(dryrun, "/etc/hostname", host)
