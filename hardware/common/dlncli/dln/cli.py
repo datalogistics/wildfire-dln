@@ -134,7 +134,7 @@ def end_config(dryrun, mode, host, meshif):
 def main():
     parser = argparse.ArgumentParser(description="CLI for the Wildfire Data Logistics Network")
     parser.add_argument('--dryrun', type=str, help="Print generated configuration only")
-    parser.add_argument('operation', type=str, choices=["init", "reset", "hardreset"], help="Operation to perform on ferry [init, reset, hardreset]")
+    parser.add_argument('operation', type=str, choices=["init", "reset", "hardreset", "service"], help="Operation to perform on ferry [init, reset, hardreset]")
     args = parser.parse_args()
 
     if args.dryrun:
@@ -154,6 +154,6 @@ def main():
         start_config(args.dryrun)
         manage.write_config(args.dryrun, 'base', ['eth0'], ['wlan0'], 'base00')
         end_config(args.dryrun, 'base', 'base00', 'wlan0')
-    elif args.operations == 'service':
+    elif args.operation == 'service':
         start_config(args.dryrun)
         manage.service_mode(args.dryrun)
