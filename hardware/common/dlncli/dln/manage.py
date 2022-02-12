@@ -57,12 +57,6 @@ hostname_short
 denyinterfaces {iface}
 """
 
-T_WPA = """
-\twpa-ssid WDLNMESH
-\tpre-up wpa_supplicant -B -Dnl80211,wext -i {iface} -c /etc/wpa_supplicant/wpa_supplicant.conf -f /var/log/wpa_supplicant.log
-\tpost-down wpa_cli -i {iface} terminate
-"""
-
 def _write_file(dryrun, path, text):
     if dryrun:
         with open(dryrun, 'a') as f:
@@ -107,8 +101,6 @@ def _setup_intern(dryrun, iface, mode, host):
         if iface.startswith("w"): d['b'] += f"\n\thostapd {hapd_p}"
     else:
         d['b'] = f"\thostname {host}"
-        if iface.startswith("w"):
-            d['b'] += T_WPA.format(iface=iface)
 
     files = {
         path.join(IFILE_PATH, iface): T_IF.format(ac=d['a'], iface=iface, mode=d['m'], body=d['b']),
