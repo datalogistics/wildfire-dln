@@ -154,3 +154,6 @@ def main():
         start_config(args.dryrun)
         manage.write_config(args.dryrun, 'base', ['eth0'], ['wlan0'], 'base00')
         end_config(args.dryrun, 'base', 'base00', 'wlan0')
+    elif args.operations == 'service':
+        start_config(args.dryrun)
+        manage.service_mode(args.dryrun)

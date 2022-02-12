@@ -1,6 +1,13 @@
 from dln.settings import HAPD_PATH, IFILE_PATH, DNS_PATH, DHCP_PATH
 from os import path
 
+T_SERVICE = """
+auto br-extern
+iface br-extern inet dhcp
+  bridge_ports eth0
+  hostname service00
+"""
+
 T_BRIDGE = """
 auto br-extern
 iface br-extern inet static
@@ -109,6 +116,10 @@ def _setup_intern(dryrun, iface, mode, host):
     }
     for fpath, text in files.items():
         _write_file(dryrun, fpath, text)
+
+def service_mode(dryrun):
+    _write_file(dryrun, path.join(IFILE_PATH, "br-extern"), T_SERVICE)
+    _write_file(dryrun, "/etc/hostname", "service00")
 
 def write_config(dryrun, mode, client, mesh, host):
     _setup_extern(dryrun, client[0], host)
