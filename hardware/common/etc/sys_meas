@@ -1,0 +1,20 @@
+#!/bin/bash
+SYS_FILES="usr nice sys iowait steal idle"
+SYS_FILES=($SYS_FILES)
+read -r -a STAT_FILES <<< "rxok rxerr rxdrp rxovr txok txerr txdrp txovr"
+
+SYS_MEAS=$(iostat -c | awk "NR==4 {print}")
+STAT_MEAS=$(netstat -i | awk "NR>2 {print}")
+
+SYS_MEAS=($SYS_MEAS)
+STAT_MEAS=($STAT_MEAS)
+
+for i in "${!SYS_MEAS[@]}"; do
+    echo "$(date +%s%3N) ${SYS_MEAS[i]}" >> $1/${SYS_FILES[i]}
+done
+
+for ((i=0; i<${#STAT_MEAS[@]}; i=i+11)); do
+    for ((j=0; j<${#STAT_FILES[@]}; j++)); do
+	echo "$(date +%s%3N) ${STAT_MEAS[i+j+2]}" >> $1/${STAT_MEAS[i]}_${STAT_FILES[j]}
+    done
+done

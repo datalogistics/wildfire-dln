@@ -1,0 +1,9 @@
+#!/bin/bash
+read -r -a STAT_FILES <<< "rxok rxerr rxdrp rxovr txok txerr txdrp txovr"
+
+NET_MEAS=$(iw dev $2 link | awk '/Connected/{print $3} /SSID/{print $2} /signal/{print $2}')
+NET_MEAS=($NET_MEAS)
+
+echo $(date +%s%3N) ${NET1_MEAS[0]} >> $1/"$2_bssid"
+echo $(date +%s%3N) ${NET1_MEAS[1]} >> $1/"$2_ssid"
+echo $(date +%s%3N) ${NET1_MEAS[2]} >> $1/"$2_signal"

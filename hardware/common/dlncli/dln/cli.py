@@ -18,7 +18,9 @@ class NameForm(nps.Form):
         self.f_minute = self.add(nps.TitleText, name="Minute:", value=str(tm.minute))
         self.f_second = self.add(nps.TitleText, name="Second:", value=str(tm.second))
         self.f_mode = self.add(nps.TitleSelectOne, name="Operation Mode",
-                               values=["Base", "Ferry"], scroll_exit=True, value=0)
+                               values=["Base", "Ferry"], scroll_exit=True, value=[0], max_height=5)
+        self.f_measure = self.add(nps.TitleSelectOne, name="Measurements",
+                                  values=["Enable"], scroll_exit=True, max_height=2)
 
     def beforeEditing(self):
         self.f_mode.value = self.parentApp.mode
@@ -27,6 +29,7 @@ class NameForm(nps.Form):
         self.parentApp.env["DLNNAME"] = self.f_host.value
         self.parentApp.env["DLNMODE"] = ["base", "ferry"][self.f_mode.value[0]]
         self.parentApp.env["CURTIME"] = str(self.f_date.value)
+        self.parentApp.env["MEASURE"] = bool(self.f_measure.value)
         self.parentApp.setNextForm("EXTERN")
 
 class ExternalForm(nps.ActionForm):
@@ -112,24 +115,25 @@ class DLNApp(nps.NPSAppManaged):
                             self.env['DLNNAME'])
 
 def start_config(dryrun): 
-        if dryrun:
-            with open(dryrun, 'a') as f:
-                f.write(f"RUN - /opt/dlt/bin/dlnconfig stop")
-        else:
-            with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'stop']) as proc:
-                if proc.stdout: print(proc.stdout.read())
-            files = glob.glob('/etc/network/interfaces.d/*')
-            for f in files:
-                try: os.remove(f)
-                except: pass
+    if dryrun:
+        with open(dryrun, 'a') as f:
+            f.write(f"RUN - /opt/dlt/bin/dlnconfig stop")
+    else:
+        with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'stop']) as proc:
+            if proc.stdout: print(proc.stdout.read())
+        files = glob.glob('/etc/network/interfaces.d/*')
+        for f in files:
+            try: os.remove(f)
+            except: pass
 
-def end_config(dryrun, mode, host, meshif):
-        if dryrun:
-            with open(dryrun, 'a') as f:
-                f.write(f"RUN - /opt/dlt/bin/dlnconfig start {mode} {host}")
-        else:
-            with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'start', mode, host, meshif]) as proc:
-                if proc.stdout: print(proc.stdout.read())
+def end_config(dryrun, mode, host, meshif, clientif):
+    clientif = clientif or ''
+    if dryrun:
+        with open(dryrun, 'a') as f:
+            f.write(f"RUN - /opt/dlt/bin/dlnconfig start {mode} {host} {meshif} {clientif}")
+    else:
+        with subprocess.Popen(['/opt/dlt/bin/dlnconfig', 'start', mode, host, meshif, clientif]) as proc:
+            if proc.stdout: print(proc.stdout.read())
 
 def main():
     parser = argparse.ArgumentParser(description="CLI for the Wildfire Data Logistics Network")
@@ -144,16 +148,18 @@ def main():
         start_config(args.dryrun)
         app = DLNApp(args.dryrun)
         app.run()
-        end_config(args.dryrun, app.env['DLNMODE'], app.env['DLNNAME'], app.env['DLN_MESHIF'][0])
+        clientif = app.env['DLN_CLIENTIF'][0] if app.env['MEASURE'] else False
+        end_config(args.dryrun, app.env['DLNMODE'], app.env['DLNNAME'], app.env['DLN_MESHIF'][0], clientif)
     elif args.operation == 'reset':
         start_config(args.dryrun)
         env = DLNApp.read_env()
-        end_config(args.dryrun, env.get('DLNMODE', 'base'), env.get('DLNNAME', 'base00'), env.get('DLN_MESHIF', 'wlan0'))
+        clientif = env.get('DLN_CLIENTIF', 'eth0') if env.get('MEASURE', None) else False
+        end_config(args.dryrun, env.get('DLNMODE', 'base'), env.get('DLNNAME', 'base00'), env.get('DLN_MESHIF', 'wlan0'), env.get('MEASURE', False), clientif)
     elif args.operation == 'hardreset':
         with open(settings.ENVFILE, 'w') as f: pass
         start_config(args.dryrun)
         manage.write_config(args.dryrun, 'base', ['eth0'], ['wlan0'], 'base00')
-        end_config(args.dryrun, 'base', 'base00', 'wlan0')
+        end_config(args.dryrun, 'base', 'base00', 'wlan0', 'eth0')
     elif args.operation == 'service':
         start_config(args.dryrun)
         manage.service_mode(args.dryrun)

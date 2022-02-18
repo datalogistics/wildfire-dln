@@ -1,0 +1,6 @@
+[Unit]
+Description=Monitor dln network hardware
+
+[Service]
+Type=oneshot
+ExecStart=/opt/dlt/bin/net_meas /var/log/dlt/measurements %i
