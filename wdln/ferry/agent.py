@@ -19,23 +19,19 @@ class Agent(object):
         self.cfg = cfg
         self.name = cfg['name'] or socket.gethostname()
         self.gps = GPS()
-        hosts = [{"url": self.local}]
         if cfg["localonly"]:
-            hosts[0]["default"] = True
-            self.auth = hosts[0]['url']
+            self.auth = host = self.local
         else:
-            hosts.append({"url": f"http://{cfg['remote']['host']}:{cfg['remote']['port']}",
-                          "default": True})
-            self.auth = hosts[1]['url']
-        self.connect(hosts)
+            self.auth = host = f"http://{cfg['remote']['host']}:{cfg['remote']['port']}"
+        self.connect(host)
 
-    def connect(self, hosts):
+    def connect(self, host):
         opts = {"cache": { "preload": ["nodes", "services"] },
                 "proxy": { "subscribe": False, "defer_update": True }}
-        log.debug(f"Connecting to UNIS instance(s): {', '.join([v['url'] for v in hosts])}")
+        log.debug(f"Connecting to UNIS instance: {host}")
         while not self.rt:
             try:
-                self.rt = Runtime(hosts, **opts)
+                self.rt = Runtime(host, **opts)
             except (ConnectionError, TimeoutError, UnisReferenceError) as e:
                 log.warning(f"Could not contact UNIS servers {', '.join([v['url'] for v in hosts])}, retrying...")
                 log.debug(f"-- {e}")
