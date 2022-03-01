@@ -20,7 +20,7 @@ def remove_expiring(services, rt, period):
         for e in ex.extents:
             if e.id not in allocs and services[getattr(e, 'location', '')]:
                 proxy = factory.makeProxy(e)
-                try: d = proxy.probe(ex, timeout=0.05)['duration']
+                try: d = proxy.probe(e, timeout=0.05)['duration']
                 except socket.timeout as e:
                     d = None
                 if d: allocs[e.id] = int(d) + time.time()
