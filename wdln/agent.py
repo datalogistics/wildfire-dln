@@ -17,7 +17,7 @@ def agentloop(agent):
         while err < agent.cfg['engine']['maxfail']:
             time.sleep(agent.cfg['engine']['interval'])
             try:
-                agent.set_pos()
+                if not agent.set_pos(): raise TimeoutError()
                 agent.service.touch()
                 log.info(f"[{agent.cfg['servicetype']}] Checking in...")
             except (ConnectionError, TimeoutError, UnisReferenceError) as e:

@@ -68,6 +68,8 @@ class Agent(object):
         lat, lon = self.gps.query()
         if lat and lon:
             res = {'id': self.node.id, 'location': {'latitude': lat, 'longitude': lon}}
-            asynchronous.make_async(self.rt.nodes._unis.put,
-                                    self.node.getSource(),
-                                    self.node.id, res)
+            return asynchronous.make_async(self.rt.nodes._unis.put,
+                                           self.node.getSource(),
+                                           self.node.id, res)
+        return True
+

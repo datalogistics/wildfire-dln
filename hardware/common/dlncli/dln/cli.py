@@ -18,7 +18,7 @@ class NameForm(nps.Form):
         self.f_minute = self.add(nps.TitleText, name="Minute:", value=str(tm.minute))
         self.f_second = self.add(nps.TitleText, name="Second:", value=str(tm.second))
         self.f_mode = self.add(nps.TitleSelectOne, name="Operation Mode",
-                               values=["Base", "Ferry"], scroll_exit=True, value=[0], max_height=5)
+                               values=["Base", "Ferry"], scroll_exit=True, max_height=5)
         self.f_measure = self.add(nps.TitleSelectOne, name="Measurements",
                                   values=["Enable"], scroll_exit=True, max_height=2)
 
@@ -27,7 +27,10 @@ class NameForm(nps.Form):
 
     def afterEditing(self):
         self.parentApp.env["DLNNAME"] = self.f_host.value
-        self.parentApp.env["DLNMODE"] = ["base", "ferry"][self.f_mode.value[0]]
+        try:
+            self.parentApp.env["DLNMODE"] = ["base", "ferry"][self.f_mode.value[0]]
+        except IndexError:
+            self.parentApp.env["DLNMODE"] = "base"
         self.parentApp.env["CURTIME"] = str(self.f_date.value)
         self.parentApp.env["MEASURE"] = bool(self.f_measure.value)
         self.parentApp.setNextForm("EXTERN")
