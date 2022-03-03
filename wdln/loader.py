@@ -76,7 +76,7 @@ class GetFile(object):
     def __init__(self, uri):
         self._uri = uri
 
-    def on_get(self, req, resp, rid):
+    def on_get(self, req, resp, fileid):
         e = Runtime(self._uri, proxy={"subscribe": False}).exnodes.first_where({"id":fileid})
         if not e: raise falcon.HTTPBadRequest(description="Unknown exnode id")
 
