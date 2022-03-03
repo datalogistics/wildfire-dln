@@ -1,0 +1,16 @@
+[Unit]
+Description=DLN %i agent service
+After=unis.service
+Requires=unis.service
+
+[Service]
+Environment=PERISCOPE_ROOT=/etc/dlt/unis
+Environment=IDMS_CACHE_DIR=/etc/dlt/unis
+ExecStart=/usr/local/bin/dln_agent -T %i -H 10.0.0.1 -P 9000 --logfile /etc/dlt/logging/wdln.cfg
+User=dln
+Group=dlt
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

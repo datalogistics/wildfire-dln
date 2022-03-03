@@ -1,0 +1,13 @@
+[Unit]
+Description=dnsmasq server for managing the external facing network
+After=network.target
+Requires=network.target
+
+[Service]
+ExecStart=/usr/sbin/dnsmasq --conf-file=/dev/null --port=0 --no-hosts --keep-in-foreground --bind-interfaces --strict-order --interface=br-extern --clear-on-reload --dhcp-range=10.1.0.2,10.1.255.250,12h --dhcp-lease-max=50 --dhcp-leasefile=/var/lib/dlt/dnsmasq/external.leases --pid-file=/run/dnsmasq-extern.pid --conf-dir=/etc/dlt/dnsmasq.d
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=IBP object store server
+After=network.target
+Requires=network.target
+
+[Service]
+ExecStart=ibp_server /etc/dlt/ibp.cfg
+User=ibp
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

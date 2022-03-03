@@ -1,0 +1,20 @@
+[Unit]
+Description=Intelligent data management service
+After=unis.service
+Requires=unis.service
+Wants=dlnagent@base.service
+
+[Service]
+Type=notify
+WatchdogSec=10
+Environment=PERISCOPE_ROOT=/etc/dlt/unis
+Environment=IDMS_CACHE_DIR=/etc/dlt/unis
+Environment=PYTHONUNBUFFERED=true
+ExecStart=/usr/local/bin/idms --sdnotify -u http://10.0.0.1:9000 -H 10.1.0.1 --logfile /etc/dlt/logging/idms.cfg
+User=dln
+Group=dlt
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

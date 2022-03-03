@@ -1,0 +1,14 @@
+[Unit]
+Description=DLN file management service
+After=unis.service
+Requires=unis.service
+
+[Service]
+Environment=PYTHONUNBUFFERED=true
+ExecStart=/usr/local/bin/gunicorn --access-logfile /var/log/dlt/loader_access.log --workers 9 --bind 0.0.0.0:80 "wdln.loader:main()"
+StandardOutput=file:/var/log/dlt/loader.log
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

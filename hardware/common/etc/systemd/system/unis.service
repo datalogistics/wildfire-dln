@@ -1,0 +1,17 @@
+[Unit]
+Description=UNIS metadata and measurement store service
+After=network.target
+Requires=network.target
+
+[Service]
+Type=notify
+WatchdogSec=10
+Environment=PERISCOPE_ROOT=/etc/dlt/unis
+ExecStart=/usr/local/bin/periscoped --sdnotify -c /etc/dlt/unis/unis.cfg --logfile /etc/dlt/logging/unis.cfg
+User=dln
+Group=dlt
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Monitoring suite for wdln hardware
+Requires=dln-netmon@%i.service
+
+[Timer]
+Unit=dln-netmon@%i.service
+OnActiveSec=0
+OnUnitActiveSec=2
+AccuracySec=1us
+
+[Install]
+WantedBy=default.target

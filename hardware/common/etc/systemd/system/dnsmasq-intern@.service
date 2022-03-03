@@ -1,0 +1,13 @@
+[Unit]
+Description=dnsmasq server for managing the internal facing network
+After=network.target
+Requires=network.target
+
+[Service]
+ExecStart=/usr/sbin/dnsmasq --conf-file=/dev/null --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --interface=%i --strict-order --clear-on-reload --dhcp-range=10.0.0.2,10.0.255.250,12h --dhcp-lease-max=50 --addn-hosts=/etc/dlt/hosts --dhcp-option=6,10.0.0.1 --dhcp-leasefile=/var/lib/dlt/dnsmasq/internal.leases --pid-file=/run/dnsmasq-intern.pid --conf-dir=/etc/dlt/dnsmasq.d
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
