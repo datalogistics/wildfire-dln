@@ -5,7 +5,7 @@ Requires=network.target
 
 [Service]
 Type=notify
-WatchdogSec=10
+WatchdogSec=20
 Environment=PERISCOPE_ROOT=/etc/dlt/unis
 ExecStart=/usr/local/bin/periscoped --sdnotify -c /etc/dlt/unis/unis.cfg --logfile /etc/dlt/logging/unis.cfg
 User=dln
