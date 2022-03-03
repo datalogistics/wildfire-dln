@@ -5,7 +5,7 @@ from unis import Runtime
 from unis.models import Exnode
 from wdln.config import MultiConfig
 from wdln.settings import LOADER_CONFPATH
-import falcon, datetime, time, socket
+import falcon, datetime, time, socket, mimetypes
 
 #TODO Logging
 
@@ -80,11 +80,11 @@ class GetFile(object):
         e = Runtime(self._uri, proxy={"subscribe": False}).exnodes.first_where({"id":fileid})
         if not e: raise falcon.HTTPBadRequest(description="Unknown exnode id")
 
-        resp.downloadable_as = ex.name
-        resp.content_length = ex.size
-        resp.content_type = mimetypes.guess_type(ex.name)[0]
+        resp.downloadable_as = e.name
+        resp.content_length = e.size
+        resp.content_type = mimetypes.guess_type(e.name)[0]
 
-        with DLTFile(ex, "r") as stream:
+        with DLTFile(e, "r") as stream:
             resp.stream = stream
 
 conf = MultiConfig({"port": "8000", "uri": "http://localhost:9000", "bs": 1024 * 1024 * 20, "stage": socket.gethostname()},
