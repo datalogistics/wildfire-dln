@@ -100,22 +100,25 @@ class DLNApp(nps.NPSAppManaged):
         self.registerForm("INTERN", InternalForm())
 
     def onCleanExit(self):
-        if not self.dryrun:
-            os.makedirs(os.path.dirname(settings.ENVFILE), exist_ok=True)
-        environment = "\n".join([f"{k}={v}" for k,v in self.env.items()])
-        if self.dryrun:
-            with open(self.dryrun, 'a') as f:
-                f.write("FILE - envfile\n")
-                f.write(environment)
-                f.write("\n")
-        else:
-            with open(settings.ENVFILE, 'w') as f:
-                f.write(environment)
+        finalize_settings(self.dryrun, self.env)
 
-        manage.write_config(self.dryrun, self.env['DLNMODE'],
-                            self.env['DLN_CLIENTIF'],
-                            self.env['DLN_MESHIF'],
-                            self.env['DLNNAME'])
+def finalize_settings(dryrun, env):
+    if not dryrun:
+        os.makedirs(os.path.dirname(settings.ENVFILE), exist_ok=True)
+    environment = "\n".join([f"{k}={v}" for k,v in env.items()])
+    if dryrun:
+        with open(dryrun, 'a') as f:
+            f.write("FILE - envfile\n")
+            f.write(environment)
+            f.write("\n")
+    else:
+        with open(settings.ENVFILE, 'w') as f:
+            f.write(environment)
+
+    manage.write_config(dryrun, env['DLNMODE'],
+                        env['DLN_CLIENTIF'],
+                        env['DLN_MESHIF'],
+                        env['DLNNAME'])
 
 def start_config(dryrun): 
     if dryrun:
@@ -161,7 +164,7 @@ def main():
     elif args.operation == 'hardreset':
         with open(settings.ENVFILE, 'w') as f: pass
         start_config(args.dryrun)
-        manage.write_config(args.dryrun, 'base', ['eth0'], ['wlan0'], 'base00')
+        finalize_settings(args.dryrun, {"DLNMODE": "base", "DLN_CLIENTIF": ["eth0"], "DLN_MESHIF": ["wlan0"], "DLNNAME": "base00"})
         end_config(args.dryrun, 'base', 'base00', 'wlan0', 'eth0')
     elif args.operation == 'service':
         start_config(args.dryrun)
