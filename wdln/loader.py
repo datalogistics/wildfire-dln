@@ -59,6 +59,7 @@ class ListFiles(object):
                 for a in ex.extents:
                     rt.insert(a, commit=True)
                 rt.flush()
+        resp.cache_control = ['no-cache', 'no-store']
         resp.status = falcon.HTTP_201
         resp.text = {"fid": ex.id, "status": "GOOD", "size": ex.size}
 
