@@ -16,15 +16,14 @@ TEMPLATE = """
 
 log = logging.getLogger('wdln.loader')
 class ListFiles(object):
-    def __init__(self, uri, stage, bs, **kwargs):
-        self._uri = uri
+    def __init__(self, rt, uri, stage, bs, **kwargs):
+        self._rt = rt
         self._bs = int(bs)
         self._stage = stage
 
     def _filelist(self):
-        rt = Runtime(self._uri, proxy={"subscribe": False})
         files = []
-        for ex in rt.exnodes:
+        for ex in self._rt.exnodes:
             info = ExnodeInfo(ex, remote_validate=False)
             if info.is_complete():
                 ts = ex.modified / 1000000
@@ -37,7 +36,6 @@ class ListFiles(object):
         return files
 
     def on_post(self, req, resp):
-        rt = Runtime(self._uri, proxy={"subscribe": False})
         form = req.get_media()
         for part in form:
             if part.filename:
@@ -55,10 +53,10 @@ class ListFiles(object):
                 except AllocationError as exp:
                     resp.status = falcon.HTTP_500
                     resp.text = {"errorcode": 1, "msg": esp.msg}
-                rt.insert(ex, commit=True)
+                self._rt.insert(ex, commit=True)
                 for a in ex.extents:
-                    rt.insert(a, commit=True)
-                rt.flush()
+                    self._rt.insert(a, commit=True)
+                self._rt.flush()
         resp.cache_control = ['no-cache', 'no-store']
         resp.status = falcon.HTTP_201
         resp.text = {"fid": ex.id, "status": "GOOD", "size": ex.size}
@@ -74,11 +72,11 @@ class ListFiles(object):
         resp.text = TEMPLATE.format(body=body)
 
 class GetFile(object):
-    def __init__(self, uri):
-        self._uri = uri
+    def __init__(self, rt):
+        self._rt = rt
 
     def on_get(self, req, resp, fileid):
-        e = Runtime(self._uri, proxy={"subscribe": False}).exnodes.first_where({"id":fileid})
+        e = self._rt.exnodes.first_where({"id":fileid})
         if not e: raise falcon.HTTPBadRequest(description="Unknown exnode id")
 
         resp.downloadable_as = e.name
@@ -93,9 +91,10 @@ conf = MultiConfig({"port": "8000", "uri": "http://localhost:9000", "bs": 1024 *
                    filepath="/etc/dlt/loader.cfg", filevar=LOADER_CONFPATH)
 conf = conf.from_file()
 def main():
+    rt = Runtime(conf['uri'])
     app = falcon.App()
-    app.add_route("/web/", ListFiles(**conf))
-    app.add_route("/web/{fileid}", GetFile(conf['uri']))
+    app.add_route("/web/", ListFiles(rt, **conf))
+    app.add_route("/web/{fileid}", GetFile(rt))
     return app
 
 app = main()
